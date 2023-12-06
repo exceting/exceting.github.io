@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、前言开始之前，你需要准备的环境： Linux系统机器或者虚拟机一台，里面需要安装的软件：git、jdk、perl。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java性能火焰图的生成">
+<meta property="og:url" content="http://example.com/2019/03/22/java%E6%80%A7%E8%83%BD%E7%81%AB%E7%84%B0%E5%9B%BE%E7%9A%84%E7%94%9F%E6%88%90/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="一、前言开始之前，你需要准备的环境： Linux系统机器或者虚拟机一台，里面需要安装的软件：git、jdk、perl。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/03/22/20190322-1-1.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/03/22/20190322-1-2.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/03/22/20190322-1-3.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/03/22/20190322-1-4.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/03/22/20190322-1-5.png?imageView2/0/w/1024">
+<meta property="article:published_time" content="2019-03-22T07:21:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T08:02:00.584Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="服务治理">
+<meta property="article:tag" content="服务性能火焰图">
+<meta property="article:tag" content="async-profiler">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2019/03/22/20190322-1-1.png?imageView2/0/w/1024">
+
+
+<link rel="canonical" href="http://example.com/2019/03/22/java%E6%80%A7%E8%83%BD%E7%81%AB%E7%84%B0%E5%9B%BE%E7%9A%84%E7%94%9F%E6%88%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2019/03/22/java%E6%80%A7%E8%83%BD%E7%81%AB%E7%84%B0%E5%9B%BE%E7%9A%84%E7%94%9F%E6%88%90/","path":"2019/03/22/java性能火焰图的生成/","title":"java性能火焰图的生成"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>java性能火焰图的生成 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">二、简单介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8-%E5%AE%89%E8%A3%85"><span class="nav-number">3.</span> <span class="nav-text">三、使用&amp;安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">3.1.</span> <span class="nav-text">3.1：环境搭建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2%EF%BC%9Aclone%E7%9B%B8%E5%85%B3%E9%A1%B9%E7%9B%AE"><span class="nav-number">3.2.</span> <span class="nav-text">3.2：clone相关项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3%EF%BC%9A%E7%BC%96%E8%AF%91"><span class="nav-number">3.3.</span> <span class="nav-text">3.3：编译</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4%EF%BC%9A%E7%BC%96%E5%86%99%E6%B5%8B%E8%AF%95%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.4.</span> <span class="nav-text">3.4：编写测试程序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-5%EF%BC%9A%E7%94%9F%E6%88%90%E7%81%AB%E7%84%B0%E5%9B%BE%E6%95%B0%E6%8D%AE"><span class="nav-number">3.5.</span> <span class="nav-text">3.5：生成火焰图数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-6%EF%BC%9A%E7%94%9F%E6%88%90svg%E6%96%87%E4%BB%B6"><span class="nav-number">3.6.</span> <span class="nav-text">3.6：生成svg文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-7%EF%BC%9A%E5%B1%95%E7%A4%BA"><span class="nav-number">3.7.</span> <span class="nav-text">3.7：展示</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%AD%E6%9B%B4"><span class="nav-number">4.</span> <span class="nav-text">续更</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/03/22/java%E6%80%A7%E8%83%BD%E7%81%AB%E7%84%B0%E5%9B%BE%E7%9A%84%E7%94%9F%E6%88%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="java性能火焰图的生成 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java性能火焰图的生成
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-03-22 15:21:00" itemprop="dateCreated datePublished" datetime="2019-03-22T15:21:00+08:00">2019-03-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">服务治理</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><p>开始之前，你需要准备的环境：</p>
+<p>Linux系统机器或者虚拟机一台，里面需要安装的软件：<code>git</code>、<code>jdk</code>、<code>perl</code>。</p>
+<span id="more"></span>
+
+<h3 id="二、简单介绍"><a href="#二、简单介绍" class="headerlink" title="二、简单介绍"></a>二、简单介绍</h3><p>java性能分析火焰图的所做的事情就是能够分析出java程序运行期间存在的性能问题，因为某段代码拖慢整个程序执行是不允许的，因此靠火焰图的绘制和分析就可以找出类似的“问题代码段”。</p>
+<p>那么这个图是怎么来的呢？首先跟大多数监控系统一样，数据采集+前端绘图，这个图也是根据某些数据绘制而成的，绘图工具本篇文章采用<a target="_blank" rel="noopener" href="https://github.com/brendangregg/FlameGraph">FlameGraph</a>，而负责收集这些数据的工具，本篇采用<a target="_blank" rel="noopener" href="https://github.com/jvm-profiling-tools/async-profiler">async-profiler</a>，这个工具会在程序运行期间向<code>jvm</code>发送信号采集其运行期数据（简单来说就是通过该工具可以找出程序中占用CPU资源时间最长的代码块，这里<code>async-profiler</code>的实现使用了<code>jvmti</code>，<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e59c4eed44a2">戳这里</a>简单了解一下），然后生成相应的数据格式文件，而<a target="_blank" rel="noopener" href="https://github.com/brendangregg/FlameGraph">FlameGraph</a>则负责读取和解析数据文件生成对应的火焰图（<code>svg</code>文件）。</p>
+<h3 id="三、使用-安装"><a href="#三、使用-安装" class="headerlink" title="三、使用&amp;安装"></a>三、使用&amp;安装</h3><h4 id="3-1：环境搭建"><a href="#3-1：环境搭建" class="headerlink" title="3.1：环境搭建"></a>3.1：环境搭建</h4><p>确认你的机器已经安装了<strong>git、jdk、perl、c++编译器</strong>，部分可参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/hama1993/p/10578831.html">安装杂记</a></p>
+<h4 id="3-2：clone相关项目"><a href="#3-2：clone相关项目" class="headerlink" title="3.2：clone相关项目"></a>3.2：clone相关项目</h4><p>下载下来所需要的两个项目（这里建议放到data目录下）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/jvm-profiling-tools/async-profiler</span><br><span class="line">git clone https://github.com/brendangregg/FlameGraph</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-3：编译"><a href="#3-3：编译" class="headerlink" title="3.3：编译"></a>3.3：编译</h4><p>下载好以后，需要打开<code>async-profiler</code>文件，输入<code>make</code>指令进行编译：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd async-profiler</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-4：编写测试程序"><a href="#3-4：编写测试程序" class="headerlink" title="3.4：编写测试程序"></a>3.4：编写测试程序</h4><p>编译完成后，我们来写一个简单的java程序：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Test</span> <span class="variable">test</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Test</span>();</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            test.func1();</span><br><span class="line">            test.func2();</span><br><span class="line">            test.func3();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">func1</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123; <span class="comment">//调用第一个方法，需要100ms</span></span><br><span class="line">        Thread.sleep(<span class="number">100L</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">func2</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123; <span class="comment">//调用第二个方法，需要500ms</span></span><br><span class="line">        Thread.sleep(<span class="number">500L</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">func3</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123; <span class="comment">//调用第三个方法，需要1500ms</span></span><br><span class="line">        Thread.sleep(<span class="number">1500L</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>非常简单的一个java类，main方法里所做的事情也很简单，现在把这个文件搞到data目录下，<code>javac命令</code>编译，<code>java命令</code>启动。</p>
+<p>然后找到这个java程序的进程id：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ps -ef | grep java</span><br><span class="line">root     30937 17605  0 19:12 pts/0    00:00:00 java Test</span><br><span class="line">root     30961 23135  0 19:12 pts/1    00:00:00 /bin/grep --color=auto java</span><br></pre></td></tr></table></figure>
+
+<p>可以确认此时Test类运行时的java进程<code>pid = 30937</code>，当然也可以使用<code>jps</code>命令直接查看java进程，效果是一样的。</p>
+<h4 id="3-5：生成火焰图数据"><a href="#3-5：生成火焰图数据" class="headerlink" title="3.5：生成火焰图数据"></a>3.5：生成火焰图数据</h4><p>ok，上述步骤完成后，现在进入<code>async-profiler</code>那个项目的目录下，然后输入如下指令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./profiler.sh -d 60 -o collapsed -f /tmp/test_01.txt $&#123;pid&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的<code>-d</code>表示的是持续时长，后面60代表持续采集时间60s，<code>-o</code>表示的是采集规范，这里用的是<code>collapsed</code>，<code>-f</code>后面的路径，表示的是数据采集后生成的数据存放的文件路径（这里放在了<code>/tmp/test_01.txt</code>），<code>$&#123;pid&#125;</code>表示的是采集目标进程的pid，也就是上面提到的<code>30937</code></p>
+<p>回车运行，运行期间阻塞，知道约定时间完成。运行完成后，现在去tmp下看看有没有对应文件：</p>
+<p><img src="http://myblog.sharemer.com/2019/03/22/20190322-1-1.png?imageView2/0/w/1024" alt="图1"></p>
+<h4 id="3-6：生成svg文件"><a href="#3-6：生成svg文件" class="headerlink" title="3.6：生成svg文件"></a>3.6：生成svg文件</h4><p>上一步产生的文件里的内容，肉眼是很难看懂的，所以现在<a target="_blank" rel="noopener" href="https://github.com/brendangregg/FlameGraph">FlameGraph</a>的作用就体现出来了，它可以读取该文件并生成直观的火焰图，现在进入该项目目录下面，执行如下语句：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl flamegraph<span class="selector-class">.pl</span> <span class="attr">--colors</span>=java /tmp/test_01<span class="selector-class">.txt</span> &gt; test_01.svg</span><br></pre></td></tr></table></figure>
+
+<p>因为是<code>perl</code>文件，这里使用<code>perl指令</code>运行该文件，后面<code>--colors</code>表示着色风格，这里是java，后面的是数据文件的路径，这里是刚刚上面生成的那个文件<code>/tmp/test_01.txt</code>，最后的<code>test_01.svg</code>就是最终生成的火焰图文件存放的路径和文件命名，这里是命名为<code>test_01.svg</code>并保存在当前路径，运行后看到该文件已经存在于当前目录下：</p>
+<p><img src="http://myblog.sharemer.com/2019/03/22/20190322-1-2.png?imageView2/0/w/1024" alt="图2"></p>
+<h4 id="3-7：展示"><a href="#3-7：展示" class="headerlink" title="3.7：展示"></a>3.7：展示</h4><p>现在下载下来该文件，使用浏览器打开，效果如下：</p>
+<p><img src="http://myblog.sharemer.com/2019/03/22/20190322-1-3.png?imageView2/0/w/1024" alt="图3"></p>
+<p>不太好看懂，上线后分析下。</p>
+<h3 id="续更"><a href="#续更" class="headerlink" title="续更"></a>续更</h3><p>续更，公司内部火焰图已经上线，通过更为复杂的业务场景生成的图反而看起来更容易理解一些，因为业务代码的调用也会打印出来，下面贴一下内部某业务系统火焰图：</p>
+<p><img src="http://myblog.sharemer.com/2019/03/22/20190322-1-4.png?imageView2/0/w/1024" alt="img"></p>
+<p><img src="http://myblog.sharemer.com/2019/03/22/20190322-1-5.png?imageView2/0/w/1024" alt="图4"></p>
+<p>这张图是在某个业务系统运行时，采样60s生成的火焰图，通过这样一张图可以看出，<code>x轴</code>为调用顺序，<code>y轴</code>为栈深，线条颜色无实际意义（并不是越红性能越差之类的），线条长度代表CPU执行该方法时所花费的时间占比，一般来说需要关注的就是栈顶，且宽度比较大的那个。因为一般处于栈顶的，而且宽度比较大的调用栈，说明其存在性能问题，这样分析的原因如下：</p>
+<p>栈深度与y轴高度成正比，一般造成性能问题的都在调用栈的栈顶位置，因为栈顶位置的性能问题会间接拖慢整个调用栈，比如上图中每个栈底的线条都很长，这是因为越往上栈越深，对下层的影响就越大，可以简单抽象成方法调用：A调用B，B调用C，C慢会间接导致B慢，从而导致A慢，当然符合这种情况就适合之前说的看栈顶分析瓶颈的方法，如果A本身就慢呢？通过火焰图也是可以看出来的，比如栈底的线条宽度很宽，但是建立在该栈底的调用链上，线条都很窄，火焰图呈现 <strong>┻</strong> 型，那么就可以认定，栈底方法存在性能问题，一般情况下都是从栈顶看起，视情况而定~</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/" rel="tag"><i class="fa fa-tag"></i> 服务治理</a>
+              <a href="/tags/%E6%9C%8D%E5%8A%A1%E6%80%A7%E8%83%BD%E7%81%AB%E7%84%B0%E5%9B%BE/" rel="tag"><i class="fa fa-tag"></i> 服务性能火焰图</a>
+              <a href="/tags/async-profiler/" rel="tag"><i class="fa fa-tag"></i> async-profiler</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/22/%E3%80%90%E6%9D%82%E8%AE%B0%E3%80%91linux%E4%B8%8B%E5%90%84%E7%A7%8D%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85%E6%96%B9%E6%B3%95%EF%BC%88%E6%8C%81%E7%BB%AD%E8%AE%B0%E5%BD%95%EF%BC%89/" rel="prev" title="【笔记】linux下各种软件安装方法（持续记录）">
+                  <i class="fa fa-angle-left"></i> 【笔记】linux下各种软件安装方法（持续记录）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/23/%E3%80%90%E6%97%A5%E5%B8%B8%E3%80%91%E9%A1%BE%E6%9D%91%E7%9A%84%E6%A8%B1%E8%8A%B1-20190323/" rel="next" title="【日常】顾村的樱花-20190323">
+                  【日常】顾村的樱花-20190323 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本篇为辅助文章，所属文章：池化技术（一）Druid是如何管理数据库连接的？ 建议直接用Ctrl + F进行查找属性、方法、类名，快速了解其含义和所属类。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Druid-类图-属性表">
+<meta property="og:url" content="http://example.com/2019/08/28/Druid-%E7%B1%BB%E5%9B%BE-%E5%B1%9E%E6%80%A7%E8%A1%A8/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="本篇为辅助文章，所属文章：池化技术（一）Druid是如何管理数据库连接的？ 建议直接用Ctrl + F进行查找属性、方法、类名，快速了解其含义和所属类。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/09/20/20190920-1-1.png?imageView2/0/w/1024">
+<meta property="article:published_time" content="2019-08-28T12:12:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T03:54:35.172Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="池化技术">
+<meta property="article:tag" content="数据库连接池">
+<meta property="article:tag" content="Druid">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2019/09/20/20190920-1-1.png?imageView2/0/w/1024">
+
+
+<link rel="canonical" href="http://example.com/2019/08/28/Druid-%E7%B1%BB%E5%9B%BE-%E5%B1%9E%E6%80%A7%E8%A1%A8/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2019/08/28/Druid-%E7%B1%BB%E5%9B%BE-%E5%B1%9E%E6%80%A7%E8%A1%A8/","path":"2019/08/28/Druid-类图-属性表/","title":"Druid-类图-属性表"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Druid-类图-属性表 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#DruidAbstractDataSource%E6%8A%BD%E8%B1%A1%E7%B1%BB"><span class="nav-number">1.</span> <span class="nav-text">DruidAbstractDataSource抽象类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E8%A1%A8"><span class="nav-number">1.1.</span> <span class="nav-text">属性表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E8%A1%A8"><span class="nav-number">1.2.</span> <span class="nav-text">方法表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DruidDataSource%E7%B1%BB"><span class="nav-number">2.</span> <span class="nav-text">DruidDataSource类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E8%A1%A8-1"><span class="nav-number">2.1.</span> <span class="nav-text">属性表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E8%A1%A8-1"><span class="nav-number">2.2.</span> <span class="nav-text">方法表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DruidConnectionHolder%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">DruidConnectionHolder类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E8%A1%A8-2"><span class="nav-number">3.1.</span> <span class="nav-text">属性表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E8%A1%A8-2"><span class="nav-number">3.2.</span> <span class="nav-text">方法表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DruidPooledConnection%E7%B1%BB"><span class="nav-number">4.</span> <span class="nav-text">DruidPooledConnection类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E8%A1%A8-3"><span class="nav-number">4.1.</span> <span class="nav-text">属性表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E8%A1%A8-3"><span class="nav-number">4.2.</span> <span class="nav-text">方法表</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/08/28/Druid-%E7%B1%BB%E5%9B%BE-%E5%B1%9E%E6%80%A7%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Druid-类图-属性表 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Druid-类图-属性表
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-08-28 20:12:00" itemprop="dateCreated datePublished" datetime="2019-08-28T20:12:00+08:00">2019-08-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">池化技术</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>本篇为辅助文章，所属文章：<a href="/2019/08/28/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89Druid%E6%98%AF%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E7%9A%84%EF%BC%9F/">池化技术（一）Druid是如何管理数据库连接的？</a></p>
+<p>建议直接用<code>Ctrl + F</code>进行查找<code>属性</code>、<code>方法</code>、<code>类名</code>，快速了解其含义和所属类。</p>
+</blockquote>
+<span id="more"></span>
+
+<p>主要流程里主要涉及到的类名称、类属性、类方法如下图（淡黄色表示属性，淡蓝色表示方法）：</p>
+<p><img src="http://myblog.sharemer.com/2019/09/20/20190920-1-1.png?imageView2/0/w/1024" alt="图1"></p>
+<h2 id="DruidAbstractDataSource抽象类"><a href="#DruidAbstractDataSource抽象类" class="headerlink" title="DruidAbstractDataSource抽象类"></a>DruidAbstractDataSource抽象类</h2><p>这个类是druid连接池基础类，定义了一些连接池该有的基本属性，以及生成驱动连接对象的方法。</p>
+<h3 id="属性表"><a href="#属性表" class="headerlink" title="属性表"></a>属性表</h3><table>
+<thead>
+<tr>
+<th align="left">属性名</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">username</td>
+<td align="left">用户名</td>
+</tr>
+<tr>
+<td align="left">password</td>
+<td align="left">密码</td>
+</tr>
+<tr>
+<td align="left">jdbcUrl</td>
+<td align="left">驱动连接</td>
+</tr>
+<tr>
+<td align="left">driverClass</td>
+<td align="left">驱动class，可以不用配置</td>
+</tr>
+<tr>
+<td align="left">initialSize</td>
+<td align="left">初始化连接池（<code>主流程2</code>）时需要预先生成的连接对象个数</td>
+</tr>
+<tr>
+<td align="left">maxActive</td>
+<td align="left">池内最大连接数，也就是说生成连接的线程在当前池内连接数超过这个指标后就不再工作了，参考<code>主流程3</code></td>
+</tr>
+<tr>
+<td align="left">minIdle</td>
+<td align="left">池内最小闲置连接数，参考<code>流程4.1</code></td>
+</tr>
+<tr>
+<td align="left">maxWait</td>
+<td align="left">在业务线程拿不到可用连接而发生排队时，等待获取到可用连接对象的最大等待时间，参考<code>主流程1</code>和<code>流程1.2</code></td>
+</tr>
+<tr>
+<td align="left">notFullTimeoutRetryCount</td>
+<td align="left">获取不到连接时，会尝试重试，这里表示最大重试次数，参考<code>主流程1</code></td>
+</tr>
+<tr>
+<td align="left">testOnBorrow</td>
+<td align="left">在取出链接时，是否进行连接可用性测试，默认不开启，参考<code>主流程1</code></td>
+</tr>
+<tr>
+<td align="left">testOnReturn</td>
+<td align="left">在回收连接时，是否进行连接可用性测试，默认不开启，参考<code>主流程5</code></td>
+</tr>
+<tr>
+<td align="left">testWhileIdle</td>
+<td align="left">在闲置时间超出指定时间（timeBetweenEvictionRunsMillis）后进行连接可用性测试</td>
+</tr>
+<tr>
+<td align="left">timeBetweenEvictionRunsMillis</td>
+<td align="left">默认60s，一个连接闲置时间超出该值，且设置了testWhileIdle为true时，进行连接可用性测试</td>
+</tr>
+<tr>
+<td align="left">inited</td>
+<td align="left">是否已被初始化过，参考<code>主流程2</code></td>
+</tr>
+<tr>
+<td align="left">filters（集合）</td>
+<td align="left">触发责任链执行时需要执行的所有filter</td>
+</tr>
+<tr>
+<td align="left">maxWaitThreadCount</td>
+<td align="left">默认不开启（-1），表示取不到连接发生等待时阻塞的最大业务线程数，参考<code>流程1.2</code></td>
+</tr>
+<tr>
+<td align="left">removeAbandoned</td>
+<td align="left">是否主动回收一些被拿出去使用长久没有归还的连接，默认不开启，参考<code>流程4.2</code></td>
+</tr>
+<tr>
+<td align="left">removeAbandonedTimeoutMillis</td>
+<td align="left">表示在removeAbandoned开启的情况下，触发主动归还的时间间隔。</td>
+</tr>
+<tr>
+<td align="left">dbType</td>
+<td align="left">标记该连接池对象是属于什么数据库类型（根据驱动协议头推算出来）</td>
+</tr>
+<tr>
+<td align="left">validConnectionChecker</td>
+<td align="left">druid有多个验证长连接可用性的checker对象，该属性最终会根据数据库类型适配合适的checker对象，参考<code>流程1.3</code>里的<code>init-checker</code></td>
+</tr>
+<tr>
+<td align="left">lock</td>
+<td align="left">控制连接池线程安全的全局重入锁（参考全部流程里出现的lock）</td>
+</tr>
+<tr>
+<td align="left">notEmpty</td>
+<td align="left">由lock创建的Condition，用于连接不够用时阻塞业务线程，同时唤起<code>主流程3</code>的守护线程追加连接，解释参考<code>主流程2</code>的<code>特别说明第2条</code></td>
+</tr>
+<tr>
+<td align="left">empty</td>
+<td align="left">由lock创建的Condition，用于连接足够时（不发生线程等待），阻塞<code>主流程3</code>的守护线程，解释参考<code>主流程2</code>的<code>特别说明第2条</code></td>
+</tr>
+<tr>
+<td align="left">activeConnectionLock</td>
+<td align="left">活动连接重入锁，被借出去的连接称为active连接，这类连接在removeAbandoned开启时会被保存进下面的activeConnections里，利用该锁完成对其操作的安全性，参考<code>主流程1</code>和<code>流程4.2</code></td>
+</tr>
+<tr>
+<td align="left">activeConnections（k-v）</td>
+<td align="left">解释参考上面的描述，参考<code>主流程1</code>和<code>流程4.2</code></td>
+</tr>
+</tbody></table>
+<center>表1-1</center>
+
+<h3 id="方法表"><a href="#方法表" class="headerlink" title="方法表"></a>方法表</h3><table>
+<thead>
+<tr>
+<th align="left">方法名</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">testConnectionInternal</td>
+<td align="left">测试连接可用性的基本方法，参考<code>流程1.3</code></td>
+</tr>
+<tr>
+<td align="left">createPhysicalConnection</td>
+<td align="left">新增真正的数据库物理连接，参考<code>流程2.1</code></td>
+</tr>
+</tbody></table>
+<center>表1-2</center>
+
+<h2 id="DruidDataSource类"><a href="#DruidDataSource类" class="headerlink" title="DruidDataSource类"></a>DruidDataSource类</h2><p>这个类也是druid连接池基础类，扩展了一些其父类的功能，几乎所有的有关连接池管理的操作都在此类完成。</p>
+<h3 id="属性表-1"><a href="#属性表-1" class="headerlink" title="属性表"></a>属性表</h3><table>
+<thead>
+<tr>
+<th align="left">属性名</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">connectCount</td>
+<td align="left">一共成功从该池获取了多少次连接（只要获取成功一次，就累加一次）</td>
+</tr>
+<tr>
+<td align="left">recycleCount</td>
+<td align="left">一共成功归还了多少次连接到该池（成功归还一次，累加一次）</td>
+</tr>
+<tr>
+<td align="left">removeAbandonedCount</td>
+<td align="left">在removeAbandoned开启的情况下，被检查后强制归还的连接数</td>
+</tr>
+<tr>
+<td align="left">connections（数组）</td>
+<td align="left">最终池子里没有被使用的闲置连接存放的地方，类型是DruidConnectionHolder</td>
+</tr>
+<tr>
+<td align="left">poolingCount</td>
+<td align="left">pollingCount就是指上面connections的真实数量</td>
+</tr>
+<tr>
+<td align="left">activeCount</td>
+<td align="left">当前处于借出状态的连接数（也即是被拿出去使用的连接数），poolingCount+activeCount就是当前该池子里一共有多少个连接，不能超过maxActive，参考<code>主流程3</code></td>
+</tr>
+<tr>
+<td align="left">discardCount</td>
+<td align="left">被丢弃的连接数，触发丢弃的地方有很多，比如<code>流程1.4</code>、<code>流程4.1</code></td>
+</tr>
+<tr>
+<td align="left">evictConnections（数组）</td>
+<td align="left">参考<code>流程4.1</code></td>
+</tr>
+<tr>
+<td align="left">keepAliveConnections（数组）</td>
+<td align="left">参考<code>流程4.1</code></td>
+</tr>
+<tr>
+<td align="left">createConnectionThread（线程）</td>
+<td align="left">生产连接的守护线程，参考<code>主流程3</code></td>
+</tr>
+<tr>
+<td align="left">destroyConnectionThread（线程）</td>
+<td align="left">抛弃连接的守护线程，参考<code>主流程4</code></td>
+</tr>
+<tr>
+<td align="left">logStatsThread（线程）</td>
+<td align="left">打印连接池各项监控指标日志的守护线程，参考<code>主流程2</code>，默认关闭</td>
+</tr>
+<tr>
+<td align="left">initedLatch（CountDownLatch）</td>
+<td align="left">倒计数器，用来保证createConnectionThread和destroyConnectionThread两个守护线程全部开启成功。</td>
+</tr>
+<tr>
+<td align="left">enable</td>
+<td align="left">连接池对象是否可用，在连接池整体close后，该值为false，表示已关闭的连接池不可用。</td>
+</tr>
+<tr>
+<td align="left">keepAlive</td>
+<td align="left">参考<code>流程4.1</code></td>
+</tr>
+<tr>
+<td align="left">loadSpifilterSkip</td>
+<td align="left">是否启用通过SPI机制加载责任链上的filter，默认开启</td>
+</tr>
+</tbody></table>
+<center>表2-1</center>
+
+<h3 id="方法表-1"><a href="#方法表-1" class="headerlink" title="方法表"></a>方法表</h3><table>
+<thead>
+<tr>
+<th align="left">方法名</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">init</td>
+<td align="left">初始化整个连接池，参考<code>主流程2</code></td>
+</tr>
+<tr>
+<td align="left">initFromSPIServiceLoader</td>
+<td align="left">通过SPI机制加载责任链中的filters</td>
+</tr>
+<tr>
+<td align="left">initValidConnectionChecker</td>
+<td align="left">初始化（适配）检测器，参考<code>流程1.3</code>中的<code>init-checker</code></td>
+</tr>
+<tr>
+<td align="left">createAndLogThread</td>
+<td align="left">启动上面表2-1里的logStatsThread线程</td>
+</tr>
+<tr>
+<td align="left">createAndStartCreatorThread</td>
+<td align="left">启动上面表2-1里的createConnectionThread线程</td>
+</tr>
+<tr>
+<td align="left">createAndStartDestroyThread</td>
+<td align="left">启动上面表2-1里的destroyConnectionThread线程</td>
+</tr>
+<tr>
+<td align="left">getConnection</td>
+<td align="left">获取连接方法，参考<code>主流程1</code></td>
+</tr>
+<tr>
+<td align="left">getConnectionDirect</td>
+<td align="left">获取连接方法（通过getConnection触发），参考<strong>主流程1</strong></td>
+</tr>
+<tr>
+<td align="left">pollLast</td>
+<td align="left">真正从池子里获取连接对象的方法（通过getConnectionDirect触发），参考<code>流程1.2</code></td>
+</tr>
+<tr>
+<td align="left">putLast</td>
+<td align="left">真正归还连接进池子的方法（通过recycle触发），参考<code>主流程5</code></td>
+</tr>
+<tr>
+<td align="left">put</td>
+<td align="left">新增连接对象放进池子里的方法，通过<code>主流程3</code>触发</td>
+</tr>
+<tr>
+<td align="left">close</td>
+<td align="left">连接池关闭，不再提供服务，迅速干掉所有连接进入贤者模式。</td>
+</tr>
+<tr>
+<td align="left">recycle</td>
+<td align="left">连接回收方法，通过下面DruidPooledConnection类的close方法触发，参考<code>主流程5</code></td>
+</tr>
+<tr>
+<td align="left">shrink</td>
+<td align="left">连接池瘦身，参考<code>主流程4</code>、<code>流程4.1</code></td>
+</tr>
+<tr>
+<td align="left">removeAbandoned</td>
+<td align="left">回收长期未回收的连接，默认关闭不检查，通过<code>表1-1</code>里的removeAbandoned属性控制</td>
+</tr>
+<tr>
+<td align="left">emptySignal</td>
+<td align="left">触发<code>表1-1</code>里的empty执行signal，用于唤起<code>主流程3</code>新增连接</td>
+</tr>
+</tbody></table>
+<center>表2-2</center>
+
+<h2 id="DruidConnectionHolder类"><a href="#DruidConnectionHolder类" class="headerlink" title="DruidConnectionHolder类"></a>DruidConnectionHolder类</h2><p>最终存放进池子里的基本类型，该类持有驱动产生的真实Connection对象，同时提供一些连接池需要的标记性的属性。</p>
+<h3 id="属性表-2"><a href="#属性表-2" class="headerlink" title="属性表"></a>属性表</h3><table>
+<thead>
+<tr>
+<th align="left">属性名</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">dataSource（DruidDataSource）</td>
+<td align="left">本身包含一个持有自己实例的连接池对象</td>
+</tr>
+<tr>
+<td align="left">conn（Connection）</td>
+<td align="left">真实的驱动连接对象</td>
+</tr>
+<tr>
+<td align="left">lastActiveTimeMillis</td>
+<td align="left">上次活动时间，该值在归还连接时会被刷新一次，参考<code>主流程5</code>，除此之外在一句sql执行结束后，这个值也会被刷新</td>
+</tr>
+<tr>
+<td align="left">defaultReadOnly</td>
+<td align="left">是否默认为只读模式，默认不是</td>
+</tr>
+<tr>
+<td align="left">defaultAutoCommit</td>
+<td align="left">是否默认开启AutoCommit，默认开启</td>
+</tr>
+<tr>
+<td align="left">discard</td>
+<td align="left">当前连接是否已被抛弃</td>
+</tr>
+</tbody></table>
+<center>表3-1</center>
+
+<h3 id="方法表-2"><a href="#方法表-2" class="headerlink" title="方法表"></a>方法表</h3><table>
+<thead>
+<tr>
+<th align="left">方法名</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">reset</td>
+<td align="left">在连接对象被归还时，由于使用时可能被业务代码人为的改动一些属性（比如autoCommit等）需要把一些属性重新置为默认值，就需要该方法</td>
+</tr>
+</tbody></table>
+<center>表3-2</center>
+
+<h2 id="DruidPooledConnection类"><a href="#DruidPooledConnection类" class="headerlink" title="DruidPooledConnection类"></a>DruidPooledConnection类</h2><p>对外暴露给业务方的连接对象包装类，实际上其内部是包了一层上面的holder对象。</p>
+<h3 id="属性表-3"><a href="#属性表-3" class="headerlink" title="属性表"></a>属性表</h3><table>
+<thead>
+<tr>
+<th align="left">属性名</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">conn（Connection）</td>
+<td align="left">实际的驱动连接对象，通过下面持有的holder对象获得并赋值</td>
+</tr>
+<tr>
+<td align="left">holder（DruidConnectionHolder）</td>
+<td align="left">持有的holder对象</td>
+</tr>
+<tr>
+<td align="left">disable</td>
+<td align="left">标记是否可用</td>
+</tr>
+<tr>
+<td align="left">ownerThread</td>
+<td align="left">标记最初获取到自己的那个线程（用于决定在close时走下方的close还是syncClose，参考<code>主流程5</code>）</td>
+</tr>
+<tr>
+<td align="left">closed</td>
+<td align="left">标记是否已被关闭</td>
+</tr>
+<tr>
+<td align="left">running</td>
+<td align="left">标记是否正在运行中，running被置为true的地方，就是执行excute方法时。</td>
+</tr>
+<tr>
+<td align="left">abandoned</td>
+<td align="left">标记是否已被检查并丢弃，参考<code>流程4.2</code></td>
+</tr>
+</tbody></table>
+<center>表4-1</center>
+
+<h3 id="方法表-3"><a href="#方法表-3" class="headerlink" title="方法表"></a>方法表</h3><table>
+<thead>
+<tr>
+<th align="left">方法名</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">close</td>
+<td align="left">关闭该连接，将实际连接归还至连接池，参考<code>主流程5</code></td>
+</tr>
+<tr>
+<td align="left">syncClose</td>
+<td align="left">如果是别的线程执行close方法，就得启用该方法去做，该方法与上面close的区别就是加了锁控制，参考<code>流程5</code></td>
+</tr>
+<tr>
+<td align="left">recycle</td>
+<td align="left">实际触发datasource.recycle方法的方法，参考<code>流程5</code></td>
+</tr>
+<tr>
+<td align="left">常规操作</td>
+<td align="left">有createStatement、commit、rollback等等常规操作，本篇文章不涉及到，仅做连接池的说明，暂时忽略。</td>
+</tr>
+</tbody></table>
+<center>表4-2</center>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF/" rel="tag"><i class="fa fa-tag"></i> 池化技术</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/" rel="tag"><i class="fa fa-tag"></i> 数据库连接池</a>
+              <a href="/tags/Druid/" rel="tag"><i class="fa fa-tag"></i> Druid</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/08/28/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89Druid%E6%98%AF%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E7%9A%84%EF%BC%9F/" rel="prev" title="池化技术（一）Druid是如何管理数据库连接的？">
+                  <i class="fa fa-angle-left"></i> 池化技术（一）Druid是如何管理数据库连接的？
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/08/29/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%BA%8C%EF%BC%89HikariCP%E6%98%AF%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E7%9A%84%EF%BC%9F/" rel="next" title="池化技术（二）HikariCP是如何管理数据库连接的？">
+                  池化技术（二）HikariCP是如何管理数据库连接的？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

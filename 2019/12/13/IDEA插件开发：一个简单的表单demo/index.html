@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="🐜 版本信息：  🐝 插件项目基于gradle构建。 🦟 知识背景：swing 🦇 参考文档： http:&#x2F;&#x2F;www.jetbrains.org&#x2F;intellij&#x2F;sdk&#x2F;docs&#x2F;tutorials&#x2F;build_system&#x2F;prerequisites.html http:&#x2F;&#x2F;www.jetbrains.org&#x2F;intellij&#x2F;sdk&#x2F;docs&#x2F;user_interface_comp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IDEA插件开发：一个简单的表单demo">
+<meta property="og:url" content="http://example.com/2019/12/13/IDEA%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E8%A1%A8%E5%8D%95demo/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="🐜 版本信息：  🐝 插件项目基于gradle构建。 🦟 知识背景：swing 🦇 参考文档： http:&#x2F;&#x2F;www.jetbrains.org&#x2F;intellij&#x2F;sdk&#x2F;docs&#x2F;tutorials&#x2F;build_system&#x2F;prerequisites.html http:&#x2F;&#x2F;www.jetbrains.org&#x2F;intellij&#x2F;sdk&#x2F;docs&#x2F;user_interface_comp">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.shields.io/badge/JDK-v1.8%2B-orange">
+<meta property="og:image" content="https://img.shields.io/badge/IntelliJ%20IDEA-2019.03-blueviolet">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-1.png?imageView2/0/w/500">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-2.png?imageView2/0/w/500">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-3.png?imageView2/0/w/500">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-4.png?imageView2/0/w/550">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-5.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-6.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-7.png?imageView2/0/w/550">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-8.png?imageView2/0/w/550">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-9.png?imageView2/0/w/550">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-10.png?imageView2/0/w/550">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-11.png?imageView2/0/w/550">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-12.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-13.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-14.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/12/13/20191213-1-15.png?imageView2/0/w/550">
+<meta property="article:published_time" content="2019-12-13T04:12:00.000Z">
+<meta property="article:modified_time" content="2023-12-05T02:53:24.724Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="IDEA">
+<meta property="article:tag" content="IDEA插件开发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.shields.io/badge/JDK-v1.8%2B-orange">
+
+
+<link rel="canonical" href="http://example.com/2019/12/13/IDEA%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E8%A1%A8%E5%8D%95demo/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2019/12/13/IDEA%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E8%A1%A8%E5%8D%95demo/","path":"2019/12/13/IDEA插件开发：一个简单的表单demo/","title":"IDEA插件开发：一个简单的表单demo"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>IDEA插件开发：一个简单的表单demo | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%A1%B9%E7%9B%AE%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">一、项目初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%96%B0%E5%A2%9Eplugin-xml"><span class="nav-number">3.</span> <span class="nav-text">二、新增plugin.xml</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%90%AF%E5%8A%A8"><span class="nav-number">4.</span> <span class="nav-text">三、启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AE%9A%E4%B9%89Action"><span class="nav-number">5.</span> <span class="nav-text">四、定义Action</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1%EF%BC%9A%E5%AE%9A%E4%B9%89%E4%BC%9A%E8%AF%9D%E6%A1%86%E7%B1%BB"><span class="nav-number">5.1.</span> <span class="nav-text">4.1：定义会话框类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2%EF%BC%9A%E4%BC%9A%E8%AF%9D%E6%A1%86%E6%A8%A1%E5%9D%97-%E7%B1%BB%E5%85%83%E7%B4%A0%E5%AF%B9%E7%85%A7"><span class="nav-number">5.2.</span> <span class="nav-text">4.2：会话框模块&amp;类元素对照</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BC%9A%E8%AF%9D%E6%A1%86%E5%85%83%E7%B4%A0"><span class="nav-number">5.3.</span> <span class="nav-text">4.3：自定义会话框元素</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-1%EF%BC%9A%E4%BC%9A%E8%AF%9D%E6%A1%86%E6%96%B9%E6%B3%95%E9%87%8D%E5%AE%9A%E4%B9%89"><span class="nav-number">5.3.1.</span> <span class="nav-text">4.3.1：会话框方法重定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-2%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89swing%E6%A0%B7%E5%BC%8F"><span class="nav-number">5.3.2.</span> <span class="nav-text">4.3.2：自定义swing样式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-3%EF%BC%9A%E4%BA%8B%E4%BB%B6%E7%BB%91%E5%AE%9A"><span class="nav-number">5.3.3.</span> <span class="nav-text">4.3.3：事件绑定</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4%EF%BC%9A%E6%8F%92%E4%BB%B6%E7%BB%91%E5%AE%9A%E7%B1%BB%EF%BC%9AFormAction"><span class="nav-number">5.4.</span> <span class="nav-text">4.4：插件绑定类：FormAction</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%8F%92%E4%BB%B6%E7%9A%84%E6%89%93%E5%8C%85-%E5%AE%89%E8%A3%85"><span class="nav-number">6.</span> <span class="nav-text">五、插件的打包&amp;安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E"><span class="nav-number">7.</span> <span class="nav-text">写在最后</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/12/13/IDEA%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E8%A1%A8%E5%8D%95demo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="IDEA插件开发：一个简单的表单demo | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          IDEA插件开发：一个简单的表单demo
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-12-13 12:12:00" itemprop="dateCreated datePublished" datetime="2019-12-13T12:12:00+08:00">2019-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/IDEA%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" itemprop="url" rel="index"><span itemprop="name">IDEA插件开发</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>8.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>🐜 版本信息：<img src="https://img.shields.io/badge/JDK-v1.8%2B-orange"/><img src="https://img.shields.io/badge/IntelliJ%20IDEA-2019.03-blueviolet"/> </p>
+<p>🐝 插件项目基于<code>gradle</code>构建。</p>
+<p>🦟 知识背景：<code>swing</code></p>
+<p>🦇 参考文档：</p>
+<p><a target="_blank" rel="noopener" href="http://www.jetbrains.org/intellij/sdk/docs/tutorials/build_system/prerequisites.html">http://www.jetbrains.org/intellij/sdk/docs/tutorials/build_system/prerequisites.html</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html">http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/tool_windows.html</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/dialog_wrapper.html">http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/dialog_wrapper.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://intellij-support.jetbrains.com/hc/en-us/community/posts/360003338799-Build-compatible-plugin">https://intellij-support.jetbrains.com/hc/en-us/community/posts/360003338799-Build-compatible-plugin</a></p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><p>本实例实现一个<code>Idea</code>的插件，弹出一个<code>表单Dialog</code>，然后点击按钮，获取表单里输入的内容，然后将内容打印在表单的上方。</p>
+<p>成品图展示：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-1.png?imageView2/0/w/500" alt="图1"></p>
+<h2 id="一、项目初始化"><a href="#一、项目初始化" class="headerlink" title="一、项目初始化"></a>一、项目初始化</h2><p>新建一个<code>gradle</code>项目，修改其<code>build.gradle</code>文件：</p>
+<figure class="highlight groovy"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">plugins &#123;</span><br><span class="line">    id <span class="string">&#x27;java&#x27;</span></span><br><span class="line">    id <span class="string">&#x27;org.jetbrains.intellij&#x27;</span> version <span class="string">&#x27;0.4.14&#x27;</span> <span class="comment">//引入intellij的gradle插件</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">group <span class="string">&#x27;org.example&#x27;</span></span><br><span class="line">version <span class="string">&#x27;1.0&#x27;</span> <span class="comment">//定义jar包/zip包的版本号</span></span><br><span class="line"> </span><br><span class="line">sourceCompatibility = <span class="number">1.8</span> <span class="comment">//限制jdk的使用版本号，这里限制到8，表示生成的idea插件只能运行在jdk8以上的环境中</span></span><br><span class="line"> </span><br><span class="line">repositories &#123;</span><br><span class="line">    mavenCentral() <span class="comment">//远程仓库</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">dependencies &#123;</span><br><span class="line">    <span class="comment">//这里引别的依赖包</span></span><br><span class="line">    testCompile <span class="attr">group:</span> <span class="string">&#x27;junit&#x27;</span>, <span class="attr">name:</span> <span class="string">&#x27;junit&#x27;</span>, <span class="attr">version:</span> <span class="string">&#x27;4.12&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// See https://github.com/JetBrains/gradle-intellij-plugin/</span></span><br><span class="line">intellij &#123;</span><br><span class="line">    <span class="comment">// 这里是指打插件包的时候用idea什么版本的依赖包打</span></span><br><span class="line">    <span class="comment">// 比如这里用2019.3打包，如果你的插件实现源码里用了2019.3不存在的依赖包或类，就会报错</span></span><br><span class="line">    <span class="comment">// 一般就填当前IDEA的版本号即可</span></span><br><span class="line">    version <span class="string">&quot;2019.3&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">patchPluginXml &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//changeNotes里的内容展示位置参考图14</span></span><br><span class="line">    changeNotes <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">      1.0版本.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">      第1.0版本：初始化这个测试插件项目&quot;&quot;&quot;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 这个意思是说当前定义的这个插件最早支持到什么版本的IDEA</span></span><br><span class="line">    <span class="comment">// 这里配置sinceBuild=191，表示插件只能被版本号大于等于2019.1版本的IDEA安装，低于这个版本的将抛无法兼容的错误</span></span><br><span class="line">    <span class="comment">// ↑上方参考这篇问答：https://intellij-support.jetbrains.com/hc/en-us/community/posts/360003338799-Build-compatible-plugin</span></span><br><span class="line">    sinceBuild <span class="string">&quot;191&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后Idea的右边栏gradle将会多出intellij选项：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-2.png?imageView2/0/w/500" alt="图2"></p>
+<p>这里说下<code>runIde</code>，它用来调试插件，运行它会再次启动一个Idea，这个Idea会自动安装上你当前定义的插件包，让你用来调试。</p>
+<h2 id="二、新增plugin-xml"><a href="#二、新增plugin-xml" class="headerlink" title="二、新增plugin.xml"></a>二、新增plugin.xml</h2><p>这个文件非常重要，它可以指定你定义的插件出现在IDEA的哪个位置，可以指定具体的处理逻辑，还可以定义插件名称、子名称等等。</p>
+<p>这个文件位于<code>MATE-INF</code>下：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-3.png?imageView2/0/w/500" alt="图3"></p>
+<p>配置内容为：</p>
+<figure class="highlight xml"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">idea-plugin</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--插件的id，注意不要跟其他插件重复，这个id全局唯一，尽可能复杂些--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>plugin.test<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--插件的名称--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>PluginTest<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">vendor</span> <span class="attr">email</span>=<span class="string">&quot;xxxx@qq.com&quot;</span> <span class="attr">url</span>=<span class="string">&quot;http://www.bilibili.com&quot;</span>&gt;</span>你公司的名字<span class="tag">&lt;/<span class="name">vendor</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--插件的描述信息，支持html，展示的位置参考图14--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>&lt;![CDATA[</span><br><span class="line">    Plugin Test&lt;br&gt;</span><br><span class="line">    第一行：单纯只是个测试&lt;br&gt;</span><br><span class="line">    第二行：都说了只是个测试(●￣(ｴ)￣●)&lt;br&gt;</span><br><span class="line">    &lt;a href=&#x27;https://www.bilibili.com&#x27;&gt;你猜猜这是哪个网站？&lt;/a&gt;</span><br><span class="line">    &lt;em&gt;v1.0&lt;/em&gt;</span><br><span class="line">    ]]&gt;<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">extensions</span> <span class="attr">defaultExtensionNs</span>=<span class="string">&quot;com.intellij&quot;</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- Add your extensions here --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">extensions</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--跟build.gradle里的sinceBuild一致即可，意义相同，必须配置--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">idea-version</span> <span class="attr">since-build</span>=<span class="string">&quot;191&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">actions</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--下面的group是分组，分组需要有一个唯一的id标识，text用来控制分组出现在IDEA时呈现的文案，description是描述，不会展现出来，简单描述下分组就行--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">group</span> <span class="attr">id</span>=<span class="string">&quot;PluginTest&quot;</span> <span class="attr">text</span>=<span class="string">&quot;插件测试组&quot;</span> <span class="attr">description</span>=<span class="string">&quot;插件测试描述&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--add-to-group控制把该分组加到IDEA里，group-id用来描述加在哪个位置，MainMenu表示加在IDEA上方的主菜单栏里，</span></span><br><span class="line"><span class="comment">            anchor表示顺序，last表示最后一个，所以下面的配置可以描述为：将该插件加到IDEA上方主菜单栏的最后一位--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">add-to-group</span> <span class="attr">group-id</span>=<span class="string">&quot;MainMenu&quot;</span> <span class="attr">anchor</span>=<span class="string">&quot;last&quot;</span>/&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--这个用来指定一个分组下的触发动作，同样的需要一个id，自定义；class就是用来处理这个动作的逻辑类，具体的插件逻辑都会写到对应的action类里，text用来控制文案，description为描述--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">action</span> <span class="attr">id</span>=<span class="string">&quot;Plugin.Test.Action&quot;</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">class</span>=<span class="string">&quot;plugin.test.FromAction&quot;</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">text</span>=<span class="string">&quot;表单测试&quot;</span> <span class="attr">description</span>=<span class="string">&quot;表单测试描述&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">group</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">actions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">idea-plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后定义一个Action类，记为FormAction，继承AnAction，实现其抽象方法actionPerformed即可：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FromAction</span> <span class="keyword">extends</span> <span class="title class_">AnAction</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">actionPerformed</span><span class="params">(<span class="meta">@NotNull</span> AnActionEvent e)</span> &#123;</span><br><span class="line">        <span class="comment">//TODO 这里放插件逻辑</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、启动"><a href="#三、启动" class="headerlink" title="三、启动"></a>三、启动</h2><p>现在双击<code>runIde</code>即可调出另外一个安装了这个插件的IDEA界面，然后可以看运行结果进行调试。 runIde还支持<code>debug模式</code>，不过运行时要<code>右击</code>选择：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-4.png?imageView2/0/w/550" alt="图4"></p>
+<p>来看下调试IDEA的界面运行效果：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-5.png?imageView2/0/w/1024" alt="图5"></p>
+<h2 id="四、定义Action"><a href="#四、定义Action" class="headerlink" title="四、定义Action"></a>四、定义Action</h2><h3 id="4-1：定义会话框类"><a href="#4-1：定义会话框类" class="headerlink" title="4.1：定义会话框类"></a>4.1：定义会话框类</h3><p>经过上面三步的配置，插件的基本样式已经展示出来，但是点击下方“表单测试”的action，并没有什么用，因为其绑定的FormAction类里没有任何有意义的实现。现在来实现开始的目标，点击“表单测试”后，弹出一个自定义的表单会话框，然后点击按钮，获取表单内容后打印在会话框内。</p>
+<p>会话框（<code>Dialog</code>）需要定义一个继承了IDEA的<code>DialogWrapper</code>抽象类的子类，这个子类就是自定义的会话框实现，所有的样式定义、功能触发都是放到这个子类里的，现定于如下子类：</p>
+<figure class="highlight java"><figcaption><span>代码块4</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FormTestDialog</span> <span class="keyword">extends</span> <span class="title class_">DialogWrapper</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> String projectName; <span class="comment">//假如需要获取到项目名，作为该类的属性放进来</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">// DialogWrapper没有默认的无参构造方法，所以需要重写构造方法，它提供了很多重载构造方法，</span></span><br><span class="line">    <span class="comment">// 这里使用传project类型参数的那个，通过Project对象可以获取当前IDEA内打开的项目的一些属性，</span></span><br><span class="line">    <span class="comment">// 比如项目名，项目路径等</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FormTestDialog</span><span class="params">(<span class="meta">@Nullable</span> Project project)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(project);</span><br><span class="line">        setTitle(<span class="string">&quot;表单测试~~&quot;</span>); <span class="comment">// 设置会话框标题</span></span><br><span class="line">        <span class="built_in">this</span>.projectName = project.getName();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 重写下面的方法，返回一个自定义的swing样式，该样式会展示在会话框的最上方的位置</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> JComponent <span class="title function_">createNorthPanel</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 重写下面的方法，返回一个自定义的swing样式，该样式会展示在会话框的最下方的位置</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> JComponent <span class="title function_">createSouthPanel</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 重写下面的方法，返回一个自定义的swing样式，该样式会展示在会话框的中央位置</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> JComponent <span class="title function_">createCenterPanel</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2：会话框模块-类元素对照"><a href="#4-2：会话框模块-类元素对照" class="headerlink" title="4.2：会话框模块&amp;类元素对照"></a>4.2：会话框模块&amp;类元素对照</h3><p>找个实际的会话框为例，针对上述中几个方法所控制的会话框里的元素如下：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-6.png?imageView2/0/w/1024" alt="图6"></p>
+<h3 id="4-3：自定义会话框元素"><a href="#4-3：自定义会话框元素" class="headerlink" title="4.3：自定义会话框元素"></a>4.3：自定义会话框元素</h3><h4 id="4-3-1：会话框方法重定义"><a href="#4-3-1：会话框方法重定义" class="headerlink" title="4.3.1：会话框方法重定义"></a>4.3.1：会话框方法重定义</h4><p>按照本文的实现目标，自定义的表单主体部分可以位于<code>createCenterPanel</code>里，然后表单的大标题可以放到<code>createNorthPanel</code>里，提交按钮可以放到<code>createSouthPanel</code>里，现在改写如下：</p>
+<figure class="highlight java"><figcaption><span>代码块5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FormTestDialog</span> <span class="keyword">extends</span> <span class="title class_">DialogWrapper</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> String projectName;</span><br><span class="line">     </span><br><span class="line">    <span class="comment">//swing样式类，定义在4.3.2</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">FormTestSwing</span> <span class="variable">formTestSwing</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FormTestSwing</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FormTestDialog</span><span class="params">(<span class="meta">@Nullable</span> Project project)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(<span class="literal">true</span>);</span><br><span class="line">        setTitle(<span class="string">&quot;表单测试~~&quot;</span>); <span class="comment">//设置会话框标题</span></span><br><span class="line">        <span class="built_in">this</span>.projectName = project.getName(); <span class="comment">//获取到当前项目的名称</span></span><br><span class="line">        init(); <span class="comment">//触发一下init方法，否则swing样式将无法展示在会话框</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> JComponent <span class="title function_">createNorthPanel</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> formTestSwing.initNorth(); <span class="comment">//返回位于会话框north位置的swing样式</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 特别说明：不需要展示SouthPanel要重写返回null，否则IDEA将展示默认的&quot;Cancel&quot;和&quot;OK&quot;按钮</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> JComponent <span class="title function_">createSouthPanel</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> formTestSwing.initSouth();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> JComponent <span class="title function_">createCenterPanel</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">//定义表单的主题，放置到IDEA会话框的中央位置</span></span><br><span class="line">        <span class="keyword">return</span> formTestSwing.initCenter();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-3-2：自定义swing样式"><a href="#4-3-2：自定义swing样式" class="headerlink" title="4.3.2：自定义swing样式"></a>4.3.2：自定义swing样式</h4><p>下面是放置swing样式的类：</p>
+<figure class="highlight java"><figcaption><span>代码块6</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FormTestSwing</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">JPanel</span> <span class="variable">north</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JPanel</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">JPanel</span> <span class="variable">center</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JPanel</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">JPanel</span> <span class="variable">south</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JPanel</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//为了让位于底部的按钮可以拿到组件内容，这里把表单组件做成类属性</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">JLabel</span> <span class="variable">r1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JLabel</span>(<span class="string">&quot;输出：&quot;</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="type">JLabel</span> <span class="variable">r2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JLabel</span>(<span class="string">&quot;NULL&quot;</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">JLabel</span> <span class="variable">name</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JLabel</span>(<span class="string">&quot;姓名：&quot;</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="type">JTextField</span> <span class="variable">nameContent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JTextField</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">JLabel</span> <span class="variable">age</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JLabel</span>(<span class="string">&quot;年龄：&quot;</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="type">JTextField</span> <span class="variable">ageContent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JTextField</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> JPanel <span class="title function_">initNorth</span><span class="params">()</span> &#123;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//定义表单的标题部分，放置到IDEA会话框的顶部位置</span></span><br><span class="line"> </span><br><span class="line">        <span class="type">JLabel</span> <span class="variable">title</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JLabel</span>(<span class="string">&quot;表单标题&quot;</span>);</span><br><span class="line">        title.setFont(<span class="keyword">new</span> <span class="title class_">Font</span>(<span class="string">&quot;微软雅黑&quot;</span>, Font.PLAIN, <span class="number">26</span>)); <span class="comment">//字体样式</span></span><br><span class="line">        title.setHorizontalAlignment(SwingConstants.CENTER); <span class="comment">//水平居中</span></span><br><span class="line">        title.setVerticalAlignment(SwingConstants.CENTER); <span class="comment">//垂直居中</span></span><br><span class="line">        north.add(title);</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> north;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> JPanel <span class="title function_">initCenter</span><span class="params">()</span> &#123;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//定义表单的主体部分，放置到IDEA会话框的中央位置</span></span><br><span class="line"> </span><br><span class="line">        <span class="comment">//一个简单的3行2列的表格布局</span></span><br><span class="line">        center.setLayout(<span class="keyword">new</span> <span class="title class_">GridLayout</span>(<span class="number">3</span>, <span class="number">2</span>));</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//row1：按钮事件触发后将结果打印在这里</span></span><br><span class="line">        r1.setForeground(<span class="keyword">new</span> <span class="title class_">Color</span>(<span class="number">255</span>, <span class="number">47</span>, <span class="number">93</span>)); <span class="comment">//设置字体颜色</span></span><br><span class="line">        center.add(r1);</span><br><span class="line">        r2.setForeground(<span class="keyword">new</span> <span class="title class_">Color</span>(<span class="number">139</span>, <span class="number">181</span>, <span class="number">20</span>)); <span class="comment">//设置字体颜色</span></span><br><span class="line">        center.add(r2);</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//row2：姓名+文本框</span></span><br><span class="line">        center.add(name);</span><br><span class="line">        center.add(nameContent);</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//row3：年龄+文本框</span></span><br><span class="line">        center.add(age);</span><br><span class="line">        center.add(ageContent);</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> center;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> JPanel <span class="title function_">initSouth</span><span class="params">()</span> &#123;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//定义表单的提交按钮，放置到IDEA会话框的底部位置</span></span><br><span class="line"> </span><br><span class="line">        <span class="type">JButton</span> <span class="variable">submit</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JButton</span>(<span class="string">&quot;提交&quot;</span>);</span><br><span class="line">        submit.setHorizontalAlignment(SwingConstants.CENTER); <span class="comment">//水平居中</span></span><br><span class="line">        submit.setVerticalAlignment(SwingConstants.CENTER); <span class="comment">//垂直居中</span></span><br><span class="line">        south.add(submit);</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> south;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在点击下<code>runIde</code>按钮，同样的，在调试IDE里点击“表单测试”，然后就会弹出如下表单框：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-7.png?imageView2/0/w/550" alt="图7"></p>
+<p>🌿 除非有特殊情况需要自定义swing样式，否则建议不加任何swing样式，这样自定义的swing界面是会随着IDEA的主题改变而去自适应的，比如将图7中的调试IDE的主题设置成Darcula，自定义的表单也会自适应的变成黑色背景：</p>
+<p><a target="_blank" rel="noopener" href="http://myblog.sharemer.com/2019/12/13/20191213-1-8.png?imageView2/0/w/550"><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-8.png?imageView2/0/w/550" alt="图8"></a></p>
+<h4 id="4-3-3：事件绑定"><a href="#4-3-3：事件绑定" class="headerlink" title="4.3.3：事件绑定"></a>4.3.3：事件绑定</h4><p>定义好了样式，现在给“提交”按钮绑定一个事件，现在改写下<code>FormTestSwing.initSouth</code>方法：</p>
+<figure class="highlight java"><figcaption><span>代码块7</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> JPanel <span class="title function_">initSouth</span><span class="params">()</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//定义表单的提交按钮，放置到IDEA会话框的底部位置</span></span><br><span class="line"> </span><br><span class="line">    <span class="type">JButton</span> <span class="variable">submit</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JButton</span>(<span class="string">&quot;提交&quot;</span>);</span><br><span class="line">    submit.setHorizontalAlignment(SwingConstants.CENTER); <span class="comment">//水平居中</span></span><br><span class="line">    submit.setVerticalAlignment(SwingConstants.CENTER); <span class="comment">//垂直居中</span></span><br><span class="line">    south.add(submit);</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//按钮事件绑定</span></span><br><span class="line">    submit.addActionListener(e -&gt; &#123;</span><br><span class="line">        <span class="comment">//获取到name和age</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> nameContent.getText();</span><br><span class="line">        <span class="type">String</span> <span class="variable">age</span> <span class="operator">=</span> ageContent.getText();</span><br><span class="line">        <span class="comment">//刷新r2标签里的内容，替换为name和age</span></span><br><span class="line">        r2.setText(String.format(<span class="string">&quot;name:%s, age:%s&quot;</span>, name, age));</span><br><span class="line">    &#125;);</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">return</span> south;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在再来点击下“提交”按钮，就可以输出表单内容了：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-9.png?imageView2/0/w/550" alt="图9"></p>
+<h3 id="4-4：插件绑定类：FormAction"><a href="#4-4：插件绑定类：FormAction" class="headerlink" title="4.4：插件绑定类：FormAction"></a>4.4：插件绑定类：FormAction</h3><p>之前讲过，这个类是插件的入口，结合上面定义好的表单Dialog，来看下它是怎么写的：</p>
+<figure class="highlight java"><figcaption><span>代码块8</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FromAction</span> <span class="keyword">extends</span> <span class="title class_">AnAction</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">actionPerformed</span><span class="params">(<span class="meta">@NotNull</span> AnActionEvent e)</span> &#123;</span><br><span class="line">        <span class="type">FormTestDialog</span> <span class="variable">formTestDialog</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FormTestDialog</span>(e.getProject());</span><br><span class="line">        formTestDialog.setResizable(<span class="literal">true</span>); <span class="comment">//是否允许用户通过拖拽的方式扩大或缩小你的表单框，我这里定义为true，表示允许</span></span><br><span class="line">        formTestDialog.show();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、插件的打包-安装"><a href="#五、插件的打包-安装" class="headerlink" title="五、插件的打包&amp;安装"></a>五、插件的打包&amp;安装</h2><p>截止到第四步，都只是在调试IDE里查看效果，如果一个插件开发完成后，需要被实际的IDEA安装，这个时候就需要借助打包选项来打包你的插件，点击下面的选项构建插件：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-10.png?imageView2/0/w/550" alt="图10"></p>
+<p>构建完成后，查看<code>build包</code>下的<code>distributions目录</code>，里面的<code>zip包</code>就可以直接安装进你的IDEA：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-11.png?imageView2/0/w/550" alt="图11"></p>
+<p>然后选择IDEA的<code>Preferences</code>下的<code>plugins</code>选项，弹出如下框，按照图里的指示选择<code>zip包</code>安装即可：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-12.png?imageView2/0/w/1024" alt="图12"></p>
+<p>然后安装完成，重启IDEA即可：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-13.png?imageView2/0/w/1024" alt="图13"></p>
+<p>各个展示模块对应插件项目里配置的来源参考下图：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-14.png?imageView2/0/w/1024" alt="图14"></p>
+<p>重启后出现了跟调试IDEA里一样的菜单栏，选中后运行成功：</p>
+<p><img src="http://myblog.sharemer.com/2019/12/13/20191213-1-15.png?imageView2/0/w/550" alt="图15"></p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>截止到这里，一个插件的<code>开发</code>、<code>调试</code>、<code>安装</code>就完成了，理论上通过这个简单的例子就可以实现一些实际的功能了，因为其完整展示了<code>数据输入</code>到<code>数据获取</code>整个过程。</p>
+<p>因为工作当中需要写一个代码生成器，想要以一个IDEA插件的方式提供服务，所以在这里做个记录，防止以后再次用到时从零开始。。</p>
+<p>要有一定的<code>swing</code>基础，我在开发代码生成器的时候，就是因为swing基础太差，布局花了非常多的时间。</p>
+<blockquote>
+<p>之后不会深入去研究插件的开发，如果后续工作中有用到插件开发的其他的功能点，会更新在这个分类里，如果想深入搞IDEA插件开发，建议看<a target="_blank" rel="noopener" href="http://www.jetbrains.org/intellij/sdk/docs/welcome.html">IDEA的官方文档</a>，官方文档有点乱，有很多只是简单介绍几句甚至没有示例，好在他们有个问答社区，建议搜索时用google搜英文关键词，里面会有人提问，比如版本兼容的问题就是google出来的，社区里正好有一篇问答，链接在文章开头。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/IDEA/" rel="tag"><i class="fa fa-tag"></i> IDEA</a>
+              <a href="/tags/IDEA%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" rel="tag"><i class="fa fa-tag"></i> IDEA插件开发</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/12/10/Resilience4j%E7%86%94%E6%96%AD%E5%99%A8-%E4%BD%BF%E7%94%A8%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" rel="prev" title="Resilience4j熔断器-使用与源码解析">
+                  <i class="fa fa-angle-left"></i> Resilience4j熔断器-使用与源码解析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/02/24/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91%E5%BA%8F/" rel="next" title="【JAVA进化论】序">
+                  【JAVA进化论】序 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

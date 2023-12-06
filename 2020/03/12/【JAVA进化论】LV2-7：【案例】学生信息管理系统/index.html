@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="学完了类，我们利用类，结合现有的软件设计的分层思想，来做一个基本的学生信息管理系统，因为我们还没有接触数据库，所以我们利用数组来做基本的存储，该系统拥有的功能如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【JAVA进化论】LV2-7：【案例】学生信息管理系统">
+<meta property="og:url" content="http://example.com/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-7%EF%BC%9A%E3%80%90%E6%A1%88%E4%BE%8B%E3%80%91%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="学完了类，我们利用类，结合现有的软件设计的分层思想，来做一个基本的学生信息管理系统，因为我们还没有接触数据库，所以我们利用数组来做基本的存储，该系统拥有的功能如下：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-2-1.png">
+<meta property="article:published_time" content="2020-03-12T10:01:00.000Z">
+<meta property="article:modified_time" content="2023-12-06T09:22:58.356Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="JAVA进化论">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2020/03/12/20200312-2-1.png">
+
+
+<link rel="canonical" href="http://example.com/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-7%EF%BC%9A%E3%80%90%E6%A1%88%E4%BE%8B%E3%80%91%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-7%EF%BC%9A%E3%80%90%E6%A1%88%E4%BE%8B%E3%80%91%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/","path":"2020/03/12/【JAVA进化论】LV2-7：【案例】学生信息管理系统/","title":"【JAVA进化论】LV2-7：【案例】学生信息管理系统"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【JAVA进化论】LV2-7：【案例】学生信息管理系统 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Model%E5%B1%82"><span class="nav-number">1.</span> <span class="nav-text">一、Model层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Dao%E5%B1%82"><span class="nav-number">2.</span> <span class="nav-text">二、Dao层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Service%E5%B1%82"><span class="nav-number">3.</span> <span class="nav-text">三、Service层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81View%E5%B1%82"><span class="nav-number">4.</span> <span class="nav-text">四、View层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">5.</span> <span class="nav-text">六、运行结果</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-7%EF%BC%9A%E3%80%90%E6%A1%88%E4%BE%8B%E3%80%91%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【JAVA进化论】LV2-7：【案例】学生信息管理系统 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【JAVA进化论】LV2-7：【案例】学生信息管理系统
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-03-12 18:01:00" itemprop="dateCreated datePublished" datetime="2020-03-12T18:01:00+08:00">2020-03-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">JAVA进化论</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>12k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>学完了类，我们利用类，结合现有的软件设计的分层思想，来做一个基本的学生信息管理系统，因为我们还没有接触<code>数据库</code>，所以我们利用数组来做基本的存储，该系统拥有的功能如下：</p>
+<span id="more"></span>
+
+<ol>
+<li>欢迎页面，介绍功能点、指令</li>
+<li><code>指令1</code>，新增学生信息，输入完最后一个学生属性后，输出“ok，已完成录入”的信息，然后回到欢迎页</li>
+<li><code>指令2</code>，修改学生信息，跟1一样，输入学生id确定需要修改的学生，首先输出其信息，然后输入一个个的新属性值直到完最后一个学生属性后，输出“ok，已完成修改”的信息，然后回到欢迎页</li>
+<li><code>指令3</code>，删除学生信息，输入学生id，删除对应的学生信息，删除后，输出“ok，已删除”，然后回到欢迎页</li>
+<li><code>指令4</code>，根据id查询学生信息，输入学生id，找到其信息，然后输出其信息，然后回到欢迎页</li>
+<li><code>指令5</code>，输出所有学生的信息，最好以一个表格的形式展示，然后回到欢迎页</li>
+<li><code>指令0</code>，终止程序</li>
+</ol>
+<p>首先我们来看下项目的基本结构：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-2-1.png" alt="图1"></p>
+<h2 id="一、Model层"><a href="#一、Model层" class="headerlink" title="一、Model层"></a>一、Model层</h2><p>首先抽象好一个Person类来做Student的父类：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> student.system.model;</span><br><span class="line"></span><br><span class="line"><span class="comment">//这里定义一个父类，定义人最基本的属性，为什么要把人独立出来做父类？如果以后还有老师类，就不用再写一遍下面的属性了啊，直接继承即可</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//名字</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="comment">//年龄</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line">    <span class="comment">//性别：0女性，1男性</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> gender;</span><br><span class="line">    <span class="comment">//住址</span></span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//下面就是用来设置属性值和获取属性值的方法</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getGender</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> gender;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setGender</span><span class="params">(<span class="type">int</span> gender)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.gender = gender;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getAddress</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> address;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAddress</span><span class="params">(String address)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.address = address;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里面存放学生作为「人」的基本属性。</p>
+<p>定义一个班级类，用来表示学生所在的班级，最终它要和学生类关联起来：</p>
+<figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> student.system.model;</span><br><span class="line"></span><br><span class="line"><span class="comment">//班级信息类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Grade</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//班级编号</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> id;</span><br><span class="line">    <span class="comment">//班级名称</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//下面就是用来设置属性值和获取属性值的方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setId</span><span class="params">(<span class="type">int</span> id)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后定义出来学生类：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> student.system.model;</span><br><span class="line"></span><br><span class="line"><span class="comment">//学生类，最终存放学生信息的类，学生是人，所以他们具备所有人的属性，除此之外，他们有自己的一些拓展属性</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Student</span> <span class="keyword">extends</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">    <span class="comment">//学号</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> id;</span><br><span class="line">    <span class="comment">//平均成绩</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">float</span> avg_score;</span><br><span class="line">    <span class="comment">//所属班级</span></span><br><span class="line">    <span class="keyword">private</span> Grade grade;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//下面就是用来设置属性值和获取属性值的方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setId</span><span class="params">(<span class="type">int</span> id)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">float</span> <span class="title function_">getAvg_score</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> avg_score;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAvg_score</span><span class="params">(<span class="type">float</span> avg_score)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.avg_score = avg_score;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Grade <span class="title function_">getGrade</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> grade;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setGrade</span><span class="params">(Grade grade)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.grade = grade;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，学号、成绩这些都是学生特有的，像什么性别年龄这些，都是作为「人」共有的，为了达到复用，我们把它们抽了出来放到Person类，日后如果需要拓展一个老师类，那么老师也符合这些信息，直接继承复用即可。</p>
+<h2 id="二、Dao层"><a href="#二、Dao层" class="headerlink" title="二、Dao层"></a>二、Dao层</h2><p>这一层用来模拟数据库存储，主要用来实现增删改查最基本的元操作：</p>
+<figure class="highlight java"><figcaption><span>代码块4</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> student.system.dao;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> student.system.model.Student;</span><br><span class="line"></span><br><span class="line"><span class="comment">//这个类位于我们定义的dao层，dao层一般负责和数据库交互进行最基本的增删改查操作</span></span><br><span class="line"><span class="comment">//由于我们没有数据库，就在dao层这个类里定义一个数组用来保存student信息吧</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StudentDao</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//在实际的项目里，你可以理解这个数组相当于某个数据库的student表</span></span><br><span class="line">    <span class="keyword">private</span> Student[] students = <span class="keyword">new</span> <span class="title class_">Student</span>[<span class="number">10</span>]; <span class="comment">//假如数据库的容量仅为10，超过这个量，就会报错</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">studentsNum</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">//数组下标</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//增：用来添加student信息进students里</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">add</span><span class="params">(Student student)</span> &#123; <span class="comment">//接收一个Student类型的参数，这个student就是需要add方法做存储处理的</span></span><br><span class="line">        <span class="keyword">if</span> (isOverflow()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;数据库已满，添加失败！&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            students[studentsNum] = student; <span class="comment">//保存这个student</span></span><br><span class="line">            studentsNum++; <span class="comment">//为了便于下一个数据的存储且不覆盖当前位置的数据，这里下标自增1</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//删：按照学生的id进行删除该学生信息</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">del</span><span class="params">(<span class="type">int</span> id)</span> &#123;</span><br><span class="line">        <span class="comment">//ps：数组做删除是件非常麻烦的事情-_-||，这里偷懒了，只需要知道该方法可以完成一个数据的删除即可</span></span><br><span class="line">        Student[] newArray = <span class="keyword">new</span> <span class="title class_">Student</span>[<span class="number">10</span>];</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; studentsNum; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (students[i].getId() != id) &#123;</span><br><span class="line">                newArray[j] = students[i];</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        students = newArray;</span><br><span class="line">        studentsNum--; <span class="comment">//删除掉一个数据，下标自减1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//改：根据输入的新的学生信息，按照id替换掉原先对应的学生信息</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">update</span><span class="params">(Student student)</span> &#123;</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">result</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; studentsNum; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (students[i] != <span class="literal">null</span> &amp;&amp; students[i].getId() == student.getId()) &#123;</span><br><span class="line">                students[i] = student;</span><br><span class="line">                result = <span class="literal">true</span>;</span><br><span class="line">                <span class="keyword">break</span>; <span class="comment">//终止循环</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//查：按照学生id，查询学生信息</span></span><br><span class="line">    <span class="keyword">public</span> Student <span class="title function_">getStudentById</span><span class="params">(<span class="type">int</span> id)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; studentsNum; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (students[i] != <span class="literal">null</span> &amp;&amp; students[i].getId() == id) &#123;</span><br><span class="line">                <span class="keyword">return</span> students[i]; <span class="comment">//找到了直接返回出去</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>; <span class="comment">//找不到就返回空对象</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//列表：返回当前所有的学生信息</span></span><br><span class="line">    <span class="keyword">public</span> Student[] getAllStudents() &#123;</span><br><span class="line">        Student[] nowStudents = <span class="keyword">new</span> <span class="title class_">Student</span>[studentsNum];</span><br><span class="line">        <span class="comment">//这个操作会把students里下标为0~studentsNum的元素copy给nowStudents</span></span><br><span class="line">        System.arraycopy(students, <span class="number">0</span>, nowStudents, <span class="number">0</span>, studentsNum);</span><br><span class="line">        <span class="keyword">return</span> nowStudents;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//用于内部判断当前数据库是不是已经存满数据了</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">isOverflow</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> studentsNum == <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、Service层"><a href="#三、Service层" class="headerlink" title="三、Service层"></a>三、Service层</h2><p>这一层主要跟Dao层交互，通常会利用Dao层里的元操作来完成更加复杂的业务性质的操作：</p>
+<figure class="highlight java"><figcaption><span>代码块5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> student.system.service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> student.system.dao.StudentDao;</span><br><span class="line"><span class="keyword">import</span> student.system.model.Student;</span><br><span class="line"></span><br><span class="line"><span class="comment">//service层的类，它触发Dao层的基本操作的同时，还会用来处理更加复杂的业务逻辑</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StudentService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">StudentDao</span> <span class="variable">studentDao</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StudentDao</span>(); <span class="comment">//因为service层需要做基本的增删改查操作，因此它持有一个StudentDao类型的属性</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个方法用来触发Dao层的&quot;增&quot;方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">add</span><span class="params">(Student student)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (student == <span class="literal">null</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;请输入合理的student！&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//你会发现不就是简单触发一下Dao层的add方法吗？为啥需要单独拆一个Service层来套娃呢？因为我上面解释过了，service是用来处理复杂业务逻辑的</span></span><br><span class="line">        <span class="comment">//真正的service层可能会引很多Dao层进行混合操作，本例之所以这么简单是因为这个系统本身就很简单啊。。理解这个点就好~</span></span><br><span class="line">        <span class="keyword">return</span> studentDao.add(student);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个方法用来触发Dao层的&quot;删&quot;方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">del</span><span class="params">(<span class="type">int</span> id)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (id &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;请输入合理的id！&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> studentDao.del(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个方法用来触发Dao层的&quot;改&quot;方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">update</span><span class="params">(Student student)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (student == <span class="literal">null</span>) &#123; <span class="comment">//这块代码跟add里的重复，理论上可以封装成一个独立的方法，但这里我们不这么干了。。所以说有些规则只是理想化下会选择这么做，但实际开发中可能并没有这么严格</span></span><br><span class="line">            System.out.println(<span class="string">&quot;请输入合理的student！&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> studentDao.update(student);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个方法用来触发Dao层的&quot;查&quot;方法</span></span><br><span class="line">    <span class="keyword">public</span> Student <span class="title function_">getStudentById</span><span class="params">(<span class="type">int</span> id)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (id &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> studentDao.getStudentById(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个方法用来触发Dao层的&quot;列表&quot;方法</span></span><br><span class="line">    <span class="keyword">public</span> Student[] getAllStudents() &#123;</span><br><span class="line">        <span class="keyword">return</span> studentDao.getAllStudents();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、View层"><a href="#四、View层" class="headerlink" title="四、View层"></a>四、View层</h2><p>这一层负责和用户交互，将用户输入的指令传达给Service，并将Service的处理结果通知给用户，这一层在企业级软件设计里被称为视图层（虽然MVC在很多场景下已经“过时”，但是我们仍然可以从中学到企业级开发时所需要的分层思想）：</p>
+<figure class="highlight java"><figcaption><span>代码块6</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> student.system.view;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> student.system.model.Grade;</span><br><span class="line"><span class="keyword">import</span> student.system.model.Student;</span><br><span class="line"><span class="keyword">import</span> student.system.service.StudentService;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Scanner;</span><br><span class="line"></span><br><span class="line"><span class="comment">//视图层，用来展示给用户看的</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StudentSystemView</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//因为视图层需要请求基本的增删改查操作，因此它持有一个StudentService类型的属性</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">StudentService</span> <span class="variable">studentService</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StudentService</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">StudentSystemView</span> <span class="variable">view</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StudentSystemView</span>();</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">opNum</span> <span class="operator">=</span> view.home();</span><br><span class="line">            <span class="keyword">if</span> (opNum == <span class="number">0</span>) &#123; <span class="comment">//终止程序</span></span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (opNum == <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="comment">//需要新增学生信息</span></span><br><span class="line">                view.addStudent();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (opNum == <span class="number">2</span>) &#123;</span><br><span class="line">                view.updateStudent();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (opNum == <span class="number">3</span>) &#123;</span><br><span class="line">                view.delStudent();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (opNum == <span class="number">4</span>) &#123;</span><br><span class="line">                view.getStudentById();</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (opNum == <span class="number">5</span>) &#123;</span><br><span class="line">                view.getAllStudents();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;请输入有效的指令！&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//首页</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">home</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;+----------------------------------&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;|      S大学-学生信息管理系统&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;+----------------------------------&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;|  指令集：&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;|     1.新增&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;|     2.修改&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;|     3.删除&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;|     4.查找&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;|     5.学生列表&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;|     0.终止程序&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;+----------------------------------&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入您的操作：&quot;</span>);</span><br><span class="line">        <span class="type">Scanner</span> <span class="variable">s</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Scanner</span>(System.in);</span><br><span class="line">        <span class="keyword">return</span> s.nextInt();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//添加学生信息</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addStudent</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;您现在正在添加一个学生的信息，请按照指令输入学生的各项信息：&quot;</span>);</span><br><span class="line">        <span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> scannerStudent();</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">result</span> <span class="operator">=</span> studentService.add(student); <span class="comment">//最后我们通过studentService将这个学生信息加到&quot;数据库&quot;里去</span></span><br><span class="line">        <span class="comment">//按照service层的处理结果，输出不同的文案</span></span><br><span class="line">        <span class="keyword">if</span> (result) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;数据添加成功！&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;数据添加失败！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//删除学生信息</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">delStudent</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;您现在正在删除一个学生的信息，请输入需要删除学生的id：&quot;</span>);</span><br><span class="line">        <span class="type">Scanner</span> <span class="variable">s</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Scanner</span>(System.in);</span><br><span class="line">        <span class="type">int</span> <span class="variable">id</span> <span class="operator">=</span> s.nextInt();</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">result</span> <span class="operator">=</span> studentService.del(id); <span class="comment">//最后我们通过studentService将这个学生信息加到&quot;数据库&quot;里去</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//按照service层的处理结果，输出不同的文案</span></span><br><span class="line">        <span class="keyword">if</span> (result) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;数据删除成功！&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;数据删除失败！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改学生信息</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">updateStudent</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;您现在正在修改一个学生的信息，请按照指令输入学生的各项信息：&quot;</span>);</span><br><span class="line">        <span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> scannerStudent();</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">result</span> <span class="operator">=</span> studentService.update(student); <span class="comment">//最后我们通过studentService将对应的学生信息修改掉</span></span><br><span class="line">        <span class="comment">//按照service层的处理结果，输出不同的文案</span></span><br><span class="line">        <span class="keyword">if</span> (result) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;数据修改成功！&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;数据修改失败！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//按照id查找学生信息</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getStudentById</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入需要查找学生的id：&quot;</span>);</span><br><span class="line">        <span class="type">Scanner</span> <span class="variable">s</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Scanner</span>(System.in);</span><br><span class="line">        <span class="type">int</span> <span class="variable">id</span> <span class="operator">=</span> s.nextInt();</span><br><span class="line">        <span class="type">Student</span> <span class="variable">result</span> <span class="operator">=</span> studentService.getStudentById(id); <span class="comment">//最后我们通过studentService查找到对应的学生信息</span></span><br><span class="line">        <span class="comment">//按照service层的处理结果，输出不同的文案</span></span><br><span class="line">        <span class="keyword">if</span> (result != <span class="literal">null</span>) &#123;</span><br><span class="line">            printStudentInfo(result);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;未查到对应数据！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//输出当前&quot;数据库&quot;内所有学生的信息</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getAllStudents</span><span class="params">()</span> &#123;</span><br><span class="line">        Student[] result = studentService.getAllStudents(); <span class="comment">//最后我们通过studentService将所有的学生信息拿到</span></span><br><span class="line">        <span class="comment">//按照service层的处理结果，输出不同的文案</span></span><br><span class="line">        <span class="keyword">if</span> (result != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (Student student : result) &#123;</span><br><span class="line">                printStudentInfo(student);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;未查到对应数据！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//用来让用户输入一个学生的信息，由于修改信息那里以及新增信息那里都需要这个操作，而且这个操作代码又很长，因此为了复用这块的代码，我们把它封装出来，以供别人重复使用</span></span><br><span class="line">    <span class="keyword">private</span> Student <span class="title function_">scannerStudent</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入学生的id：&quot;</span>);</span><br><span class="line">        <span class="type">Scanner</span> <span class="variable">s</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Scanner</span>(System.in);</span><br><span class="line">        <span class="type">int</span> <span class="variable">id</span> <span class="operator">=</span> s.nextInt();</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入学生的名字：&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> s.next();</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入学生的年龄：&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">age</span> <span class="operator">=</span> s.nextInt();</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入学生的性别（0女1男）：&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">gender</span> <span class="operator">=</span> s.nextInt();</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入学生的住址：&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">address</span> <span class="operator">=</span> s.next();</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入学生的平均分：&quot;</span>);</span><br><span class="line">        <span class="type">float</span> <span class="variable">avgScore</span> <span class="operator">=</span> s.nextFloat();</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入学生所属班级的id：&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">gradeId</span> <span class="operator">=</span> s.nextInt();</span><br><span class="line">        System.out.println(<span class="string">&quot;请输入学生所属班级的名称：&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">gradeName</span> <span class="operator">=</span> s.next();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//开始根据输入的信息组装学生对象</span></span><br><span class="line">        <span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Student</span>();</span><br><span class="line">        student.setId(id);</span><br><span class="line">        student.setName(name);</span><br><span class="line">        student.setAge(age);</span><br><span class="line">        student.setGender(gender);</span><br><span class="line">        student.setAddress(address);</span><br><span class="line">        student.setAvg_score(avgScore);</span><br><span class="line">        <span class="comment">//构建一个班级类</span></span><br><span class="line">        <span class="type">Grade</span> <span class="variable">grade</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Grade</span>();</span><br><span class="line">        grade.setId(gradeId);</span><br><span class="line">        grade.setName(gradeName);</span><br><span class="line">        student.setGrade(grade); <span class="comment">//给student对象里持有的grade属性赋值</span></span><br><span class="line">        <span class="keyword">return</span> student;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//按照某种格式打印出来一个student信息的方法，在getStudentById和getAllStudents中均有使用</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">printStudentInfo</span><span class="params">(Student student)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;id = &quot;</span> + student.getId()</span><br><span class="line">                + <span class="string">&quot;\t name = &quot;</span> + student.getName()</span><br><span class="line">                + <span class="string">&quot;\t age = &quot;</span> + student.getAge()</span><br><span class="line">                + <span class="string">&quot;\t address = &quot;</span> + student.getAddress()</span><br><span class="line">                + <span class="string">&quot;\t gender = &quot;</span> + (student.getGender() == <span class="number">1</span> ? <span class="string">&quot;男&quot;</span> : <span class="string">&quot;女&quot;</span>)</span><br><span class="line">                + <span class="string">&quot;\t avg_score = &quot;</span> + student.getAvg_score()</span><br><span class="line">                + <span class="string">&quot;\t address = &quot;</span> + student.getAddress()</span><br><span class="line">                + <span class="string">&quot;\t grade_id = &quot;</span> + student.getGrade().getId()</span><br><span class="line">                + <span class="string">&quot;\t grade_name = &quot;</span> + student.getGrade().getName());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、运行结果"><a href="#六、运行结果" class="headerlink" title="六、运行结果"></a>六、运行结果</h2><p>直接运行view层代码的main方法，开始录入学生并完成一次查找：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">录入学生信息&amp;查找学生信息</span><br><span class="line"></span><br><span class="line">+----------------------------------</span><br><span class="line">|      S大学-学生信息管理系统</span><br><span class="line">+----------------------------------</span><br><span class="line">|  指令集：</span><br><span class="line">|     1.新增</span><br><span class="line">|     2.修改</span><br><span class="line">|     3.删除</span><br><span class="line">|     4.查找</span><br><span class="line">|     5.学生列表</span><br><span class="line">|     0.终止程序</span><br><span class="line">+----------------------------------</span><br><span class="line">请输入您的操作：</span><br><span class="line">1</span><br><span class="line">您现在正在添加一个学生的信息，请按照指令输入学生的各项信息：</span><br><span class="line">请输入学生的id：</span><br><span class="line">1</span><br><span class="line">请输入学生的名字：</span><br><span class="line">s</span><br><span class="line">请输入学生的年龄：</span><br><span class="line">26</span><br><span class="line">请输入学生的性别（0女1男）：</span><br><span class="line">1</span><br><span class="line">请输入学生的住址：</span><br><span class="line">shanghai</span><br><span class="line">请输入学生的平均分：</span><br><span class="line">100</span><br><span class="line">请输入学生所属班级的id：</span><br><span class="line">1</span><br><span class="line">请输入学生所属班级的名称：</span><br><span class="line">2.1</span><br><span class="line">数据添加成功！</span><br><span class="line">+----------------------------------</span><br><span class="line">|      S大学-学生信息管理系统</span><br><span class="line">+----------------------------------</span><br><span class="line">|  指令集：</span><br><span class="line">|     1.新增</span><br><span class="line">|     2.修改</span><br><span class="line">|     3.删除</span><br><span class="line">|     4.查找</span><br><span class="line">|     5.学生列表</span><br><span class="line">|     0.终止程序</span><br><span class="line">+----------------------------------</span><br><span class="line">请输入您的操作：</span><br><span class="line">4</span><br><span class="line">请输入需要查找学生的id：</span><br><span class="line">1</span><br><span class="line">id = 1	 name = s	 age = 26	 address = shanghai	 gender = 男	 avg_score = 100.0	 address = shanghai	 grade_id = 1	 grade_name = 2.1</span><br></pre></td></tr></table></figure>
+
+<p>你可以自己模仿着写一个类似这种指令输入方式的“xxx管理系统”，然后自己可以运行下，感受下。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" rel="tag"><i class="fa fa-tag"></i> JAVA进化论</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-6%EF%BC%9Ajava%E5%8E%9F%E7%94%9F%E7%B1%BB&%E7%AC%AC%E4%B8%89%E6%96%B9%E5%8C%85%E4%BE%9D%E8%B5%96/" rel="prev" title="【JAVA进化论】LV2-6：java原生类&第三方包依赖">
+                  <i class="fa fa-angle-left"></i> 【JAVA进化论】LV2-6：java原生类&第三方包依赖
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-1%EF%BC%9A%E4%BD%9C%E7%94%A8%E5%9C%A8%E7%B1%BB%E3%80%81%E5%8F%98%E9%87%8F%E3%80%81%E6%96%B9%E6%B3%95%E4%B8%8A%E7%9A%84%E5%85%B6%E5%AE%83%E4%BF%AE%E9%A5%B0%E7%AC%A6/" rel="next" title="【JAVA进化论】LV3-1：作用在类、变量、方法上的其它修饰符">
+                  【JAVA进化论】LV3-1：作用在类、变量、方法上的其它修饰符 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

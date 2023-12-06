@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、join &amp; interrupt这俩方法属于线程对象里的方法，属于线程本身的操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图解java多线程设计模式（二）">
+<meta property="og:url" content="http://example.com/2019/03/13/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="一、join &amp; interrupt这俩方法属于线程对象里的方法，属于线程本身的操作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/03/13/20190313-1-1.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/03/13/20190313-1-2.png?imageView2/0/w/1024">
+<meta property="article:published_time" content="2019-03-13T13:05:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T08:18:22.408Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="并发编程">
+<meta property="article:tag" content="多线程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2019/03/13/20190313-1-1.png?imageView2/0/w/1024">
+
+
+<link rel="canonical" href="http://example.com/2019/03/13/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2019/03/13/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%BA%8C%EF%BC%89/","path":"2019/03/13/图解java多线程设计模式（二）/","title":"图解java多线程设计模式（二）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图解java多线程设计模式（二） | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81join-interrupt"><span class="nav-number">1.</span> <span class="nav-text">一、join &amp; interrupt</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1%EF%BC%9Ajoin%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">1.1：join方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2%EF%BC%9Ainterrupt%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">1.2：interrupt方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%E8%BF%81%E7%A7%BB%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">二、线程状态迁移图</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/03/13/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图解java多线程设计模式（二） | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图解java多线程设计模式（二）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-03-13 21:05:00" itemprop="dateCreated datePublished" datetime="2019-03-13T21:05:00+08:00">2019-03-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">并发编程</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="一、join-interrupt"><a href="#一、join-interrupt" class="headerlink" title="一、join &amp; interrupt"></a>一、join &amp; interrupt</h3><p>这俩方法属于线程对象里的方法，属于线程本身的操作。</p>
+<span id="more"></span>
+
+<h4 id="1-1：join方法"><a href="#1-1：join方法" class="headerlink" title="1.1：join方法"></a>1.1：join方法</h4><p>用于等待一个线程的终止，等待期间将会阻塞，直到被等待的线程终止结束。</p>
+<p>所以<code>join</code>可以用来做多任务异步处理，比如还是拿<a href="/2019/03/14/%E5%88%A9%E7%94%A8CompletableFuture%E4%BC%98%E5%8C%96%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%89%A7%E8%A1%8C%E6%95%88%E7%8E%87/">利用CompletableFuture优化程序的执行效率</a>这篇里的第一个例子做优化，这篇文章里使用<strong>线程池</strong>的<strong>future模式</strong>进行多任务异步处理，现在使用join改写下：</p>
+<p>再来简单贴下这几个方法：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String <span class="title function_">getTop</span><span class="params">()</span> &#123; <span class="comment">// 这里假设getTop需要执行200ms</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">200L</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;顶部banner位&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">getLeft</span><span class="params">()</span> &#123; <span class="comment">// 这里假设getLeft需要执行50ms</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">50L</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;左边栏&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">getRight</span><span class="params">()</span> &#123; <span class="comment">// 这里假设getRight需要执行80ms</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">80L</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;右边栏&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">getUser</span><span class="params">()</span> &#123; <span class="comment">// 这里假设getUser需要执行100ms</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">100L</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;用户信息&quot;</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后现在使用简单的线程做异步处理：</p>
+<figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简单异步获取</span></span><br><span class="line">    <span class="keyword">public</span> WebModule <span class="title function_">getWebModuleMsgSimpleAsync</span><span class="params">()</span> <span class="keyword">throws</span> ExecutionException, InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">WebModule</span> <span class="variable">webModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WebModule</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">topTask</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; webModule.setTop(<span class="built_in">this</span>.getTop()));</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">leftTask</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; webModule.setLeft(<span class="built_in">this</span>.getLeft()));</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">rightTask</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; webModule.setRight(<span class="built_in">this</span>.getRight()));</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">userTask</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; webModule.setUser(<span class="built_in">this</span>.getUser()));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//触发各个异步任务</span></span><br><span class="line">        topTask.start();</span><br><span class="line">        leftTask.start();</span><br><span class="line">        rightTask.start();</span><br><span class="line">        userTask.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//等待所有的任务均执行完毕</span></span><br><span class="line">        topTask.join();</span><br><span class="line">        leftTask.join();</span><br><span class="line">        rightTask.join();</span><br><span class="line">        userTask.join();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> webModule;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试代码：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testSimpleASync</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">// 同步方法测试，预估耗时200ms</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="type">WebModule</span> <span class="variable">module</span> <span class="operator">=</span> webHome.getWebModuleMsgSimpleAsync();</span><br><span class="line">        System.out.println(<span class="string">&quot;通过异步方法获取首页全部信息消耗时间：&quot;</span> + (System.currentTimeMillis() - start) + <span class="string">&quot;ms&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;结果为：&quot;</span> + <span class="keyword">module</span>.toString());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">通过异步方法获取首页全部信息消耗时间：272ms</span><br><span class="line">结果为：top: 顶部banner位;  left: 左边栏;  right: 右边栏;  user: 用户信息</span><br></pre></td></tr></table></figure>
+
+<p>比预估的要多<strong>72ms</strong>，经过后来的测试，发现这72ms耗时发生在线程创建的时候，以及后续线程状态转换带来的消耗，下面等待异步结束的时间约等于200ms，符合预期。</p>
+<h4 id="1-2：interrupt方法"><a href="#1-2：interrupt方法" class="headerlink" title="1.2：interrupt方法"></a>1.2：interrupt方法</h4><p>用于主动终止一个线程，线程本身调用该方法后，视为已终止状态，<code>join</code>解除阻塞，下面来用<code>interrupt</code>和<code>join</code>来做个实验：</p>
+<figure class="highlight java"><figcaption><span>代码块4</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JoinTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">isStop</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">JoinTest</span> <span class="variable">test</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JoinTest</span>();</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">loopT</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(test::loopTask);</span><br><span class="line">        loopT.start();</span><br><span class="line"></span><br><span class="line">        sleep(<span class="number">2000L</span>); <span class="comment">//2s后终止线程</span></span><br><span class="line">        test.setStop(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> <span class="variable">s</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        loopT.join();</span><br><span class="line">        System.out.println(<span class="string">&quot;线程终止后，join阻塞时间为：&quot;</span> + (System.currentTimeMillis() - s));</span><br><span class="line">        System.out.println(<span class="string">&quot;end~&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setStop</span><span class="params">(<span class="type">boolean</span> stop)</span> &#123;</span><br><span class="line">        isStop = stop;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">loopTask</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (!isStop) &#123; <span class="comment">//若状态为false，则继续执行下面的逻辑，每隔1s打印一次</span></span><br><span class="line">            sleep(<span class="number">1000L</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;loop trigger ~&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        Thread.currentThread().interrupt(); <span class="comment">//在这里终止掉当前线程</span></span><br><span class="line">        <span class="comment">//事实上，在终止掉线程后，还有接下来的逻辑要执行</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">s</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++) &#123;</span><br><span class="line">            <span class="type">int</span>[] a = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">100</span>]; <span class="comment">//模拟耗时操作，这里不能用sleep了，因为当前线程已经被终止了</span></span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;线程终止后，逻辑块运行时间：&quot;</span> + (System.currentTimeMillis() - s));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">sleep</span><span class="params">(<span class="type">long</span> time)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(time);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">loop trigger ~</span><br><span class="line">loop trigger ~</span><br><span class="line">线程终止后，逻辑块运行时间：129</span><br><span class="line">线程终止后，join阻塞时间为：129</span><br><span class="line">end~</span><br></pre></td></tr></table></figure>
+
+<p>即便线程被终止了，后面的逻辑也会触发，<code>join</code>依旧会选择阻塞，直到后续逻辑执行完毕，事实上，大部分任务都可以及时的终止，比如第一个例子，异步出去的任务，最终都会执行完成，线程变为终止状态，join都可以顺利结束，但是反观上例，如果没人及时的设置<code>isStop</code>的值，程序会一直执行下去，没有终止态，join会无止境的终止下去，这里提一下<code>stop</code>，线程的stop方法已被官方标记为<strong>不建议使用</strong>的方法，如果把上例的<code>interrupt</code>的调用换成stop，来看看其运行结果：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">loop</span> <span class="keyword">trigger</span> ~</span><br><span class="line"><span class="keyword">loop</span> <span class="keyword">trigger</span> ~</span><br><span class="line">线程终止后，<span class="keyword">join</span>阻塞时间为：<span class="number">0</span></span><br><span class="line"><span class="keyword">end</span>~</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，线程终止后的后续逻辑均没有触发，等于说<code>stop</code>是一种很粗暴的终止线程的方式，一旦被<code>stop</code>，那么里面的业务逻辑将直接断掉，因此官方并不推荐使用该方法来终止线程。</p>
+<p>而interrupt，仅仅是对目标线程发送了了一个中断信号（改变了线程的中断状态而已），当目标线程再次通过<code>obj.wait</code>、<code>thread.sleep</code>、<code>thread.join</code>方法进入阻塞状态时，接收到该信号，就会抛出<code>InterruptedException</code>异常，这时候需要业务方自行处理或者直接抛出，以结束线程阻塞状态（这里需要注意的是被<code>obj.wait</code>方法阻塞时，抛出该异常需要目标线程再次获得实例对象<code>obj的锁</code>才行）。</p>
+<p>上述三个<code>需要花费时间</code>的方法均抛出了<code>InterruptedException异常</code>，针对这些特性，想要完成以下操作就非常方便了：</p>
+<ol>
+<li>取消<code>wait方法</code>等待<code>notify/notifyAll</code>的处理</li>
+<li>取消在<code>sleep方法</code>指定时间内停止的处理</li>
+<li>取消<code>join方法</code>等待其他线程终止的处理</li>
+</ol>
+<p>取消之后所做的处理，取决于需求，可能会终止线程，或者通知用户已取消，或者终止当前处理进入下一个处理阶段。</p>
+<h3 id="二、线程状态迁移图"><a href="#二、线程状态迁移图" class="headerlink" title="二、线程状态迁移图"></a>二、线程状态迁移图</h3><p><img src="http://myblog.sharemer.com/2019/03/13/20190313-1-1.png?imageView2/0/w/1024" alt="图1"></p>
+<p>上面的图展示出来的状态太多太杂，原因是它反应的是jvm里线程的状态迁移，如果换算成实际对操作系统层面的线程的影响，状态则少得多，至少无论是<code>TIMED_WAITING</code>还是<code>BLOCKED</code>，对应到操作系统的线程身上，那就是阻塞（或称等待，<code>WAIT</code>)，现在就操作系统层面线程状态变化来简化一下上面的状态迁移图：</p>
+<p><img src="http://myblog.sharemer.com/2019/03/13/20190313-1-2.png?imageView2/0/w/1024" alt="图2"></p>
+<p>这里需要说明的是，JVM里的线程本质上就是操作系统里的线程，<code>图1</code>是告诉你JVM里线程的状态有多少种，其实就是按照各种影响线程的方法（<code>join</code>、<code>wait</code>、<code>notify</code>等）进行了细分，而<code>图2</code>则展示出了操作系统层面上的线程状态，上面也说过，其实无论是由<code>join</code>导致的线程阻塞，还是<code>wait</code>导致的线程阻塞，对于实际的线程影响性质都是一样的，那就是<strong>陷入等待</strong>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="tag"><i class="fa fa-tag"></i> 并发编程</a>
+              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"><i class="fa fa-tag"></i> 多线程</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/10/%E4%B8%80Van%E2%99%82%E5%B9%B4%E4%BB%A5%E5%90%8E/" rel="prev" title="【视频插入测试】一Van♂年以后">
+                  <i class="fa fa-angle-left"></i> 【视频插入测试】一Van♂年以后
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/14/%E5%88%A9%E7%94%A8CompletableFuture%E4%BC%98%E5%8C%96%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%89%A7%E8%A1%8C%E6%95%88%E7%8E%87/" rel="next" title="利用CompletableFuture优化程序的执行效率">
+                  利用CompletableFuture优化程序的执行效率 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

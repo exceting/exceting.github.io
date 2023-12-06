@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="基于依赖程序的版本信息： 姊妹篇：Druid是如何管理数据库连接的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="池化技术（二）HikariCP是如何管理数据库连接的？">
+<meta property="og:url" content="http://example.com/2019/08/29/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%BA%8C%EF%BC%89HikariCP%E6%98%AF%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E7%9A%84%EF%BC%9F/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="基于依赖程序的版本信息： 姊妹篇：Druid是如何管理数据库连接的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.shields.io/badge/HikariCP-v3.3.1-green">
+<meta property="og:image" content="https://img.shields.io/badge/mysql--connector--java-v8.0.17-green">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-1.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-2.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-3.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-4.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-5.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-6.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-7.png?imageView2/0/w/500">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-8.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-9.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/08/28/20190828-1-10.png?imageView2/0/w/1024">
+<meta property="article:published_time" content="2019-08-29T00:45:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T03:52:25.238Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="池化技术">
+<meta property="article:tag" content="数据库连接池">
+<meta property="article:tag" content="HikariCP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.shields.io/badge/HikariCP-v3.3.1-green">
+
+
+<link rel="canonical" href="http://example.com/2019/08/29/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%BA%8C%EF%BC%89HikariCP%E6%98%AF%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E7%9A%84%EF%BC%9F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2019/08/29/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%BA%8C%EF%BC%89HikariCP%E6%98%AF%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E7%9A%84%EF%BC%9F/","path":"2019/08/29/池化技术（二）HikariCP是如何管理数据库连接的？/","title":"池化技术（二）HikariCP是如何管理数据库连接的？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>池化技术（二）HikariCP是如何管理数据库连接的？ | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%B6%E3%80%81%E7%B1%BB%E5%9B%BE%E5%92%8C%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">零、类图和流程图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%B8%BB%E6%B5%81%E7%A8%8B1%EF%BC%9A%E8%8E%B7%E5%8F%96%E8%BF%9E%E6%8E%A5%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">一、主流程1：获取连接流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%BB%E6%B5%81%E7%A8%8B2%EF%BC%9A%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B1%A0%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.</span> <span class="nav-text">二、主流程2：初始化池对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%B5%81%E7%A8%8B1-1%EF%BC%9A%E9%80%9A%E8%BF%87HikariPool%E8%8E%B7%E5%8F%96%E8%BF%9E%E6%8E%A5%E5%AF%B9%E8%B1%A1"><span class="nav-number">4.</span> <span class="nav-text">三、流程1.1：通过HikariPool获取连接对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%B5%81%E7%A8%8B1-1-1%EF%BC%9A%E8%BF%9E%E6%8E%A5%E5%88%A4%E6%B4%BB"><span class="nav-number">5.</span> <span class="nav-text">四、流程1.1.1：连接判活</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%B5%81%E7%A8%8B1-1-2%EF%BC%9A%E5%85%B3%E9%97%AD%E8%BF%9E%E6%8E%A5%E5%AF%B9%E8%B1%A1"><span class="nav-number">6.</span> <span class="nav-text">五、流程1.1.2：关闭连接对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%B5%81%E7%A8%8B2-1%EF%BC%9AHikariCP%E7%9B%91%E6%8E%A7%E8%AE%BE%E7%BD%AE"><span class="nav-number">7.</span> <span class="nav-text">六、流程2.1：HikariCP监控设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%B5%81%E7%A8%8B2-2%EF%BC%9A%E8%BF%9E%E6%8E%A5%E6%B3%84%E6%BC%8F%E7%9A%84%E6%A3%80%E6%B5%8B%E4%B8%8E%E5%91%8A%E8%AD%A6"><span class="nav-number">8.</span> <span class="nav-text">七、流程2.2：连接泄漏的检测与告警</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1%EF%BC%9A%E5%AE%83%E6%98%AF%E5%81%9A%E4%BB%80%E4%B9%88%E7%9A%84%EF%BC%9F"><span class="nav-number">8.1.</span> <span class="nav-text">7.1：它是做什么的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2%EF%BC%9A%E8%BF%87%E7%A8%8B%E8%AF%A6%E8%A7%A3"><span class="nav-number">8.2.</span> <span class="nav-text">7.2：过程详解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E4%B8%BB%E6%B5%81%E7%A8%8B3%EF%BC%9A%E7%94%9F%E6%88%90%E8%BF%9E%E6%8E%A5%E5%AF%B9%E8%B1%A1"><span class="nav-number">9.</span> <span class="nav-text">八、主流程3：生成连接对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E4%B8%BB%E6%B5%81%E7%A8%8B4%EF%BC%9A%E8%BF%9E%E6%8E%A5%E6%B1%A0%E7%BC%A9%E5%AE%B9"><span class="nav-number">10.</span> <span class="nav-text">九、主流程4：连接池缩容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E4%B8%BB%E6%B5%81%E7%A8%8B5%EF%BC%9A%E6%89%A9%E5%85%85%E8%BF%9E%E6%8E%A5%E6%B1%A0"><span class="nav-number">11.</span> <span class="nav-text">十、主流程5：扩充连接池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E4%B8%BB%E6%B5%81%E7%A8%8B6%EF%BC%9A%E8%BF%9E%E6%8E%A5%E5%9B%9E%E6%94%B6"><span class="nav-number">12.</span> <span class="nav-text">十一、主流程6：连接回收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81ConcurrentBag%E4%B8%BB%E6%B5%81%E7%A8%8B"><span class="nav-number">13.</span> <span class="nav-text">十二、ConcurrentBag主流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#12-1%EF%BC%9Aborrow"><span class="nav-number">13.1.</span> <span class="nav-text">12.1：borrow</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-2%EF%BC%9Aadd"><span class="nav-number">13.2.</span> <span class="nav-text">12.2：add</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-3%EF%BC%9Arequite"><span class="nav-number">13.3.</span> <span class="nav-text">12.3：requite</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-4%EF%BC%9Aremove"><span class="nav-number">13.4.</span> <span class="nav-text">12.4：remove</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-5%EF%BC%9Avalues"><span class="nav-number">13.5.</span> <span class="nav-text">12.5：values</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-6%EF%BC%9Areserve"><span class="nav-number">13.6.</span> <span class="nav-text">12.6：reserve</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-7%EF%BC%9AgetCount"><span class="nav-number">13.7.</span> <span class="nav-text">12.7：getCount</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%89%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">14.</span> <span class="nav-text">十三、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/08/29/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%BA%8C%EF%BC%89HikariCP%E6%98%AF%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E7%9A%84%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="池化技术（二）HikariCP是如何管理数据库连接的？ | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          池化技术（二）HikariCP是如何管理数据库连接的？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-08-29 08:45:00" itemprop="dateCreated datePublished" datetime="2019-08-29T08:45:00+08:00">2019-08-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">池化技术</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>25k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>23 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>基于依赖程序的版本信息：<img src="https://img.shields.io/badge/HikariCP-v3.3.1-green"/><img src="https://img.shields.io/badge/mysql--connector--java-v8.0.17-green"/></p>
+<p>姊妹篇：<a href="/2019/08/28/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%80%EF%BC%89Druid%E6%98%AF%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E7%9A%84%EF%BC%9F/">Druid是如何管理数据库连接的</a></p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="零、类图和流程图"><a href="#零、类图和流程图" class="headerlink" title="零、类图和流程图"></a>零、类图和流程图</h2><p>开始前先来了解下HikariCP获取一个连接时类间的交互流程，方便下面详细流程的阅读。</p>
+<p>获取连接时的类间交互：</p>
+<p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-1.png?imageView2/0/w/1024" alt="图1"></p>
+<h2 id="一、主流程1：获取连接流程"><a href="#一、主流程1：获取连接流程" class="headerlink" title="一、主流程1：获取连接流程"></a>一、主流程1：获取连接流程</h2><p>HikariCP获取连接时的入口是<code>HikariDataSource</code>里的<code>getConnection</code>方法，现在来看下该方法的具体流程：</p>
+<p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-2.png?imageView2/0/w/1024" alt="主流程1"></p>
+<p>上述为HikariCP获取连接时的流程图，由图1可知，每个<code>datasource</code>对象里都会持有一个<code>HikariPool</code>对象，记为pool，初始化后的datasource对象pool是空的，所以第一次<code>getConnection</code>的时候会进行<code>实例化pool</code>属性（参考<code>主流程1</code>），初始化的时候需要将当前datasource里的<code>config属性</code>传过去，用于pool的初始化，最终标记<code>sealed</code>，然后根据pool对象调用<code>getConnection</code>方法（参考<code>流程1.1</code>），获取成功后返回连接对象。</p>
+<h2 id="二、主流程2：初始化池对象"><a href="#二、主流程2：初始化池对象" class="headerlink" title="二、主流程2：初始化池对象"></a>二、主流程2：初始化池对象</h2><p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-3.png?imageView2/0/w/1024" alt="主流程2"></p>
+<p>该流程用于<code>初始化整个连接池</code>，这个流程会给连接池内所有的属性做初始化的工作，其中比较主要的几个流程上图已经指出，简单概括一下：</p>
+<ol>
+<li>利用<code>config</code>初始化各种连接池属性，并且产生一个用于<code>生产物理连接</code>的数据源<code>DriverDataSource</code></li>
+<li>初始化存放连接对象的核心类<code>connectionBag</code></li>
+<li>初始化一个延时任务线程池类型的对象<code>houseKeepingExecutorService</code>，用于后续执行一些延时&#x2F;定时类任务（比如连接泄漏检查延时任务，参考<code>流程2.2</code>以及<code>主流程4</code>，除此之外<code>maxLifeTime</code>后主动回收关闭连接也是交由该对象来执行的，这个过程可以参考<code>主流程3</code>）</li>
+<li>预热连接池，HikariCP会在该流程的<code>checkFailFast</code>里初始化好一个连接对象放进池子内，当然触发该流程得保证<code>initializationTimeout &gt; 0</code>时（默认值1），这个配置属性表示留给预热操作的时间（默认值1在预热失败时不会发生重试）。与<code>Druid</code>通过<code>initialSize</code>控制预热连接对象数不一样的是，HikariCP仅预热进池一个连接对象。</li>
+<li>初始化一个线程池对象<code>addConnectionExecutor</code>，用于后续扩充连接对象</li>
+<li>初始化一个线程池对象<code>closeConnectionExecutor</code>，用于关闭一些连接对象，怎么触发关闭任务呢？可以参考<code>流程1.1.2</code></li>
+</ol>
+<h2 id="三、流程1-1：通过HikariPool获取连接对象"><a href="#三、流程1-1：通过HikariPool获取连接对象" class="headerlink" title="三、流程1.1：通过HikariPool获取连接对象"></a>三、流程1.1：通过HikariPool获取连接对象</h2><p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-4.png?imageView2/0/w/1024" alt="流程1.1"></p>
+<p>从最开始的结构图可知，每个<code>HikariPool</code>里都维护一个<code>ConcurrentBag</code>对象，用于存放连接对象，由上图可以看到，实际上<code>HikariPool</code>的<code>getConnection</code>就是从<code>ConcurrentBag</code>里获取连接的（调用其<code>borrow</code>方法获得，对应<code>ConnectionBag主流程</code>），在长连接检查这块，与之前说的<code>Druid</code>不同，这里的长连接判活检查在连接对象没有被标记为“<code>已丢弃</code>”时，只要距离上次使用超过<code>500ms</code>每次取出都会进行检查（500ms是默认值，可通过配置<code>com.zaxxer.hikari.aliveBypassWindowMs</code>的系统参数来控制），emmmm，也就是说<code>HikariCP</code>对长连接的活性检查很频繁，但是其并发性能依旧优于<code>Druid</code>，说明频繁的长连接检查并不是导致连接池性能高低的关键所在。</p>
+<p>这个其实是由于HikariCP的<code>无锁</code>实现，在高并发时对CPU的负载没有其他连接池那么高而产生的并发性能差异，后面会说HikariCP的具体做法，即使是<code>Druid</code>，在<code>获取连接</code>、<code>生成连接</code>、<code>归还连接</code>时都进行了<code>锁控制</code>，因为通过上篇解析<code>Druid</code>的文章可以知道，<code>Druid</code>里的连接池资源是多线程共享的，不可避免的会有锁竞争，有锁竞争意味着线程状态的变化会很频繁，线程状态变化频繁意味着CPU上下文切换也将会很频繁。</p>
+<p>回到<code>流程1.1</code>，如果拿到的连接为空，直接报错，不为空则进行相应的检查，如果检查通过，则包装成<code>ConnectionProxy</code>对象返回给业务方，不通过则调用<code>closeConnection</code>方法关闭连接（对应<code>流程1.1.2</code>，该流程会触发<code>ConcurrentBag</code>的<code>remove</code>方法丢弃该连接，然后把实际的驱动连接交给<code>closeConnectionExecutor</code>线程池，异步关闭驱动连接）。</p>
+<h2 id="四、流程1-1-1：连接判活"><a href="#四、流程1-1-1：连接判活" class="headerlink" title="四、流程1.1.1：连接判活"></a>四、流程1.1.1：连接判活</h2><p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-5.png?imageView2/0/w/1024" alt="流程1.1.1"></p>
+<p>承接上面的<code>流程1.1</code>里的判活流程，来看下判活是如何做的，首先说验证方法（注意这里该方法接受的这个<code>connection</code>对象不是<code>poolEntry</code>，而是<code>poolEntry</code>持有的实际驱动的连接对象），在之前介绍Druid的时候就知道，Druid是根据驱动程序里是否存在<code>ping方法</code>来判断是否启用ping的方式判断连接是否存活，但是到了HikariCP则更加简单粗暴，仅根据是否配置了<code>connectionTestQuery</code>觉定是否启用ping：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">this</span>.isUseJdbc4Validation = config.getConnectionTestQuery() == <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
+
+<p>所以一般驱动如果不是特别低的版本，<strong>不建议配置该项</strong>，否则便会走<code>createStatement+excute</code>的方式，相比<code>ping</code>简单发送心跳数据，这种方式显然更低效。</p>
+<p>此外，这里在刚进来还会通过驱动的连接对象重新给它设置一遍<code>networkTimeout</code>的值，使之变成<code>validationTimeout</code>，表示一次验证的超时时间，为啥这里要重新设置这个属性呢？因为在使用ping方法校验时，是没办法通过类似<code>statement</code>那样可以<code>setQueryTimeout</code>的，所以只能由网络通信的超时时间来控制，这个时间可以通过<code>jdbc</code>的连接参数<code>socketTimeout</code>来控制：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jdbc</span>:<span class="string">mysql://127.0.0.1:3306/xxx?socketTimeout=250</span></span><br></pre></td></tr></table></figure>
+
+<p>这个值最终会被赋值给HikariCP的<code>networkTimeout</code>字段，这就是为什么最后那一步使用这个字段来还原驱动连接超时属性的原因；说到这里，最后那里为啥要再次还原呢？这就很容易理解了，因为验证结束了，连接对象还存活的情况下，它的<code>networkTimeout</code>的值这时仍然等于<code>validationTimeout</code>（不合预期），显然在拿出去用之前，需要恢复成本来的值，也就是HikariCP里的<code>networkTimeout</code>属性。</p>
+<h2 id="五、流程1-1-2：关闭连接对象"><a href="#五、流程1-1-2：关闭连接对象" class="headerlink" title="五、流程1.1.2：关闭连接对象"></a>五、流程1.1.2：关闭连接对象</h2><p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-6.png?imageView2/0/w/1024" alt="流程1.1.2"></p>
+<p>这个流程简单来说就是把<code>流程1.1.1</code>中验证不通过的死连接，主动关闭的一个流程，首先会把这个连接对象从<code>ConnectionBag</code>里<code>移除</code>，然后把实际的物理连接交给一个线程池去异步执行，这个线程池就是在<code>主流程2</code>里初始化池的时候初始化的线程池<code>closeConnectionExecutor</code>，然后异步任务内开始实际的关连接操作，因为主动关闭了一个连接相当于少了一个连接，所以还会触发一次扩充连接池（参考<code>主流程5</code>）操作。</p>
+<h2 id="六、流程2-1：HikariCP监控设置"><a href="#六、流程2-1：HikariCP监控设置" class="headerlink" title="六、流程2.1：HikariCP监控设置"></a>六、流程2.1：HikariCP监控设置</h2><p>不同于Druid那样监控指标那么多，HikariCP会把我们非常关心的几项指标暴露给我们，比如当前连接池内闲置连接数、总连接数、一个连接被用了多久归还、创建一个物理连接花费多久等，HikariCP的连接池的监控我们这一节专门详细的分解一下，首先找到HikariCP下面的<code>metrics</code>文件夹，这下面放置了一些规范实现的监控接口等，还有一些现成的实现（比如HikariCP自带对<code>prometheus</code>、<code>micrometer</code>、<code>dropwizard</code>的支持，不太了解后面两个，<code>prometheus</code>下文直接称为<code>普罗米修斯</code>）：</p>
+<p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-7.png?imageView2/0/w/500" alt="图2"></p>
+<p>下面，来着重看下接口的定义：</p>
+<figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这个接口的实现主要负责收集一些动作的耗时</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">IMetricsTracker</span> <span class="keyword">extends</span> <span class="title class_">AutoCloseable</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//这个方法触发点在创建实际的物理连接时（主流程3），用于记录一个实际的物理连接创建所耗费的时间</span></span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">recordConnectionCreatedMillis</span><span class="params">(<span class="type">long</span> connectionCreatedMillis)</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个方法触发点在getConnection时（主流程1），用于记录获取一个连接时实际的耗时</span></span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">recordConnectionAcquiredNanos</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> elapsedAcquiredNanos)</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个方法触发点在回收连接时（主流程6），用于记录一个连接从被获取到被回收时所消耗的时间</span></span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">recordConnectionUsageMillis</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> elapsedBorrowedMillis)</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这个方法触发点也在getConnection时（主流程1），用于记录获取连接超时的次数，每发生一次获取连接超时，就会触发一次该方法的调用</span></span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">recordConnectionTimeout</span><span class="params">()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">close</span><span class="params">()</span> &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>触发点都了解清楚后，再来看看<code>MetricsTrackerFactory</code>的接口定义：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//用于创建IMetricsTracker实例，并且按需记录PoolStats对象里的属性（这个对象里的属性就是类似连接池当前闲置连接数之类的线程池状态类指标）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">MetricsTrackerFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//返回一个IMetricsTracker对象，并且把PoolStats传了过去</span></span><br><span class="line">    IMetricsTracker <span class="title function_">create</span><span class="params">(String poolName, PoolStats poolStats)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的接口用法见注释，针对新出现的<code>PoolStats</code>类，我们来看看它做了什么：</p>
+<figure class="highlight java"><figcaption><span>代码块4</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">PoolStats</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicLong reloadAt; <span class="comment">//触发下次刷新的时间（时间戳）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">long</span> timeoutMs; <span class="comment">//刷新下面的各项属性值的频率，默认1s，无法改变</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 总连接数</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">volatile</span> <span class="type">int</span> totalConnections;</span><br><span class="line">    <span class="comment">// 闲置连接数</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">volatile</span> <span class="type">int</span> idleConnections;</span><br><span class="line">    <span class="comment">// 活动连接数</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">volatile</span> <span class="type">int</span> activeConnections;</span><br><span class="line">    <span class="comment">// 由于无法获取到可用连接而阻塞的业务线程数</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">volatile</span> <span class="type">int</span> pendingThreads;</span><br><span class="line">    <span class="comment">// 最大连接数</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">volatile</span> <span class="type">int</span> maxConnections;</span><br><span class="line">    <span class="comment">// 最小连接数</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">volatile</span> <span class="type">int</span> minConnections;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">PoolStats</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> timeoutMs)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.timeoutMs = timeoutMs;</span><br><span class="line">        <span class="built_in">this</span>.reloadAt = <span class="keyword">new</span> <span class="title class_">AtomicLong</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这里以获取最大连接数为例，其他的跟这个差不多</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getMaxConnections</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (shouldLoad()) &#123; <span class="comment">//是否应该刷新</span></span><br><span class="line">            update(); <span class="comment">//刷新属性值，注意这个update的实现在HikariPool里，因为这些属性值的直接或间接来源都是HikariPool</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> maxConnections;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">update</span><span class="params">()</span>; <span class="comment">//实现在↑上面已经说了</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">shouldLoad</span><span class="params">()</span> &#123; <span class="comment">//按照更新频率来决定是否刷新属性值</span></span><br><span class="line">        <span class="keyword">for</span> (; ; ) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">now</span> <span class="operator">=</span> currentTime();</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">reloadTime</span> <span class="operator">=</span> reloadAt.get();</span><br><span class="line">            <span class="keyword">if</span> (reloadTime &gt; now) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (reloadAt.compareAndSet(reloadTime, plusMillis(now, timeoutMs))) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实际上这里就是这些属性获取和触发刷新的地方，那么这个对象是在哪里被生成并且丢给<code>MetricsTrackerFactory</code>的<code>create</code>方法的呢？这就是本节所需要讲述的要点：<code>主流程2</code>里的设置监控器的流程，来看看那里发生了什么事吧：</p>
+<figure class="highlight java"><figcaption><span>代码块5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//监控器设置方法（此方法在HikariPool中，metricsTracker属性就是HikariPool用来触发IMetricsTracker里方法调用的）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setMetricsTrackerFactory</span><span class="params">(MetricsTrackerFactory metricsTrackerFactory)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (metricsTrackerFactory != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">//MetricsTrackerDelegate是包装类，是HikariPool的一个静态内部类，是实际持有IMetricsTracker对象的类，也是实际触发IMetricsTracker里方法调用的类</span></span><br><span class="line">        <span class="comment">//这里首先会触发MetricsTrackerFactory类的create方法拿到IMetricsTracker对象，然后利用getPoolStats初始化PoolStat对象，然后也一并传给MetricsTrackerFactory</span></span><br><span class="line">        <span class="built_in">this</span>.metricsTracker = <span class="keyword">new</span> <span class="title class_">MetricsTrackerDelegate</span>(metricsTrackerFactory.create(config.getPoolName(), getPoolStats()));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//不启用监控，直接等于一个没有实现方法的空类</span></span><br><span class="line">        <span class="built_in">this</span>.metricsTracker = <span class="keyword">new</span> <span class="title class_">NopMetricsTrackerDelegate</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> PoolStats <span class="title function_">getPoolStats</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">//初始化PoolStats对象，并且规定1s触发一次属性值刷新的update方法</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PoolStats</span>(SECONDS.toMillis(<span class="number">1</span>)) &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">update</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="comment">//实现了PoolStat的update方法，刷新各个属性的值</span></span><br><span class="line">            <span class="built_in">this</span>.pendingThreads = HikariPool.<span class="built_in">this</span>.getThreadsAwaitingConnection();</span><br><span class="line">            <span class="built_in">this</span>.idleConnections = HikariPool.<span class="built_in">this</span>.getIdleConnections();</span><br><span class="line">            <span class="built_in">this</span>.totalConnections = HikariPool.<span class="built_in">this</span>.getTotalConnections();</span><br><span class="line">            <span class="built_in">this</span>.activeConnections = HikariPool.<span class="built_in">this</span>.getActiveConnections();</span><br><span class="line">            <span class="built_in">this</span>.maxConnections = config.getMaximumPoolSize();</span><br><span class="line">            <span class="built_in">this</span>.minConnections = config.getMinimumIdle();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到这里HikariCP的监控器就算是注册进去了，所以要想实现自己的监控器拿到上面的指标，要经过如下步骤：</p>
+<ol>
+<li>新建一个类实现<code>IMetricsTracker</code>接口，我们这里将该类记为<code>IMetricsTrackerImpl</code></li>
+<li>新建一个类实现<code>MetricsTrackerFactory</code>接口，我们这里将该类记为<code>MetricsTrackerFactoryImpl</code>，并且将上面的<code>IMetricsTrackerImpl</code>在其<code>create方法</code>内实例化</li>
+<li>将<code>MetricsTrackerFactoryImpl</code>实例化后调用HikariPool的<code>setMetricsTrackerFactory</code>方法注册到Hikari连接池。</li>
+</ol>
+<p>上面没有提到<code>PoolStats</code>里的属性怎么监控，这里来说下，由于<code>create方法</code>是调用一次就没了，<code>create方法</code>只是接收了<code>PoolStats</code>对象的实例，如果不处理，那么随着create调用的结束，这个实例针对监控模块来说就失去持有了，所以这里如果想要拿到<code>PoolStats</code>里的属性，就需要开启一个<code>守护线程</code>，让其持有<code>PoolStats</code>对象实例，并且定时获取其内部属性值，然后<code>push</code>给监控系统，如果是普罗米修斯等使用<code>pull方式</code>获取监控数据的监控系统，可以效仿HikariCP原生普罗米修斯监控的实现，自定义一个<code>Collector</code>对象来接收<code>PoolStats</code>实例，这样普罗米修斯就可以定期拉取了，比如HikariCP根据普罗米修斯监控系统自己定义的<code>MetricsTrackerFactory</code>实现（对应<code>图2</code>里的<code>PrometheusMetricsTrackerFactory</code>类）：</p>
+<figure class="highlight java"><figcaption><span>代码块6</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> IMetricsTracker <span class="title function_">create</span><span class="params">(String poolName, PoolStats poolStats)</span> &#123;</span><br><span class="line">    getCollector().add(poolName, poolStats); <span class="comment">//将接收到的PoolStats对象直接交给Collector，这样普罗米修斯服务端每触发一次采集接口的调用，PoolStats都会跟着执行一遍内部属性获取流程</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PrometheusMetricsTracker</span>(poolName, <span class="built_in">this</span>.collectorRegistry); <span class="comment">//返回IMetricsTracker接口的实现类</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//自定义的Collector</span></span><br><span class="line"><span class="keyword">private</span> HikariCPCollector <span class="title function_">getCollector</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (collector == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">//注册到普罗米修斯收集中心</span></span><br><span class="line">        collector = <span class="keyword">new</span> <span class="title class_">HikariCPCollector</span>().register(<span class="built_in">this</span>.collectorRegistry);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> collector;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的解释可以知道在HikariCP中如何自定义一个自己的监控器，以及相比Druid的监控，有什么区别。<br>工作中很多时候都是需要自定义的，我司虽然也是用的普罗米修斯监控，但是因为HikariCP原生的普罗米修斯收集器里面对监控指标的命名并<code>不符合我司的规范</code>，所以就<code>自定义</code>了一个，有类似问题的不妨也试一试。</p>
+<blockquote>
+<p>🍁 这一节没有画图，纯代码，因为画图不太好解释，这部分内容与连接池整体流程关系不大，充其量获取了连接池本身的一些属性，触发点也在上述代码注释里说清楚了，看代码定义可能更好理解一些。</p>
+</blockquote>
+<h2 id="七、流程2-2：连接泄漏的检测与告警"><a href="#七、流程2-2：连接泄漏的检测与告警" class="headerlink" title="七、流程2.2：连接泄漏的检测与告警"></a>七、流程2.2：连接泄漏的检测与告警</h2><p>本节对应<code>主流程2</code>里的<code>子流程2.2</code>，在初始化池对象时，初始化了一个叫做<code>leakTaskFactory</code>的属性，本节来看下它具体是用来做什么的。</p>
+<h3 id="7-1：它是做什么的？"><a href="#7-1：它是做什么的？" class="headerlink" title="7.1：它是做什么的？"></a>7.1：它是做什么的？</h3><p>一个连接被拿出去使用时间超过<code>leakDetectionThreshold</code>（可配置，默认0）未归还的，会触发一个连接泄漏警告，通知业务方目前存在连接泄漏的问题。</p>
+<h3 id="7-2：过程详解"><a href="#7-2：过程详解" class="headerlink" title="7.2：过程详解"></a>7.2：过程详解</h3><p>该属性是<code>ProxyLeakTaskFactory</code>类型对象，且它还会持有<code>houseKeepingExecutorService</code>这个线程池对象，用于生产<code>ProxyLeakTask</code>对象，然后利用上面的<code>houseKeepingExecutorService</code>延时运行该对象里的<code>run</code>方法。该流程的触发点在上面的<code>流程1.1</code>最后包装成<code>ProxyConnection</code>对象的那一步，来看看具体的流程图：</p>
+<p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-8.png?imageView2/0/w/1024" alt="流程2.2"></p>
+<p>每次在<code>流程1.1</code>那里生成<code>ProxyConnection</code>对象时，都会触发上面的流程，由流程图可以知道，<code>ProxyConnection</code>对象持有<code>PoolEntry</code>和<code>ProxyLeakTask</code>的对象，其中初始化<code>ProxyLeakTask</code>对象时就用到了<code>leakTaskFactory</code>对象，通过其<code>schedule</code>方法可以进行<code>ProxyLeakTask</code>的初始化，并将其实例传递给<code>ProxyConnection</code>进行初始化赋值（ps：由图知<code>ProxyConnection</code>在触发回收事件时，会主动取消这个泄漏检查任务，这也是<code>ProxyConnection</code>需要持有<code>ProxyLeakTask</code>对象的原因）。</p>
+<p>在上面的流程图中可以知道，只有在<code>leakDetectionThreshold</code>不等于0的时候才会生成一个带有实际延时任务的<code>ProxyLeakTask</code>对象，否则返回无实际意义的空对象。所以要想启用连接泄漏检查，首先要把<code>leakDetectionThreshold</code>配置设置上，这个属性表示经过该时间后借出去的连接仍未归还，则触发连接泄漏告警。</p>
+<p><code>ProxyConnection</code>之所以要持有<code>ProxyLeakTask</code>对象，是因为它可以监听到连接是否触发归还操作，如果触发，则调用<code>cancel</code>方法取消延时任务，防止误告。</p>
+<p>由此流程可以知道，跟Druid一样，HikariCP也有连接对象泄漏检查，与Druid主动回收连接相比，HikariCP实现更加简单，仅仅是在触发时打印警告日志，不会采取具体的强制回收的措施。</p>
+<p>与Druid一样，默认也是关闭这个流程的，因为实际开发中一般使用第三方框架，框架本身会保证及时的close连接，防止连接对象泄漏，开启与否还是取决于业务是否需要，如果一定要开启，如何设置<code>leakDetectionThreshold</code>的大小也是需要考虑的一件事。</p>
+<h2 id="八、主流程3：生成连接对象"><a href="#八、主流程3：生成连接对象" class="headerlink" title="八、主流程3：生成连接对象"></a>八、主流程3：生成连接对象</h2><p>本节来讲下<code>主流程2</code>里的<code>createEntry</code>方法，这个方法利用PoolBase里的<code>DriverDataSource</code>对象生成一个实际的连接对象（如果忘记<code>DriverDatasource</code>是哪里初始化的了，可以看下<code>主流程2</code>里<code>PoolBase</code>的<code>initializeDataSource</code>方法的作用），然后用<code>PoolEntry</code>类包装成<code>PoolEntry</code>对象，现在来看下这个包装类有哪些主要属性：</p>
+<figure class="highlight java"><figcaption><span>代码块7</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">PoolEntry</span> <span class="keyword">implements</span> <span class="title class_">IConcurrentBagEntry</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">LOGGER</span> <span class="operator">=</span> LoggerFactory.getLogger(PoolEntry.class);</span><br><span class="line">    <span class="comment">//通过cas来修改state属性</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> AtomicIntegerFieldUpdater stateUpdater;</span><br><span class="line"></span><br><span class="line">    Connection connection; <span class="comment">//实际的物理连接对象</span></span><br><span class="line">    <span class="type">long</span> lastAccessed; <span class="comment">//触发回收时刷新该时间，表示“最近一次使用时间”</span></span><br><span class="line">    <span class="type">long</span> lastBorrowed; <span class="comment">//getConnection里borrow成功后刷新该时间，表示“最近一次借出的时间”</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@SuppressWarnings(&quot;FieldCanBeLocal&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">int</span> <span class="variable">state</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">//连接状态，枚举值：IN_USE（使用中）、NOT_IN_USE（闲置中）、REMOVED（已移除）、RESERVED（标记为保留中）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">boolean</span> evict; <span class="comment">//是否被标记为废弃，很多地方用到（比如流程1.1靠这个判断连接是否已被废弃，再比如主流程4里时钟回拨时触发的直接废弃逻辑）</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> ScheduledFuture&lt;?&gt; endOfLife; <span class="comment">//用于在超过连接生命周期（maxLifeTime）时废弃连接的延时任务，这里poolEntry要持有该对象，主要是因为在对象主动被关闭时（意味着不需要在超过maxLifeTime时主动失效了），需要cancel掉该任务</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> FastList openStatements; <span class="comment">//当前该连接对象上生成的所有的statement对象，用于在回收连接时主动关闭这些对象，防止存在漏关的statement</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> HikariPool hikariPool; <span class="comment">//持有pool对象</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> isReadOnly; <span class="comment">//是否为只读</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> isAutoCommit; <span class="comment">//是否存在事务</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面就是整个<code>PoolEntry</code>对象里所有的属性，这里再说下<code>endOfLife</code>对象，它是一个利用<code>houseKeepingExecutorService</code>这个线程池对象做的延时任务，这个延时任务一般在创建好连接对象后<code>maxLifeTime</code>左右的时间触发，具体来看下<code>createEntry</code>代码：</p>
+<figure class="highlight java"><figcaption><span>代码块8</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> PoolEntry <span class="title function_">createPoolEntry</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="type">PoolEntry</span> <span class="variable">poolEntry</span> <span class="operator">=</span> newPoolEntry(); <span class="comment">//生成实际的连接对象</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="type">long</span> <span class="variable">maxLifetime</span> <span class="operator">=</span> config.getMaxLifetime(); <span class="comment">//拿到配置好的maxLifetime</span></span><br><span class="line">        <span class="keyword">if</span> (maxLifetime &gt; <span class="number">0</span>) &#123; <span class="comment">//&lt;=0的时候不启用主动过期策略</span></span><br><span class="line">            <span class="comment">// 计算需要减去的随机数</span></span><br><span class="line">            <span class="comment">// 源注释：variance up to 2.5% of the maxlifetime</span></span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">variance</span> <span class="operator">=</span> maxLifetime &gt; <span class="number">10_000</span> ? ThreadLocalRandom.current().nextLong(maxLifetime / <span class="number">40</span>) : <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">lifetime</span> <span class="operator">=</span> maxLifetime - variance; <span class="comment">//生成实际的延时时间</span></span><br><span class="line">            poolEntry.setFutureEol(houseKeepingExecutorService.schedule(</span><br><span class="line">                    () -&gt; &#123; <span class="comment">//实际的延时任务，这里直接触发softEvictConnection，而softEvictConnection内则会标记该连接对象为废弃状态，然后尝试修改其状态为STATE_RESERVED，若成功，则触发closeConnection（对应流程1.1.2）</span></span><br><span class="line">                        <span class="keyword">if</span> (softEvictConnection(poolEntry, <span class="string">&quot;(connection has passed maxLifetime)&quot;</span>, <span class="literal">false</span> <span class="comment">/* not owner */</span>)) &#123;</span><br><span class="line">                            addBagItem(connectionBag.getWaitingThreadCount()); <span class="comment">//回收完毕后，连接池内少了一个连接，就会尝试新增一个连接对象</span></span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;,</span><br><span class="line">                    lifetime, MILLISECONDS)); <span class="comment">//给endOfLife赋值，并且提交延时任务，lifetime后触发</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> poolEntry;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//触发新增连接任务</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addBagItem</span><span class="params">(<span class="keyword">final</span> <span class="type">int</span> waiting)</span> &#123;</span><br><span class="line">        <span class="comment">//前排提示：addConnectionQueue和addConnectionExecutor的关系和初始化参考主流程2</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//当添加连接的队列里已提交的任务超过那些因为获取不到连接而发生阻塞的线程个数时，就进行提交连接新增连接的任务</span></span><br><span class="line">        <span class="keyword">final</span> <span class="type">boolean</span> <span class="variable">shouldAdd</span> <span class="operator">=</span> waiting - addConnectionQueue.size() &gt;= <span class="number">0</span>; <span class="comment">// Yes, &gt;= is intentional.</span></span><br><span class="line">        <span class="keyword">if</span> (shouldAdd) &#123;</span><br><span class="line">            <span class="comment">//提交任务给addConnectionExecutor这个线程池，PoolEntryCreator是一个实现了Callable接口的类，下面将通过流程图的方式介绍该类的call方法</span></span><br><span class="line">            addConnectionExecutor.submit(poolEntryCreator);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的流程，可以知道，HikariCP一般通过<code>createEntry</code>方法来新增一个连接入池，每个连接被包装成PoolEntry对象，在创建好对象时，同时会提交一个延时任务来关闭废弃该连接，这个时间就是我们配置的<code>maxLifeTime</code>，为了保证不在同一时间失效，HikariCP还会利用<code>maxLifeTime</code>减去一个随机数作为最终的延时任务延迟时间，然后在触发废弃任务时，还会触发<code>addBagItem</code>，进行连接添加任务（因为废弃了一个连接，需要往池子里补充一个），该任务则交给由<code>主流程2</code>里定义好的<code>addConnectionExecutor</code>线程池执行，那么，现在来看下这个异步添加连接对象的任务流程：</p>
+<p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-9.png?imageView2/0/w/1024" alt="addConnectionExecutor的call流程"></p>
+<p>这个流程就是往连接池里加连接用的，跟<code>createEntry</code>结合起来说是因为这俩流程是紧密相关的，除此之外，<code>主流程5</code>（<code>fillPool</code>，扩充连接池）也会触发该任务。</p>
+<h2 id="九、主流程4：连接池缩容"><a href="#九、主流程4：连接池缩容" class="headerlink" title="九、主流程4：连接池缩容"></a>九、主流程4：连接池缩容</h2><p>HikariCP会按照<code>minIdle</code>定时清理闲置过久的连接，这个定时任务在<code>主流程2</code>初始化连接池对象时被启用，跟上面的流程一样，也是利用<code>houseKeepingExecutorService</code>这个线程池对象做该定时任务的执行器。</p>
+<p>来看下<code>主流程2</code>里是怎么启用该任务的：</p>
+<figure class="highlight java"><figcaption><span>代码块9</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//housekeepingPeriodMs的默认值是30s，所以定时任务的间隔为30s</span></span><br><span class="line"><span class="built_in">this</span>.houseKeeperTask = houseKeepingExecutorService.scheduleWithFixedDelay(<span class="keyword">new</span> <span class="title class_">HouseKeeper</span>(), <span class="number">100L</span>, housekeepingPeriodMs, MILLISECONDS);</span><br></pre></td></tr></table></figure>
+
+<p>那么本节主要来说下<code>HouseKeeper</code>这个类，该类实现了<code>Runnable</code>接口，回收逻辑主要在其<code>run</code>方法内，来看看<code>run</code>方法的逻辑流程图：</p>
+<p><img src="http://myblog.sharemer.com/2019/08/28/20190828-1-10.png?imageView2/0/w/1024" alt="主流程4：连接池缩容"></p>
+<p>上面的流程就是<code>HouseKeeper</code>的run方法里具体做的事情，由于系统时间回拨会导致该定时任务回收一些连接时产生误差，因此存在如下判断：</p>
+<figure class="highlight java"><figcaption><span>代码块10</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//now就是当前系统时间，previous就是上次触发该任务时的时间，housekeepingPeriodMs就是隔多久触发该任务一次</span></span><br><span class="line"><span class="comment">//也就是说plusMillis(previous, housekeepingPeriodMs)表示当前时间</span></span><br><span class="line"><span class="comment">//如果系统时间没被回拨，那么plusMillis(now, 128)一定是大于当前时间的，如果被系统时间被回拨</span></span><br><span class="line"><span class="comment">//回拨的时间超过128ms，那么下面的判断就成立，否则永远不会成立</span></span><br><span class="line"><span class="keyword">if</span> (plusMillis(now, <span class="number">128</span>) &lt; plusMillis(previous, housekeepingPeriodMs))</span><br></pre></td></tr></table></figure>
+
+<p>这是hikariCP在解决系统时钟被回拨时做出的一种措施，通过流程图可以看到，它是直接把池子里所有的连接对象取出来挨个儿的标记成废弃，并且尝试把状态值修改为<code>STATE_RESERVED</code>（后面会说明这些状态，这里先不深究）。如果系统时钟没有发生改变（绝大多数情况会命中这一块的逻辑），由图知，会把当前池内所有处于闲置状态（<code>STATE_NOT_IN_USE</code>）的连接拿出来，然后计算需要检查的范围，然后循环着修改连接的状态：</p>
+<figure class="highlight java"><figcaption><span>代码块11</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//拿到所有处于闲置状态的连接</span></span><br><span class="line"><span class="keyword">final</span> <span class="type">List</span> <span class="variable">notInUse</span> <span class="operator">=</span> connectionBag.values(STATE_NOT_IN_USE);</span><br><span class="line"><span class="comment">//计算出需要被检查闲置时间的数量，简单来说，池内需要保证最小minIdle个连接活着，所以需要计算出超出这个范围的闲置对象进行检查</span></span><br><span class="line"><span class="type">int</span> <span class="variable">toRemove</span> <span class="operator">=</span> notInUse.size() - config.getMinIdle();</span><br><span class="line"><span class="keyword">for</span> (PoolEntry entry : notInUse) &#123;</span><br><span class="line">  <span class="comment">//在检查范围内，且闲置时间超出idleTimeout，然后尝试将连接对象状态由STATE_NOT_IN_USE变为STATE_RESERVED成功</span></span><br><span class="line">  <span class="keyword">if</span> (toRemove &gt; <span class="number">0</span> &amp;&amp; elapsedMillis(entry.lastAccessed, now) &gt; idleTimeout &amp;&amp; connectionBag.reserve(entry)) &#123;</span><br><span class="line">    closeConnection(entry, <span class="string">&quot;(connection has passed idleTimeout)&quot;</span>); <span class="comment">//满足上述条件，进行连接关闭</span></span><br><span class="line">    toRemove--;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">fillPool(); <span class="comment">//因为可能回收了一些连接，所以要再次触发连接池扩充流程检查下是否需要新增连接。</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的代码就是流程图里对应的没有回拨系统时间时的流程逻辑。该流程在<code>idleTimeout</code>大于0（默认等于0）并且<code>minIdle</code>小于<code>maxPoolSize</code>的时候才会启用，默认是不启用的，若需要启用，可以按照条件来配置。</p>
+<h2 id="十、主流程5：扩充连接池"><a href="#十、主流程5：扩充连接池" class="headerlink" title="十、主流程5：扩充连接池"></a>十、主流程5：扩充连接池</h2><p>这个流程主要依附HikariPool里的<code>fillPool</code>方法，这个方法已经在上面很多流程里出现过了，它的作用就是在触发连接废弃、连接池连接不够用时，发起扩充连接数的操作，这是个很简单的过程，下面看下源码（为了使代码结构更加清晰，对源码做了细微改动）：</p>
+<figure class="highlight java"><figcaption><span>代码块12</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PoolEntryCreator关于call方法的实现流程在主流程3里已经看过了，但是这里却有俩PoolEntryCreator对象，</span></span><br><span class="line"><span class="comment">// 这是个较细节的地方，用于打日志用，不再说这部分，为了便于理解，只需要知道这俩对象执行的是同一块call方法即可</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">PoolEntryCreator</span> <span class="variable">poolEntryCreator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PoolEntryCreator</span>(<span class="literal">null</span>);</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">PoolEntryCreator</span> <span class="variable">postFillPoolEntryCreator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PoolEntryCreator</span>(<span class="string">&quot;After adding &quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">fillPool</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="comment">// 这个判断就是根据当前池子里相关数据，推算出需要扩充的连接数，</span></span><br><span class="line">  <span class="comment">// 判断方式就是利用最大连接数跟当前连接总数的差值，与最小连接数与当前池内闲置的连接数的差值，取其最小的那一个得到</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">needAdd</span> <span class="operator">=</span> Math.min(maxPoolSize - connectionBag.size(),</span><br><span class="line">  minIdle - connectionBag.getCount(STATE_NOT_IN_USE));</span><br><span class="line"></span><br><span class="line">  <span class="comment">//减去当前排队的任务，就是最终需要新增的连接数</span></span><br><span class="line">  <span class="keyword">final</span> <span class="type">int</span> <span class="variable">connectionsToAdd</span> <span class="operator">=</span> needAdd - addConnectionQueue.size();</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; connectionsToAdd; i++) &#123;</span><br><span class="line">    <span class="comment">//一般循环的最后一次会命中postFillPoolEntryCreator任务，其实就是在最后一次会打印一次日志而已（可以忽略该干扰逻辑）</span></span><br><span class="line">    addConnectionExecutor.submit((i &lt; connectionsToAdd - <span class="number">1</span>) ? poolEntryCreator : postFillPoolEntryCreator);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由该过程可以知道，最终这个新增连接的任务也是交由<code>addConnectionExecutor</code>线程池来处理的，而任务的主题也是<code>PoolEntryCreator</code>，这个流程可以参考<code>主流程3.</code></p>
+<p>然后<code>needAdd</code>的推算：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Math.min(最大连接数 - 池内当前连接总数, 最小连接数 - 池内闲置的连接数)</span><br></pre></td></tr></table></figure>
+
+<p>根据这个方式判断，可以保证池内的连接数永远不会超过<code>maxPoolSize</code>，也永远不会低于<code>minIdle</code>。在连接吃紧的时候，可以保证每次触发都以<code>minIdle</code>的数量扩容。因此如果在<code>maxPoolSize</code>跟<code>minIdle</code>配置的值一样的话，在池内连接吃紧的时候，就不会发生任何扩容了。</p>
+<h2 id="十一、主流程6：连接回收"><a href="#十一、主流程6：连接回收" class="headerlink" title="十一、主流程6：连接回收"></a>十一、主流程6：连接回收</h2><p>最开始说过，最终真实的物理连接对象会被包装成<code>PoolEntry</code>对象，存放进<code>ConcurrentBag</code>，然后获取时，PoolEntry对象又会被再次包装成<code>ProxyConnection</code>对象暴露给使用方的，那么触发连接回收，实际上就是触发ProxyConnection里的close方法：</p>
+<figure class="highlight java"><figcaption><span>代码块13</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">close</span><span class="params">()</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">  <span class="comment">// 原注释：Closing statements can cause connection eviction, so this must run before the conditional below</span></span><br><span class="line">  closeStatements(); <span class="comment">//此连接对象在业务方使用过程中产生的所有statement对象，进行统一close，防止漏close的情况</span></span><br><span class="line">  <span class="keyword">if</span> (delegate != ClosedConnection.CLOSED_CONNECTION) &#123;</span><br><span class="line">    leakTask.cancel(); <span class="comment">//取消连接泄漏检查任务，参考流程2.2</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (isCommitStateDirty &amp;&amp; !isAutoCommit) &#123; <span class="comment">//在存在执行语句后并且还打开了事务，调用close时需要主动回滚事务</span></span><br><span class="line">        delegate.rollback(); <span class="comment">//回滚</span></span><br><span class="line">        lastAccess = currentTime(); <span class="comment">//刷新&quot;最后一次使用时间&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      delegate = ClosedConnection.CLOSED_CONNECTION;</span><br><span class="line">      poolEntry.recycle(lastAccess); <span class="comment">//触发回收</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个就是ProxyConnection里的close方法，可以看到它最终会调用PoolEntry的recycle方法进行回收，除此之外，连接对象的最后一次使用时间也是在这个时候刷新的，该时间是个很重要的属性，可以用来判断一个连接对象的闲置时间，来看下PoolEntry的<code>recycle</code>方法：</p>
+<figure class="highlight java"><figcaption><span>代码块14</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">recycle</span><span class="params">(<span class="keyword">final</span> <span class="type">long</span> lastAccessed)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (connection != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="built_in">this</span>.lastAccessed = lastAccessed; <span class="comment">//刷新最后使用时间</span></span><br><span class="line">    hikariPool.recycle(<span class="built_in">this</span>); <span class="comment">//触发HikariPool的回收方法，把自己传过去</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>之前有说过，每个PoolEntry对象都持有HikariPool的对象，方便触发连接池的一些操作，由上述代码可以看到，最终还是会触发HikariPool里的recycle方法，再来看下HikariPool的recycle方法：</p>
+<figure class="highlight java"><figcaption><span>代码块15</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">recycle</span><span class="params">(<span class="keyword">final</span> PoolEntry poolEntry)</span> &#123;</span><br><span class="line">  metricsTracker.recordConnectionUsage(poolEntry); <span class="comment">//监控指标相关，忽略</span></span><br><span class="line">  connectionBag.requite(poolEntry); <span class="comment">//最终触发connectionBag的requite方法归还连接，该流程参考ConnectionBag主流程里的requite方法部分</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上就是连接回收部分的逻辑，相比其他流程，还是比较简洁的。</p>
+<h2 id="十二、ConcurrentBag主流程"><a href="#十二、ConcurrentBag主流程" class="headerlink" title="十二、ConcurrentBag主流程"></a>十二、ConcurrentBag主流程</h2><p>这个类用来存放最终的PoolEntry类型的连接对象，提供了基本的增删查的功能，被HikariPool持有，上面那么多的操作，几乎都是在HikariPool中完成的，HikariPool用来管理实际的连接生产动作和回收动作，实际操作的却是ConcurrentBag类，梳理下上面所有流程的触发点：</p>
+<ul>
+<li><strong>主流程2：</strong>初始化HikariPool时初始化<code>ConcurrentBag（构造方法）</code>，预热时通过<code>createEntry</code>拿到连接对象，调用<code>ConcurrentBag.add</code>添加连接到ConcurrentBag。</li>
+<li><strong>流程1.1：</strong>通过HikariPool获取连接时，通过调用<code>ConcurrentBag.borrow</code>拿到一个连接对象。</li>
+<li><strong>主流程6：</strong>通过<code>ConcurrentBag.requite</code>归还一个连接。</li>
+<li><strong>流程1.1.2：</strong>触发关闭连接时，会通过<code>ConcurrentBag.remove</code>移除连接对象，由前面的流程可知关闭连接触发点为：连接超过最大生命周期maxLifeTime主动废弃、健康检查不通过主动废弃、连接池缩容。</li>
+<li><strong>主流程3：</strong>通过异步添加连接时，通过调用<code>ConcurrentBag.add</code>添加连接到ConcurrentBag，由前面的流程可知添加连接触发点为：连接超过最大生命周期maxLifeTime主动废弃连接后、连接池扩容。</li>
+<li><strong>主流程4：</strong>连接池缩容任务，通过调用<code>ConcurrentBag.values</code>筛选出需要的做操作的连接对象，然后再通过<code>ConcurrentBag.reserve</code>完成对连接对象状态的修改，然后会通过<code>流程1.1.2</code>触发关闭和移除连接操作。</li>
+</ul>
+<p>通过触发点整理，可以知道该结构里的主要方法，就是上面触发点里标记为<code>标签色</code>的部分，然后来具体看下该类的基本定义和主要方法：</p>
+<figure class="highlight java"><figcaption><span>代码块16</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConcurrentBag</span>&lt;T <span class="keyword">extends</span> <span class="title class_">IConcurrentBagEntry</span>&gt; <span class="keyword">implements</span> <span class="title class_">AutoCloseable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CopyOnWriteArrayList&lt;T&gt; sharedList; <span class="comment">//最终存放PoolEntry对象的地方，它是一个CopyOnWriteArrayList</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> weakThreadLocals; <span class="comment">//默认false，为true时可以让一个连接对象在下方threadList里的list内处于弱引用状态，防止内存泄漏（参见备注1）</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ThreadLocal&lt;List&lt;Object&gt;&gt; threadList; <span class="comment">//线程级的缓存，从sharedList拿到的连接对象，会被缓存进当前线程内，borrow时会先从缓存中拿，从而达到池内无锁实现</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> IBagStateListener listener; <span class="comment">//内部接口，HikariPool实现了该接口，主要用于ConcurrentBag主动通知HikariPool触发添加连接对象的异步操作（也就是主流程3里的addConnectionExecutor所触发的流程）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger waiters; <span class="comment">//当前因为获取不到连接而发生阻塞的业务线程数，这个在之前的流程里也出现过，比如主流程3里addBagItem就会根据该指标进行判断是否需要新增连接</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">boolean</span> closed; <span class="comment">//标记当前ConcurrentBag是否已被关闭</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SynchronousQueue&lt;T&gt; handoffQueue; <span class="comment">//这是个即产即销的队列，用于在连接不够用时，及时获取到add方法里新创建的连接对象，详情可以参考下面borrow和add的代码</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//内部接口，PoolEntry类实现了该接口</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">IConcurrentBagEntry</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//连接对象的状态，前面的流程很多地方都已经涉及到了，比如主流程4的缩容</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">STATE_NOT_IN_USE</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">//闲置</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">STATE_IN_USE</span> <span class="operator">=</span> <span class="number">1</span>; <span class="comment">//使用中</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">STATE_REMOVED</span> <span class="operator">=</span> -<span class="number">1</span>; <span class="comment">//已废弃</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">STATE_RESERVED</span> <span class="operator">=</span> -<span class="number">2</span>; <span class="comment">//标记保留，介于闲置和废弃之间的中间状态，主要由缩容那里触发修改</span></span><br><span class="line"></span><br><span class="line">        <span class="type">boolean</span> <span class="title function_">compareAndSet</span><span class="params">(<span class="type">int</span> expectState, <span class="type">int</span> newState)</span>; <span class="comment">//尝试利用cas修改连接对象的状态值</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">void</span> <span class="title function_">setState</span><span class="params">(<span class="type">int</span> newState)</span>; <span class="comment">//设置状态值</span></span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="title function_">getState</span><span class="params">()</span>; <span class="comment">//获取状态值</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//参考上面listener属性的解释</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">IBagStateListener</span> &#123;</span><br><span class="line">        <span class="keyword">void</span> <span class="title function_">addBagItem</span><span class="params">(<span class="type">int</span> waiting)</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取连接方法</span></span><br><span class="line">    <span class="keyword">public</span> T <span class="title function_">borrow</span><span class="params">(<span class="type">long</span> timeout, <span class="keyword">final</span> TimeUnit timeUnit)</span> &#123;</span><br><span class="line">        <span class="comment">// 省略...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//回收连接方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">requite</span><span class="params">(<span class="keyword">final</span> T bagEntry)</span> &#123;</span><br><span class="line">        <span class="comment">//省略...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//添加连接方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(<span class="keyword">final</span> T bagEntry)</span> &#123;</span><br><span class="line">        <span class="comment">//省略...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//移除连接方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">remove</span><span class="params">(<span class="keyword">final</span> T bagEntry)</span> &#123;</span><br><span class="line">        <span class="comment">//省略...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//根据连接状态值获取当前池子内所有符合条件的连接集合</span></span><br><span class="line">    <span class="keyword">public</span> List <span class="title function_">values</span><span class="params">(<span class="keyword">final</span> <span class="type">int</span> state)</span> &#123;</span><br><span class="line">        <span class="comment">//省略...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取当前池子内所有的连接</span></span><br><span class="line">    <span class="keyword">public</span> List <span class="title function_">values</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">//省略...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//利用cas把传入的连接对象的state从 STATE_NOT_IN_USE 变为 STATE_RESERVED</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">reserve</span><span class="params">(<span class="keyword">final</span> T bagEntry)</span> &#123;</span><br><span class="line">        <span class="comment">//省略...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取当前池子内符合传入状态值的连接数量</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getCount</span><span class="params">(<span class="keyword">final</span> <span class="type">int</span> state)</span> &#123;</span><br><span class="line">        <span class="comment">//省略...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从这个基本结构就可以稍微看出HikariCP是如何优化传统连接池实现的了，相比Druid来说，HikariCP更加偏向无锁实现，尽量避免锁竞争的发生。</p>
+<h3 id="12-1：borrow"><a href="#12-1：borrow" class="headerlink" title="12.1：borrow"></a>12.1：borrow</h3><p>这个方法用来获取一个可用的连接对象，触发点为<code>流程1.1</code>，HikariPool就是利用该方法获取连接的，下面来看下该方法做了什么：</p>
+<figure class="highlight java"><figcaption><span>代码块17</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> T <span class="title function_">borrow</span><span class="params">(<span class="type">long</span> timeout, <span class="keyword">final</span> TimeUnit timeUnit)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">    <span class="comment">// 源注释：Try the thread-local list first</span></span><br><span class="line">    <span class="keyword">final</span> List&lt;Object&gt; list = threadList.get(); <span class="comment">//首先从当前线程的缓存里拿到之前被缓存进来的连接对象集合</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> list.size() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Object</span> <span class="variable">entry</span> <span class="operator">=</span> list.remove(i); <span class="comment">//先移除，回收方法那里会再次add进来</span></span><br><span class="line">        <span class="keyword">final</span> <span class="type">T</span> <span class="variable">bagEntry</span> <span class="operator">=</span> weakThreadLocals ? ((WeakReference&lt;T&gt;) entry).get() : (T) entry; <span class="comment">//默认不启用弱引用</span></span><br><span class="line">        <span class="comment">// 获取到对象后，通过cas尝试把其状态从STATE_NOT_IN_USE 变为 STATE_IN_USE，注意，这里如果其他线程也在使用这个连接对象，</span></span><br><span class="line">        <span class="comment">// 并且成功修改属性，那么当前线程的cas会失败，那么就会继续循环尝试获取下一个连接对象</span></span><br><span class="line">        <span class="keyword">if</span> (bagEntry != <span class="literal">null</span> &amp;&amp; bagEntry.compareAndSet(STATE_NOT_IN_USE, STATE_IN_USE)) &#123;</span><br><span class="line">            <span class="keyword">return</span> bagEntry; <span class="comment">//cas设置成功后，表示当前线程绕过其他线程干扰，成功获取到该连接对象，直接返回</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 源注释：Otherwise, scan the shared list ... then poll the handoff queue</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> <span class="variable">waiting</span> <span class="operator">=</span> waiters.incrementAndGet(); <span class="comment">//如果缓存内找不到一个可用的连接对象，则认为需要“回源”，waiters+1</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (T bagEntry : sharedList) &#123;</span><br><span class="line">            <span class="comment">//循环sharedList，尝试把连接状态值从STATE_NOT_IN_USE 变为 STATE_IN_USE</span></span><br><span class="line">            <span class="keyword">if</span> (bagEntry.compareAndSet(STATE_NOT_IN_USE, STATE_IN_USE)) &#123;</span><br><span class="line">                <span class="comment">// 源注释：If we may have stolen another waiter&#x27;s connection, request another bag add.</span></span><br><span class="line">                <span class="keyword">if</span> (waiting &gt; <span class="number">1</span>) &#123; <span class="comment">//阻塞线程数大于1时，需要触发HikariPool的addBagItem方法来进行添加连接入池，这个方法的实现参考主流程3</span></span><br><span class="line">                    listener.addBagItem(waiting - <span class="number">1</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> bagEntry; <span class="comment">//cas设置成功，跟上面的逻辑一样，表示当前线程绕过其他线程干扰，成功获取到该连接对象，直接返回</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//走到这里说明不光线程缓存里的列表竞争不到连接对象，连sharedList里也找不到可用的连接，这时则认为需要通知HikariPool，该触发添加连接操作了</span></span><br><span class="line">        listener.addBagItem(waiting);</span><br><span class="line"></span><br><span class="line">        timeout = timeUnit.toNanos(timeout); <span class="comment">//这时候开始利用timeout控制获取时间</span></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> currentTime();</span><br><span class="line">            <span class="comment">//尝试从handoffQueue队列里获取最新被加进来的连接对象（一般新入的连接对象除了加进sharedList之外，还会被offer进该队列）</span></span><br><span class="line">            <span class="keyword">final</span> <span class="type">T</span> <span class="variable">bagEntry</span> <span class="operator">=</span> handoffQueue.poll(timeout, NANOSECONDS);</span><br><span class="line">            <span class="comment">//如果超出指定时间后仍然没有获取到可用的连接对象，或者获取到对象后通过cas设置成功，这两种情况都不需要重试，直接返回对象</span></span><br><span class="line">            <span class="keyword">if</span> (bagEntry == <span class="literal">null</span> || bagEntry.compareAndSet(STATE_NOT_IN_USE, STATE_IN_USE)) &#123;</span><br><span class="line">                <span class="keyword">return</span> bagEntry;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//走到这里说明从队列内获取到了连接对象，但是cas设置失败，说明又该对象又被其他线程率先拿去用了，若时间还够，则再次尝试获取</span></span><br><span class="line">            timeout -= elapsedNanos(start); <span class="comment">//timeout减去消耗的时间，表示下次循环可用时间</span></span><br><span class="line">        &#125; <span class="keyword">while</span> (timeout &gt; <span class="number">10_000</span>); <span class="comment">//剩余时间大于10s时才继续进行，一般情况下，这个循环只会走一次，因为timeout很少会配的比10s还大</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>; <span class="comment">//超时，仍然返回null</span></span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        waiters.decrementAndGet(); <span class="comment">//这一步出去后，HikariPool收到borrow的结果，算是走出阻塞，所以waiters-1</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>仔细看下注释，该过程大致分成三个主要步骤：</p>
+<ol>
+<li>从线程缓存获取连接</li>
+<li>获取不到再从<code>sharedList</code>里获取</li>
+<li>都获取不到则触发添加连接逻辑，并尝试从队列里获取新生成的连接对象</li>
+</ol>
+<h3 id="12-2：add"><a href="#12-2：add" class="headerlink" title="12.2：add"></a>12.2：add</h3><p>这个流程会添加一个连接对象进入bag，通常由<code>主流程3</code>里的<code>addBagItem</code>方法通过<code>addConnectionExecutor</code>异步任务触发添加操作，该方法主流程如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span>(<span class="params">final T bagEntry</span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">    sharedList.<span class="keyword">add</span>(bagEntry); <span class="comment">//直接加到sharedList里去</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 源注释：spin until a thread takes it or none are waiting</span></span><br><span class="line">    <span class="comment">// 参考borrow流程，当存在线程等待获取可用连接，并且当前新入的这个连接状态仍然是闲置状态，且队列里无消费者等待获取时，发起一次线程调度</span></span><br><span class="line">    <span class="keyword">while</span> (waiters.<span class="keyword">get</span>() &gt; <span class="number">0</span> &amp;&amp; bagEntry.getState() == STATE_NOT_IN_USE &amp;&amp; !handoffQueue.offer(bagEntry)) &#123; <span class="comment">//注意这里会offer一个连接对象入队列</span></span><br><span class="line">        <span class="keyword">yield</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码块18</p>
+<p>结合<code>borrow</code>来理解的话，这里在存在等待线程时会添加一个连接对象入队列，可以让<code>borrow</code>里发生等待的地方更容易poll到这个连接对象。</p>
+<h3 id="12-3：requite"><a href="#12-3：requite" class="headerlink" title="12.3：requite"></a>12.3：requite</h3><p>这个流程会回收一个连接，该方法的触发点在<code>主流程6</code>，具体代码如下：</p>
+<figure class="highlight java"><figcaption><span>代码块19</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">requite</span><span class="params">(<span class="keyword">final</span> T bagEntry)</span> &#123;</span><br><span class="line">    bagEntry.setState(STATE_NOT_IN_USE); <span class="comment">//回收意味着使用完毕，更改state为STATE_NOT_IN_USE状态</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; waiters.get() &gt; <span class="number">0</span>; i++) &#123; <span class="comment">//如果存在等待线程的话，尝试传给队列，让borrow获取</span></span><br><span class="line">        <span class="keyword">if</span> (bagEntry.getState() != STATE_NOT_IN_USE || handoffQueue.offer(bagEntry)) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> ((i &amp; <span class="number">0xff</span>) == <span class="number">0xff</span>) &#123;</span><br><span class="line">            parkNanos(MICROSECONDS.toNanos(<span class="number">10</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">yield</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> List&lt;Object&gt; threadLocalList = threadList.get();</span><br><span class="line">    <span class="keyword">if</span> (threadLocalList.size() &lt; <span class="number">50</span>) &#123; <span class="comment">//线程内连接集合的缓存最多50个，这里回收连接时会再次加进当前线程的缓存里，方便下次borrow获取</span></span><br><span class="line">        threadLocalList.add(weakThreadLocals ? <span class="keyword">new</span> <span class="title class_">WeakReference</span>&lt;&gt;(bagEntry) : bagEntry); <span class="comment">//默认不启用弱引用，若启用的话，则缓存集合里的连接对象没有内存泄露的风险</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-4：remove"><a href="#12-4：remove" class="headerlink" title="12.4：remove"></a>12.4：remove</h3><p>这个负责从池子里移除一个连接对象，触发点在<code>流程1.1.2</code>，代码如下：</p>
+<figure class="highlight java"><figcaption><span>代码块20</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">remove</span><span class="params">(<span class="keyword">final</span> T bagEntry)</span> &#123;</span><br><span class="line">    <span class="comment">// 下面两个cas操作，都是从其他状态变为移除状态，任意一个成功，都不会走到下面的warn log</span></span><br><span class="line">    <span class="keyword">if</span> (!bagEntry.compareAndSet(STATE_IN_USE, STATE_REMOVED) &amp;&amp; !bagEntry.compareAndSet(STATE_RESERVED, STATE_REMOVED) &amp;&amp; !closed) &#123;</span><br><span class="line">        LOGGER.warn(<span class="string">&quot;Attempt to remove an object from the bag that was not borrowed or reserved: &#123;&#125;&quot;</span>, bagEntry);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 直接从sharedList移除掉</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">boolean</span> <span class="variable">removed</span> <span class="operator">=</span> sharedList.remove(bagEntry);</span><br><span class="line">    <span class="keyword">if</span> (!removed &amp;&amp; !closed) &#123;</span><br><span class="line">        LOGGER.warn(<span class="string">&quot;Attempt to remove an object from the bag that does not exist: &#123;&#125;&quot;</span>, bagEntry);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> removed;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里需要注意的是，移除时仅仅移除了<code>sharedList</code>里的对象，各个线程内缓存的那一份集合里对应的对象并没有被移除，这个时候会不会存在该连接再次从缓存里拿到呢？会的，但是不会返回出去，而是直接<code>remove</code>掉了，仔细看<code>borrow</code>的代码发现状态不是闲置状态的时候，取出来时就会<code>remove</code>掉，然后也拿不出去，自然也不会触发回收方法。</p>
+<h3 id="12-5：values"><a href="#12-5：values" class="headerlink" title="12.5：values"></a>12.5：values</h3><p>该方法存在重载方法，用于返回当前池子内连接对象的集合，触发点在<code>主流程4</code>，代码如下：</p>
+<figure class="highlight java"><figcaption><span>代码块21</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> List <span class="title function_">values</span><span class="params">(<span class="keyword">final</span> <span class="type">int</span> state)</span> &#123;</span><br><span class="line">    <span class="comment">//过滤出来符合状态值的对象集合逆序后返回出去</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">List</span> <span class="variable">list</span> <span class="operator">=</span> sharedList.stream().filter(e -&gt; e.getState() == state).collect(Collectors.toList());</span><br><span class="line">    Collections.reverse(list);</span><br><span class="line">    <span class="keyword">return</span> list;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> List <span class="title function_">values</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">//返回全部连接对象（注意下方clone为浅拷贝）</span></span><br><span class="line">    <span class="keyword">return</span> (List) sharedList.clone();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-6：reserve"><a href="#12-6：reserve" class="headerlink" title="12.6：reserve"></a>12.6：reserve</h3><p>该方法单纯将连接对象的状态值由<code>STATE_NOT_IN_USE</code>修改为<code>STATE_RESERVED</code>，触发点仍然是<code>主流程4</code>，缩容时使用，代码如下：</p>
+<figure class="highlight java"><figcaption><span>代码块22</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">reserve</span><span class="params">(<span class="keyword">final</span> T bagEntry)</span>&#123;</span><br><span class="line">   <span class="keyword">return</span> bagEntry.compareAndSet(STATE_NOT_IN_USE, STATE_RESERVED);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-7：getCount"><a href="#12-7：getCount" class="headerlink" title="12.7：getCount"></a>12.7：getCount</h3><p>该方法用于返回池内符合某个状态值的连接的总数量，触发点为<code>主流程5</code>，扩充连接池时用于获取闲置连接总数，代码如下：</p>
+<figure class="highlight java"><figcaption><span>代码块23</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getCount</span><span class="params">(<span class="keyword">final</span> <span class="type">int</span> state)</span>&#123;</span><br><span class="line">   <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">   <span class="keyword">for</span> (IConcurrentBagEntry e : sharedList) &#123;</span><br><span class="line">      <span class="keyword">if</span> (e.getState() == state) &#123;</span><br><span class="line">         count++;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上就是<code>ConcurrentBag</code>的主要方法和处理连接对象的主要流程。</p>
+<h2 id="十三、总结"><a href="#十三、总结" class="headerlink" title="十三、总结"></a>十三、总结</h2><p>到这里基本上一个连接的生产到获取到回收到废弃一整个生命周期在HikariCP内是如何管理的就说完了，相比之前的Druid的实现，有很大的不同，主要是HikariCP的<code>无锁</code>获取连接，本篇没有涉及<code>FastList</code>的说明，因为从连接管理这个角度确实很少用到该结构，用到<code>FastList</code>的地方主要在存储连接对象生成的<code>statement对象</code>以及用于存储线程内缓存起来的连接对象；</p>
+<p>除此之外HikariCP还利用<code>javassist</code>技术编译期生成了<code>ProxyConnection</code>的初始化，这里也没有相关说明，网上有关HikariCP的优化有很多文章，大多数都提到了<code>字节码优化</code>、<code>fastList</code>、<code>concurrentBag</code>的实现，本篇主要通过深入解析<code>HikariPool</code>和<code>ConcurrentBag</code>的实现，来说明HikariCP相比Druid具体做了哪些不一样的操作。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF/" rel="tag"><i class="fa fa-tag"></i> 池化技术</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E6%B1%A0/" rel="tag"><i class="fa fa-tag"></i> 数据库连接池</a>
+              <a href="/tags/HikariCP/" rel="tag"><i class="fa fa-tag"></i> HikariCP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/08/28/Druid-%E7%B1%BB%E5%9B%BE-%E5%B1%9E%E6%80%A7%E8%A1%A8/" rel="prev" title="Druid-类图-属性表">
+                  <i class="fa fa-angle-left"></i> Druid-类图-属性表
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/08/30/%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%89%EF%BC%89%E8%AF%A6%E8%A7%A3%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolExecutor/" rel="next" title="池化技术（三）详解线程池ThreadPoolExecutor">
+                  池化技术（三）详解线程池ThreadPoolExecutor <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

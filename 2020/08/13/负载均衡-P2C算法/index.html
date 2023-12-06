@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="P2C算法全称Pick of 2 choices，相比WRR，P2C有着更科学的LB策略，它通过随机选择两个节点后在这俩节点里选择优胜者来避免羊群效应，并通过指数加权移动平均算法统计服务端的实时状态，从而做出最优选择。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="负载均衡-P2C算法">
+<meta property="og:url" content="http://example.com/2020/08/13/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-P2C%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="P2C算法全称Pick of 2 choices，相比WRR，P2C有着更科学的LB策略，它通过随机选择两个节点后在这俩节点里选择优胜者来避免羊群效应，并通过指数加权移动平均算法统计服务端的实时状态，从而做出最优选择。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-1.png?imageView2/0/w/750">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-2.png?imageView2/0/w/800">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-3.png?imageView2/0/w/800">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-4.png?imageView2/0/w/800">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/gs1-m.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/gs2-m.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/gs3-m.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-7.png?imageView2/0/w/800">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-8.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-9.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/gs4-m.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-11.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-12.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-13.png?imageView2/0/w/901">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-14.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/gs5-m.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-15.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/gs6-m.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-16.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-17.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-18.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-19.png?imageView2/0/w/900">
+<meta property="article:published_time" content="2020-08-13T06:56:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T02:31:41.341Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="负载均衡">
+<meta property="article:tag" content="服务治理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2020/08/13/20200813-1-1.png?imageView2/0/w/750">
+
+
+<link rel="canonical" href="http://example.com/2020/08/13/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-P2C%E7%AE%97%E6%B3%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2020/08/13/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-P2C%E7%AE%97%E6%B3%95/","path":"2020/08/13/负载均衡-P2C算法/","title":"负载均衡-P2C算法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>负载均衡-P2C算法 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">一、工作流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%9F%E8%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">二、数据统计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9Aweight"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：weight</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9Aserver-cpu"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：server_cpu</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9Ainflight"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：inflight</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9Alatency-client-success"><span class="nav-number">2.4.</span> <span class="nav-text">2.4：latency &amp; client_success</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-1%EF%BC%9A%E7%AE%97%E6%9C%AF%E5%B9%B3%E5%9D%87%E6%95%B0%E6%A8%A1%E6%8B%9F"><span class="nav-number">2.4.1.</span> <span class="nav-text">2.4.1：算术平均数模拟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-2%EF%BC%9A%E6%8C%87%E6%95%B0%E5%8A%A0%E6%9D%83%E7%A7%BB%E5%8A%A8%E5%B9%B3%E5%9D%87%E7%AE%97%E6%B3%95%EF%BC%88EWMA%EF%BC%89%E6%A8%A1%E6%8B%9F"><span class="nav-number">2.4.2.</span> <span class="nav-text">2.4.2：指数加权移动平均算法（EWMA）模拟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-3%EF%BC%9A%E7%BB%93%E8%AE%BA"><span class="nav-number">2.4.3.</span> <span class="nav-text">2.4.3：结论</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-4%EF%BC%9A%E5%88%A9%E7%94%A8%E8%A1%B0%E5%87%8F%E5%87%BD%E6%95%B0%E5%8A%A8%E6%80%81%E8%B0%83%E6%95%B4%CE%B2%E5%80%BC"><span class="nav-number">2.4.4.</span> <span class="nav-text">2.4.4：利用衰减函数动态调整β值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-5%EF%BC%9A%E8%A1%B0%E5%87%8F%E7%B3%BB%E6%95%B0%E9%AA%8C%E8%AF%81"><span class="nav-number">2.4.5.</span> <span class="nav-text">2.4.5：衰减系数验证</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%88%A9%E7%94%A8JAVA%E5%AE%9E%E7%8E%B0P2C%E7%AE%97%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">三、利用JAVA实现P2C算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%AE%97%E6%B3%95%E9%AA%8C%E8%AF%81"><span class="nav-number">4.</span> <span class="nav-text">四、算法验证</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/08/13/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-P2C%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="负载均衡-P2C算法 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          负载均衡-P2C算法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-08-13 14:56:00" itemprop="dateCreated datePublished" datetime="2020-08-13T14:56:00+08:00">2020-08-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">服务治理</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>8.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p><code>P2C</code>算法全称<code>Pick of 2 choices</code>，相比<code>WRR</code>，P2C有着更科学的LB策略，它通过随机选择两个节点后在这俩节点里选择优胜者来避免<code>羊群效应</code>，并通过<code>指数加权移动平均算法</code>统计服务端的实时状态，从而做出最优选择。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="一、工作流程"><a href="#一、工作流程" class="headerlink" title="一、工作流程"></a>一、工作流程</h2><p>P2C算法下的每个节点（下称<code>Node</code>）必须含有下方图中几个指标，它们的计算方法已经标出：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-1.png?imageView2/0/w/750" alt="图1"></p>
+<p>因此最终loadbalancer里保存的节点就会变成下图的结构，pick节点时需要做如下比较：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-2.png?imageView2/0/w/800" alt="图2"></p>
+<p>通过上面的流程可以看到，大体流程还是随机，相比普通的随机LB，它是随机选择两个node，然后比较它们的负载率，然后选出当前负载率最小的node。</p>
+<h2 id="二、数据统计"><a href="#二、数据统计" class="headerlink" title="二、数据统计"></a>二、数据统计</h2><p>通过上面的简单介绍，可以知道P2C算法的大体流程，那么现在问题就变得简单多了，只需要知道<code>负载率</code>，就可以完成这个“简单”的负载均衡器，但是负载率是由上图<code>五个指标</code>共同参与计算完成的，那现在问题的关键就是如何完成这五个指标的统计，下面来介绍下这五个指标如何计算。</p>
+<h3 id="2-1：weight"><a href="#2-1：weight" class="headerlink" title="2.1：weight"></a>2.1：weight</h3><p>这个很简单，主要是人为配置的定制，用于给不同的机器按照机器配置分配上不同的权重，权重越高，越容易被pick到。这个值可以做在服务注册与发现里，进行为每个节点分配一个权重值。</p>
+<h3 id="2-2：server-cpu"><a href="#2-2：server-cpu" class="headerlink" title="2.2：server_cpu"></a>2.2：server_cpu</h3><p>这个值可以通过服务端回写元数据来搞定，比如一次请求：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-3.png?imageView2/0/w/800" alt="图3"></p>
+<p>所以这个值可以通过服务端埋点的方式解决掉。</p>
+<h3 id="2-3：inflight"><a href="#2-3：inflight" class="headerlink" title="2.3：inflight"></a>2.3：inflight</h3><p>这个代表节点请求<code>拥塞度</code>，代表着当前节点有多少个请求未完成或者正开始请求，它的统计也很简单：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-4.png?imageView2/0/w/800" alt="图4"></p>
+<p>按照这种，每次pick到发送请求前先<code>原子+1</code>，response后说明一次请求完成，这时再<code>原子-1</code>，这样<code>一增一减</code>，在超多线程pick下（即高qps），当前线程获取到的<code>inflight</code>瞬间值，就是在这个时段的<code>拥塞度</code>，比如一个节点如果很闲，响应速度也快，那么它的拥塞度肯定极低（因为一增一减的操作很快就完成，不会淤积过多）。</p>
+<h3 id="2-4：latency-client-success"><a href="#2-4：latency-client-success" class="headerlink" title="2.4：latency &amp; client_success"></a>2.4：latency &amp; client_success</h3><p>前面的都很好了理解，这俩属性比较麻烦，它们分别代表请求<code>延迟率</code>和<code>成功率</code>。</p>
+<p>这俩值该怎么计算？一般来说是通过平均数的方式来计算，但计算平均数的方式有很多，可以先用我们最熟悉的算术平均数来计算，它的计算公式如下：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/gs1-m.png" alt="img"></p>
+<p>利用此算法套入我们的场景后，请求总耗时比上请求总次数，就是latency：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/gs2-m.png" alt="img"></p>
+<p>请求总成功数比上请求总次数，就是client_success：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/gs3-m.png" alt="img"></p>
+<p>整个过程可以抽象成下面这样：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-7.png?imageView2/0/w/800" alt="图5"></p>
+<p>根据<code>图5</code>的流程，可以通过每次请求，累加总请求数、总耗时、总成功数，然后利用<code>算术平均法</code>更新<code>latency</code>和<code>client_success</code>的值，这一切可以运作的很好，可是算术平均有个很大的缺陷，不够敏感，出现的网络波动一下就被平均了，是不是想到了你和马云放在一起统计资产时被平均的悲哀？</p>
+<h4 id="2-4-1：算术平均数模拟"><a href="#2-4-1：算术平均数模拟" class="headerlink" title="2.4.1：算术平均数模拟"></a>2.4.1：算术平均数模拟</h4><p>首先模拟<code>1000次请求</code>，让每次请求在<code>0~25</code>之间产生随机数用来作为本次请求的耗时（为了模拟真实情况，让一些请求耗时过高），每次请求计算当前的算术平均数，然后可以得到下面的统计图：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-8.png?imageView2/0/w/900" alt="图6"></p>
+<p>可以看到，正常情况下，算术平均数表现出很好的稳定性，红线一致维持在黑线的中间，且浮动不大。</p>
+<p>现在让我们搞点事情，假设在第100次请求到第200次请求间，模拟下网络抖动，让这期间的响应时间变成125ms（相比正常情况翻<code>五倍</code>），得到统计图如下：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-9.png?imageView2/0/w/900" alt="图7"></p>
+<p>可以看到平均数受到这次抖动的影响，需要非常长的时间才能感知到，恢复时又需要很长时间才能恢复到抖动前的较正常的水平。</p>
+<p>也就是说，第100~200间的100次慢请求，不光要到140次请求后才能较明显的感知平均值的上涨，还导致网络恢复后，到第1000次请求时，平均值还没有恢复到正常水平（但其实从第200次请求后，响应时间就正常了），算术平均是所有数据的总平均，受过往值的影响非常深，以至于不能很好的反应某个时段的平均趋势，那么有没有更好的统计办法来避免这类问题呢？</p>
+<h4 id="2-4-2：指数加权移动平均算法（EWMA）模拟"><a href="#2-4-2：指数加权移动平均算法（EWMA）模拟" class="headerlink" title="2.4.2：指数加权移动平均算法（EWMA）模拟"></a>2.4.2：指数加权移动平均算法（EWMA）模拟</h4><blockquote>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_38106113/article/details/81542863">深入解析TensorFlow中滑动平均模型与代码实现</a></p>
+</blockquote>
+<p>公式如下：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/gs4-m.png" alt="img"></p>
+<p>解释：<code>vt</code>代表第t次请求的指数加权平均耗时，<code>vt-1</code>代表上次请求的指数加权平均耗时，<code>θt</code>代表第t次请求的实际耗时。</p>
+<p><code>β值</code>的定义如下：</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vt ≈ <span class="number">1</span>/(<span class="number">1</span> - β) 次的平均耗时</span><br></pre></td></tr></table></figure>
+
+<p>例：假设β等于0.9，1&#x2F;(1 - β) 就等于10，vt约等于前10次请求的平均耗时；假设把β值调大至0.98，1&#x2F;(1-β)&#x3D;50，就是当前请求的前50次请求的平均耗时。</p>
+<p>由此可以推导出：</p>
+<p>β值越大，移动平均区间越大，当前平均值的计算受到之前平均值的影响也就越大</p>
+<p>β值越小，移动平均区间越小，当前平均值的计算受到之前平均值的影响也就越小</p>
+<p>eg：假设现在有两次请求，第一次耗时25ms，第二次耗时50ms，代入公式，计算出第一次和第二次的指数加权平均值为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> <span class="variable">v1</span> <span class="operator">=</span> β * <span class="number">0</span> + (<span class="number">1</span> - β) * <span class="number">25</span></span><br><span class="line"><span class="type">double</span> <span class="variable">v2</span> <span class="operator">=</span> β * v1 + (<span class="number">1</span> - β) * <span class="number">50</span> <span class="comment">// β值越小，意味着本次请求的实际耗时占比越大，β值越大，之前计算得到的平均值占比越大</span></span><br></pre></td></tr></table></figure>
+
+<p>这个结论在下面的实验中会有所体现。</p>
+</blockquote>
+<p>相比普通平均值的计算，EWMA算法更在乎<code>历史平均值</code>对统计结果的影响，通过控制β的值就可以调整历史均值对统计趋势的影响程度。</p>
+<p>现在用EWMA模拟下1000次请求，为了模拟真实情况，我会让一些请求耗时过高，β取值<code>0.9</code>，代表最新请求时的平均值计算会受到最近<code>10次</code>耗时的影响进行平滑过渡，运行结果绘制如下图（渲染采用Echarts）：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-11.png?imageView2/0/w/900" alt="图8"></p>
+<p>最终得到的数据曲线没有算术平均那么稳定，但可以看出，每次网络波动会提升其加权均值，不会像算术平均那样不受网络波动影响。</p>
+<p>接下来假设第100~200次请求，发生了网络延迟，延时<code>5倍</code>，再次利用EWMA做下模拟：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-12.png?imageView2/0/w/900" alt="图9"></p>
+<p>请将这张图跟<code>图7</code>进行对比，你会发现，利用指数加权平均算法计算出的平均值在网络恢复时，以极快的速度恢复到了正常水平。</p>
+<p>相比算术平均，EWMA更重要的是它平滑的模拟了平均值的趋势。</p>
+<p>现在把<code>图9</code>里的β值调整为0.98，此时在计算当前平均值时则受到前面(1&#x2F;0.02) &#x3D; 50个平均值的影响，便得到下图：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-13.png?imageView2/0/w/901" alt="图10"></p>
+<p>因为β值变大，后续每个平均值都会受到更多历史均值的影响，而当前耗时仅占很少影响，跟之前的结论一样，β越大，移动窗口越大，当前平均数受到历史平均值的影响就越大，反之越小，所以相比<code>图9</code>，在出现网络抖动后，更缓慢的恢复为正常均值（波形跟算术平均接近）。</p>
+<p>还可以将β调小试试，比如将其设为0.32，那么计算均值时仅受到前面(1&#x2F;0.68) &#x3D; 1.47个均值影响，此时平均值轨迹几乎和正常响应时间重叠：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-14.png?imageView2/0/w/900" alt="图11"></p>
+<p>可以看到，当β很小时，受影响因子无限趋近于1，越趋近于1则越贴近原本值。</p>
+<h4 id="2-4-3：结论"><a href="#2-4-3：结论" class="headerlink" title="2.4.3：结论"></a>2.4.3：结论</h4><table>
+<thead>
+<tr>
+<th>实验组</th>
+<th>对照组</th>
+<th>目的</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>图6</td>
+<td>图8（β&#x3D;0.9）</td>
+<td>模拟网络正常情况下，两种算法对均值的统计区别</td>
+<td>算术平均值非常稳定，对单次网络抖动完全无感知，EWMA均值则会随着响应时间动态变化，因此单次网络抖动后会稍微提升均值，之后便很快恢复</td>
+</tr>
+<tr>
+<td>图7</td>
+<td>图9（β&#x3D;0.9）</td>
+<td>模拟一段网络延迟，看两种算法的均值变化</td>
+<td>算术平均值会缓慢提升，之后再次以极慢的速度下降，对网络延迟反映迟钝，网络延迟结束后仍然要花很长时间才能恢复到正常均值水平，EWMA均值则迅速提升，恢复后迅速下降至正常水平</td>
+</tr>
+<tr>
+<td>图9（β&#x3D;0.9）</td>
+<td>图10（β&#x3D;0.98）</td>
+<td>调大EWMA的β值</td>
+<td>β值越大，每次计算均值时受到之前均值影响越大，则平均曲线更加平滑，因此<code>图10</code>的曲线要比<code>图9</code>表现更加平滑，但付出的代价是对网络延迟反应也变的迟钝</td>
+</tr>
+<tr>
+<td>图9（β&#x3D;0.9）</td>
+<td>图11（β&#x3D;0.32）</td>
+<td>调小EWMA的β值</td>
+<td>β值越小，每次计算均值时受到之前均值影响越小，则平均曲线更加趋近于每次的实际耗时，因此<code>图11</code>的曲线要比<code>图9</code>表现的更加趋近于每次的实际耗时，顺理成章的，它对网络延迟的反映极迅速</td>
+</tr>
+</tbody></table>
+<center>表1</center>
+
+<p>通过实验，可以看出EWMA的优势巨大，但β的取值需要仔细斟酌，若β太小，则无法很好的体现出平均值，若β太大，很好的体现了平均值，但对网络波动的反应相对迟钝，这里就考虑到一个折中的方案：</p>
+<blockquote>
+<p>实时调整β值，比如EWMA可以在网络波动时适当<code>降低β的值</code>，使其快速感知到波动的存在，当网络波动结束后，适当<code>提升β的值</code>，这样就可以在网络稳定的情况下较好的反映一个区段内的均值情况，这样等于结合了<code>图10</code>和<code>图11</code>各自的优点，实现后将达到一种效果：快速感知网络延迟并迅速提高其均值，当网络恢复后，慢慢降回正常水平（均值恢复需要慢慢进行，因为刚恢复的节点稳定性不可信，慢慢恢复到正常水平，以信任其稳定性）</p>
+</blockquote>
+<h4 id="2-4-4：利用衰减函数动态调整β值"><a href="#2-4-4：利用衰减函数动态调整β值" class="headerlink" title="2.4.4：利用衰减函数动态调整β值"></a>2.4.4：利用衰减函数动态调整β值</h4><p>通过上面的要求，我们需要完善这个变化的β，那么它该如何变化呢？如何能达到碰到网络波动时迅速感知，当波动过后慢慢恢复的效果呢？慢慢恢复需要多慢？可不可以通过调整某个阈值来控制恢复的速率？</p>
+<p>带着上面的问题，需要了解一下：衰减函数（<a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2012/03/ranking_algorithm_newton_s_law_of_cooling.html">牛顿冷却定律</a>）</p>
+<p>公式为：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/gs5-m.png" alt="img"></p>
+<p><code>e</code>是常量，<code>Δt</code>表示第t次请求的耗时，<code>k</code>表示<code>衰减系数</code>，它的函数图如下：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-15.png" alt="图12"></p>
+<p>我们把<code>k*Δt</code>看做<code>x的取值</code>，那么<code>k</code>和<code>Δt</code>成正比，即：<code>k</code>和<code>Δt</code>取值越大，β就越小</p>
+<p>现在来看看这个结论支不支持我们要实现的功能：</p>
+<ol>
+<li>网络抖动时，假设<code>Δt</code>非常大，即便不乘<code>k值</code>，β值也会变得很小，这是符合我们预期的，我们需要的就是在网络抖动时，迅速感知</li>
+<li>网络恢复时，<code>Δt</code>迅速降低，假设此时<code>Δt</code>非常小，则<code>k值</code>越大，<code>图12</code>里对应的<code>x</code>越大，β的值就越小，事实上通过实验可以得出，如果<code>k</code>值很大，得出的曲线近乎等于<code>图11</code>。</li>
+</ol>
+<p>经过上面的梳理，发现k值似乎没有起到衰减作用，反而因为它的存在导致β值降低，它的取值在网络抖动恢复后依旧在<code>削弱</code>β的值，导致网络恢复后迅速降低到正常水平，这是我们不愿意看到的，那么上面的函数需要做下变体，即让<code>Δt和k值成反比</code>即可：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/gs6-m.png" alt="img"></p>
+<p>此时结论如下：</p>
+<ol>
+<li>网络抖动时，假设<code>Δt</code>非常大，即便<code>k值</code>起到中和作用，β值较之前也会明显变小，这是符合我们预期的，我们需要的就是在网络抖动时，迅速感知</li>
+<li>网络恢复时，即使<code>Δt</code>迅速降低，那么由于<code>k值</code>的中和（<code>Δt/k</code>的值大小和<code>k值</code>成反比），k越大，β越大，则均值计算受之前波动期的均值影响越大，曲线恢复越缓慢。</li>
+</ol>
+<p>这点可以通过下方的验证得到证实，调整衰减系数k，的确可以控制在遇到波动时恢复到正常水平时的速度，衰减系数设置越大，波幅越大（恢复越慢），反之越小（恢复越快）。</p>
+<h4 id="2-4-5：衰减系数验证"><a href="#2-4-5：衰减系数验证" class="headerlink" title="2.4.5：衰减系数验证"></a>2.4.5：衰减系数验证</h4><p>第一组：随机次数的网络抖动，衰减系数分别为<code>600</code>和<code>50</code></p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-16.png?imageView2/0/w/900" alt="衰减系数为600时的走势图，可以看出，网络恢复后均值变化衰减速度很慢"></p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-17.png?imageView2/0/w/900" alt="衰减系数为50时的走势图，可以看出，网络恢复后均值变化衰减速度很快"></p>
+<p>第二组：第<code>100~200次</code>请求响应时间<code>扩大5倍</code>，衰减系数仍然是<code>600</code>和<code>50</code></p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-18.png?imageView2/0/w/900" alt="衰减系数为600时的走势图，可以看出在抖动发生时，仍然可以迅速感知，后续恢复时的衰减速度跟上面结果一样慢"></p>
+<p><img src="http://myblog.sharemer.com/2020/08/13/20200813-1-19.png?imageView2/0/w/900" alt="衰减系数为50时的走势图，可以看出在抖动发生时，可以非常迅速的感知，后续恢复时的衰减速度跟上面结果一样快"></p>
+<h2 id="三、利用JAVA实现P2C算法"><a href="#三、利用JAVA实现P2C算法" class="headerlink" title="三、利用JAVA实现P2C算法"></a>三、利用JAVA实现P2C算法</h2><p>首先定义Node类：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Node</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//惩罚值</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">penalty</span> <span class="operator">=</span> <span class="number">250_000_000_000L</span>; <span class="comment">//单位：纳秒（250s）</span></span><br><span class="line">    <span class="comment">//衰减系数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">tau</span> <span class="operator">=</span> <span class="number">600_000_000L</span>; <span class="comment">//单位：纳秒（600ms）</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> String host;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">int</span> weight; <span class="comment">//权重</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">// client统计数据</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">AtomicLong</span> <span class="variable">lag</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicLong</span>(); <span class="comment">//加权移动平均算法计算出的请求延迟度</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">AtomicLong</span> <span class="variable">success</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicLong</span>(<span class="number">1000</span>); <span class="comment">// 加权移动平均算法计算出的请求成功率（只记录grpc内部错误，比如context deadline）</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">AtomicLong</span> <span class="variable">inflight</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicLong</span>(<span class="number">1</span>); <span class="comment">// 当前客户端正在发送并等待response的请求数（pending request）</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">AtomicLong</span> <span class="variable">svrCPU</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicLong</span>(<span class="number">500</span>); <span class="comment">//对应服务端的CPU使用率</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 最近一次resp时间戳</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">AtomicLong</span> <span class="variable">stamp</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicLong</span>();</span><br><span class="line">    <span class="comment">// 最近被pick的时间戳，利用该值可以统计被选中后，一次请求的耗时</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> <span class="type">AtomicLong</span> <span class="variable">pick</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicLong</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Node</span><span class="params">(String host, <span class="type">int</span> weight)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.host = host;</span><br><span class="line">        <span class="built_in">this</span>.weight = weight;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">valid</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> health() &gt; <span class="number">500</span> &amp;&amp; svrCPU.get() &lt; <span class="number">900</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">long</span> <span class="title function_">health</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> success.get(); <span class="comment">//成功率</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">long</span> <span class="title function_">load</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">lag</span> <span class="operator">=</span> (<span class="type">long</span>) (Math.sqrt((<span class="type">double</span>) <span class="built_in">this</span>.lag.get()) + <span class="number">1</span>);</span><br><span class="line">        <span class="type">long</span> <span class="variable">load</span> <span class="operator">=</span> <span class="built_in">this</span>.svrCPU.get() * lag * <span class="built_in">this</span>.inflight.get(); <span class="comment">//根据cpu使用率、延迟率、拥塞度计算出负载率</span></span><br><span class="line">        <span class="keyword">if</span> (load == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// penalty是初始化没有数据时的惩罚值，默认为1e9 * 250</span></span><br><span class="line">            load = penalty;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> load;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//被pick后，完成请求后触发逻辑</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">responseTrigger</span><span class="params">(<span class="type">long</span> pickTime, <span class="type">long</span> cpu, <span class="type">boolean</span> error)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.inflight.decrementAndGet();</span><br><span class="line">        <span class="type">long</span> <span class="variable">now</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">        <span class="type">long</span> <span class="variable">stamp</span> <span class="operator">=</span> <span class="built_in">this</span>.stamp.getAndSet(now);</span><br><span class="line">        <span class="type">long</span> <span class="variable">td</span> <span class="operator">=</span> now - stamp; <span class="comment">//计算距离上次response的时间差，节点本身闲置越久，这个值越大</span></span><br><span class="line">        <span class="keyword">if</span> (td &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            td = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//实时计算β值，利用衰减函数计算，公式为：β = e^(-t/k)，相比前文给出的衰减公式这里是按照k值的反比计算的，即k值和β值成正比</span></span><br><span class="line">        <span class="type">double</span> <span class="variable">w</span> <span class="operator">=</span> Math.exp((<span class="type">double</span>) -td / (<span class="type">double</span>) tau);</span><br><span class="line"> </span><br><span class="line">        <span class="type">long</span> <span class="variable">lag</span> <span class="operator">=</span> now - pickTime; <span class="comment">//实际耗时</span></span><br><span class="line">        <span class="keyword">if</span> (lag &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            lag = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">long</span> <span class="variable">oldLag</span> <span class="operator">=</span> <span class="built_in">this</span>.lag.get();</span><br><span class="line">        <span class="keyword">if</span> (oldLag == <span class="number">0</span>) &#123;</span><br><span class="line">            w = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//计算指数加权移动平均响应时间</span></span><br><span class="line">        lag = (<span class="type">int</span>) ((<span class="type">double</span>) oldLag * w + (<span class="type">double</span>) lag * (<span class="number">1.0</span> - w));</span><br><span class="line">        <span class="built_in">this</span>.lag.set(lag); <span class="comment">//更新</span></span><br><span class="line"> </span><br><span class="line">        <span class="type">int</span> <span class="variable">success</span> <span class="operator">=</span> error ? <span class="number">0</span> : <span class="number">1000</span>;</span><br><span class="line">        <span class="comment">//计算指数加权移动平均成功率</span></span><br><span class="line">        success = (<span class="type">int</span>) ((<span class="type">double</span>) <span class="built_in">this</span>.success.get() * w + (<span class="type">double</span>) success * (<span class="number">1.0</span> - w));</span><br><span class="line">        <span class="built_in">this</span>.success.set(success); <span class="comment">//更新</span></span><br><span class="line"> </span><br><span class="line">        <span class="comment">//更新本次请求服务端返回的cpu使用率</span></span><br><span class="line">        <span class="keyword">if</span> (cpu &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="built_in">this</span>.svrCPU.set(cpu);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再来定义LoadBalancer：</p>
+<figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">P2CLoadBalancer</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//闲置时间的最大容忍值</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">forceGap</span> <span class="operator">=</span> <span class="number">3000_000_000L</span>; <span class="comment">//单位：纳秒（3s）</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Random</span> <span class="variable">r</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>();</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;Node&gt; nodes; <span class="comment">//保存了参与lb的节点集合</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">P2CLoadBalancer</span><span class="params">(List&lt;Node&gt; nodes)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.nodes = nodes;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> Node <span class="title function_">pick</span><span class="params">(<span class="type">long</span> start)</span> &#123; <span class="comment">//外界给入start，值为当前时间，resp后应给recycle传同样的值</span></span><br><span class="line">        Node pc, upc;</span><br><span class="line">        <span class="keyword">if</span> (nodes == <span class="literal">null</span> || nodes.size() &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;no node!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (nodes.size() == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> nodes.get(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        Node[] randomPair = prePick();</span><br><span class="line"> </span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 这里根据各自当前指标，计算出谁更合适被pick</span></span><br><span class="line"><span class="comment">         * 计算方式：</span></span><br><span class="line"><span class="comment">         *        nodeA.load                           nodeB.load</span></span><br><span class="line"><span class="comment">         * ----------------------------   :   ----------------------------</span></span><br><span class="line"><span class="comment">         * nodeA.health * nodeA.weight        nodeB.health * nodeB.weight</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * health和weight都是提权用的，而load是降权用的，所以用load除以heal和weight的乘积，计算出的值越大，越不容易被pick</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">if</span> (randomPair[<span class="number">0</span>].load() * randomPair[<span class="number">1</span>].health() * randomPair[<span class="number">1</span>].weight &gt;</span><br><span class="line">                randomPair[<span class="number">1</span>].load() * randomPair[<span class="number">0</span>].health() * randomPair[<span class="number">0</span>].weight) &#123;</span><br><span class="line">            pc = randomPair[<span class="number">1</span>];</span><br><span class="line">            upc = randomPair[<span class="number">0</span>];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            pc = randomPair[<span class="number">0</span>];</span><br><span class="line">            upc = randomPair[<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">// 如果落选的节点，在forceGap期间内没有被选中一次，那么强制选中一次，利用强制的机会，来触发成功率、延迟的衰减</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">pick</span> <span class="operator">=</span> upc.pick.get();</span><br><span class="line">        <span class="keyword">if</span> ((start - pick) &gt; forceGap &amp;&amp; upc.pick.compareAndSet(pick, start)) &#123;</span><br><span class="line">            pc = upc; <span class="comment">//强制选中</span></span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">// 节点未发生切换才更新pick时间</span></span><br><span class="line">        <span class="keyword">if</span> (pc != upc) &#123;</span><br><span class="line">            pc.pick.set(start);</span><br><span class="line">        &#125;</span><br><span class="line">        pc.inflight.incrementAndGet();</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> pc;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//pick出去后，等来了response后，应触发该方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">recycle</span><span class="params">(Node node, <span class="type">long</span> pickTime, <span class="type">long</span> cpu, <span class="type">boolean</span> error)</span> &#123;</span><br><span class="line">        node.responseTrigger(pickTime, cpu, error);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 随机选择俩节点</span></span><br><span class="line">    <span class="keyword">public</span> Node[] prePick() &#123;</span><br><span class="line">        Node[] randomPair = <span class="keyword">new</span> <span class="title class_">Node</span>[<span class="number">2</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> r.nextInt(nodes.size());</span><br><span class="line">            <span class="type">int</span> <span class="variable">b</span> <span class="operator">=</span> r.nextInt(nodes.size() - <span class="number">1</span>);</span><br><span class="line">            <span class="keyword">if</span> (b &gt;= a) &#123;</span><br><span class="line">                b += <span class="number">1</span>; <span class="comment">//防止随机出的节点相同</span></span><br><span class="line">            &#125;</span><br><span class="line">            randomPair[<span class="number">0</span>] = nodes.get(a);</span><br><span class="line">            randomPair[<span class="number">1</span>] = nodes.get(b);</span><br><span class="line">            <span class="keyword">if</span> (randomPair[<span class="number">0</span>].valid() || randomPair[<span class="number">1</span>].valid()) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> randomPair;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、算法验证"><a href="#四、算法验证" class="headerlink" title="四、算法验证"></a>四、算法验证</h2><p>算法的验证会以实际压测的方式来进行，请前往：<a target="_blank" rel="noopener" href="https://exceting.github.io/2020/08/25/P2C%E7%AE%97%E6%B3%95%E9%AA%8C%E8%AF%81%E5%AE%9E%E9%AA%8C/">P2C算法验证实验</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" rel="tag"><i class="fa fa-tag"></i> 负载均衡</a>
+              <a href="/tags/%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/" rel="tag"><i class="fa fa-tag"></i> 服务治理</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/08/07/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-WRR%E7%AE%97%E6%B3%95/" rel="prev" title="负载均衡-WRR算法">
+                  <i class="fa fa-angle-left"></i> 负载均衡-WRR算法
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/08/25/P2C%E7%AE%97%E6%B3%95%E9%AA%8C%E8%AF%81%E5%AE%9E%E9%AA%8C/" rel="next" title="P2C算法验证实验">
+                  P2C算法验证实验 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

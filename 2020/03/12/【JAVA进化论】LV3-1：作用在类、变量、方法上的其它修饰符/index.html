@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、static关键词 简单解释：static关键词放到访问权限修饰词的后面，用来修饰类的属性、方法，被static修饰了的属性和方法被称为静态属性和静态方法，静态属性和静态方法可以在不实例化对象的情况下直接通过“类名.属性&#x2F;方法”的方式触发。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【JAVA进化论】LV3-1：作用在类、变量、方法上的其它修饰符">
+<meta property="og:url" content="http://example.com/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-1%EF%BC%9A%E4%BD%9C%E7%94%A8%E5%9C%A8%E7%B1%BB%E3%80%81%E5%8F%98%E9%87%8F%E3%80%81%E6%96%B9%E6%B3%95%E4%B8%8A%E7%9A%84%E5%85%B6%E5%AE%83%E4%BF%AE%E9%A5%B0%E7%AC%A6/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="一、static关键词 简单解释：static关键词放到访问权限修饰词的后面，用来修饰类的属性、方法，被static修饰了的属性和方法被称为静态属性和静态方法，静态属性和静态方法可以在不实例化对象的情况下直接通过“类名.属性&#x2F;方法”的方式触发。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-1.png?imageView2/0/w/800">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-2.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-3.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-4.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-5.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-6.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-7.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-8.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-9.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-10.png?imageView2/0/w/1024">
+<meta property="article:published_time" content="2020-03-12T11:22:00.000Z">
+<meta property="article:modified_time" content="2023-12-06T09:27:11.419Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="JAVA进化论">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2020/03/12/20200312-3-1.png?imageView2/0/w/800">
+
+
+<link rel="canonical" href="http://example.com/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-1%EF%BC%9A%E4%BD%9C%E7%94%A8%E5%9C%A8%E7%B1%BB%E3%80%81%E5%8F%98%E9%87%8F%E3%80%81%E6%96%B9%E6%B3%95%E4%B8%8A%E7%9A%84%E5%85%B6%E5%AE%83%E4%BF%AE%E9%A5%B0%E7%AC%A6/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-1%EF%BC%9A%E4%BD%9C%E7%94%A8%E5%9C%A8%E7%B1%BB%E3%80%81%E5%8F%98%E9%87%8F%E3%80%81%E6%96%B9%E6%B3%95%E4%B8%8A%E7%9A%84%E5%85%B6%E5%AE%83%E4%BF%AE%E9%A5%B0%E7%AC%A6/","path":"2020/03/12/【JAVA进化论】LV3-1：作用在类、变量、方法上的其它修饰符/","title":"【JAVA进化论】LV3-1：作用在类、变量、方法上的其它修饰符"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【JAVA进化论】LV3-1：作用在类、变量、方法上的其它修饰符 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81static%E5%85%B3%E9%94%AE%E8%AF%8D"><span class="nav-number">1.</span> <span class="nav-text">一、static关键词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81final%E5%85%B3%E9%94%AE%E8%AF%8D"><span class="nav-number">2.</span> <span class="nav-text">二、final关键词</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9Afinal%E4%BF%AE%E9%A5%B0%E7%B1%BB"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：final修饰类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9Afinal%E4%BF%AE%E9%A5%B0%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：final修饰方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9Afinal%E4%BF%AE%E9%A5%B0%E5%8F%98%E9%87%8F"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：final修饰变量</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-1%EF%BC%9A%E4%BD%9C%E7%94%A8%E5%9C%A8%E7%B1%BB%E3%80%81%E5%8F%98%E9%87%8F%E3%80%81%E6%96%B9%E6%B3%95%E4%B8%8A%E7%9A%84%E5%85%B6%E5%AE%83%E4%BF%AE%E9%A5%B0%E7%AC%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【JAVA进化论】LV3-1：作用在类、变量、方法上的其它修饰符 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【JAVA进化论】LV3-1：作用在类、变量、方法上的其它修饰符
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-03-12 19:22:00" itemprop="dateCreated datePublished" datetime="2020-03-12T19:22:00+08:00">2020-03-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">JAVA进化论</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、static关键词"><a href="#一、static关键词" class="headerlink" title="一、static关键词"></a>一、static关键词</h2><blockquote>
+<p>简单解释：<code>static</code>关键词放到访问权限修饰词的后面，用来修饰类的属性、方法，被static修饰了的属性和方法被称为<code>静态属性</code>和<code>静态方法</code>，静态属性和静态方法可以在不实例化对象的情况下直接通过“<code>类名.属性/方法</code>”的方式触发。</p>
+</blockquote>
+<span id="more"></span>
+
+<p>现在开始我们的详细介绍：</p>
+<p>我们在之前学类的时候会发现，所有的方法和属性必须要在类做实例化产生自己的对象之后，通过对象的引用变量来触发调用，简单来说，非static的内容，都是属于类对象的，没有产生具体对象的类里的这些非static内容没有任何意义，那static呢？被static修饰的内容属于类本身的内容，静态方法和静态属性是可以直接用类调用的，你可以理解静态属性和方法就是类定义本身的属性和方法，不依赖产生的对象而让自己变得有意义，只要类存在，且被加载进jvm，它就是有意义的，它就是可以通过类本身去触发使用的，让我们来举个例子：</p>
+<p>让我们把前面Animal的类改造下，我们知道，Animal是为了描述动物的一个超大父类，里面定义了一些作为动物应该有的类属性，比如name、age，这些属性你会发现一个特点，那就是它们必须要依赖具体某一个动物个体才有意义，换句话说，每个动物的age、name各不相同，这个具体的个体就是我们利用Animal产生的对象，name、age离开了对象个体没有意义，现在我们再来发散下思维，如果需要有一个字段来描述Animal这个类，比如Animal是动物类，假如我们未来还会有植物类，我们现在需要一个字段用来区分它们，这时我们新增一个字段叫“生物分类”的字段，Animal里这个字段的值恒等于“动物”，这个字段我们发现是专门用来形容类的，你让这个字段变成一个普通的类属性，那它每次new一个Animal对象，这个属性就跟着存到对应的对象一次，是不是觉得很浪费资源？这时就可以把这个属性定义成一个静态变量：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//这里定义一个静态变量，用来标记该类属于那种生物分类</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">taxonomy</span> <span class="operator">=</span> <span class="string">&quot;动物类&quot;</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&quot;xx&quot;</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> age;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">cry</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;叫声为：未知&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="built_in">this</span>.name + <span class="string">&quot;正在吃东西&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们怎么访问这个字段呢？我们前面已经说过，通过“<code>类名.属性/方法</code>”即可触发：</p>
+<figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    System.out.println(Animal.taxonomy);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看，这样就可以访问到静态属性了，不光属性是这样，方法调用也是一样的，现在我们加一个工具方法，用来判断一个动物的年龄是否合法：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//这里定义一个静态变量，用来标记该类属于那种生物分类</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">taxonomy</span> <span class="operator">=</span> <span class="string">&quot;动物类&quot;</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&quot;xx&quot;</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> age;</span><br><span class="line"> </span><br><span class="line">    ...省略...</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">isAgeTooLong</span><span class="params">(<span class="type">int</span> age)</span> &#123; <span class="comment">//这个静态方法用来判断一个年龄对于一个动物来讲是否合理</span></span><br><span class="line">        <span class="keyword">return</span> age &gt; <span class="number">10000</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法的调用也是类似：</p>
+<figure class="highlight java"><figcaption><span>代码块4</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    System.out.println(Animal.taxonomy); <span class="comment">//访问静态属性</span></span><br><span class="line">    System.out.println(Animal.isAgeTooLong(<span class="number">1</span>)); <span class="comment">//调用静态方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那静态的变量&#x2F;方法跟普通的变量&#x2F;方法有什么区别呢？我们来看下流程图：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-1.png?imageView2/0/w/800" alt="图1"></p>
+<p>按照这个特性，非静态方法仍然可以调用静态方法：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-2.png" alt="图2"></p>
+<p>在Animal内部调用甚至可以省略Animal，想想这是为什么？因为通过图1可以知道，静态内容是属于类模板本身的，而非静态内容则是类对其对象所做的约束定义，通过这些非静态的内容规定了它产生的对象所包含的内容，所以对于静态内容来说，只要有访问权限（是的，静态内容也受访问权限修饰符的影响，规则跟之前相符），不管在哪里，都可以通过类名调用。</p>
+<p>static主要用来定义一些工具方法或者属性，这些方法和属性仅为了处理一些非对象级别的操作，比如例子里判断年龄对于动物是否合法的方法，你可以认为它就是一个工具方法，因为它跟具体的动物对象没有关系，而是对整个动物圈都有效，那你就可以把它搞成一个静态工具类。</p>
+<blockquote>
+<p>⚠️ <code>static</code>是不可以直接修饰类的，只能修饰内部类，被static修饰的<code>内部类</code>被称作<code>静态内部类</code>，有关内部类的内容在后面的文档，这里先不做了解。</p>
+</blockquote>
+<h2 id="二、final关键词"><a href="#二、final关键词" class="headerlink" title="二、final关键词"></a>二、final关键词</h2><p>在Java中，<code>final</code>关键字可以用来修饰类、方法和变量（包括成员变量和局部变量）。下面就从这三个方面来了解一下final关键字的基本用法。</p>
+<h3 id="2-1：final修饰类"><a href="#2-1：final修饰类" class="headerlink" title="2.1：final修饰类"></a>2.1：final修饰类</h3><p>当用final修饰一个类时，表明这个类不能被继承。也就是说，如果一个类你永远不会让他被继承，就可以用final进行修饰。final类中的成员变量可以根据需要设为final，但是要注意final类中的所有成员方法都会被隐式地指定为final方法。</p>
+<p>例如你不希望Animal产生任何的子类，那么可以这样定义Animal：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-3.png" alt="图3"></p>
+<p>使用final修饰了Animal之后，Cat这里就会报错：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-4.png" alt="图4"></p>
+<p>因为被final修饰的class，不允许被继承。</p>
+<blockquote>
+<p>❓ <strong>思考：</strong>abstract关键词可以和final一起使用吗？</p>
+</blockquote>
+<h3 id="2-2：final修饰方法"><a href="#2-2：final修饰方法" class="headerlink" title="2.2：final修饰方法"></a>2.2：final修饰方法</h3><p>被final修饰的方法，不允许被覆盖重写，比如我们把Animal里的cry方法改成final的：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-5.png" alt="图5"></p>
+<p>这时Cat类里就会报错：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-6.png" alt="图6"></p>
+<p>可以看到，IDE会提示被final修饰的方法无法被重写。</p>
+<blockquote>
+<p>⚠️ 在继承关系中，父类除了<code>final</code>方法不允许被子类<code>重写</code>，<code>private</code>的方法同样不允许，private方法会被隐式的指定为<code>final</code>方法。</p>
+</blockquote>
+<h3 id="2-3：final修饰变量"><a href="#2-3：final修饰变量" class="headerlink" title="2.3：final修饰变量"></a>2.3：final修饰变量</h3><p>final可以修饰成员变量、局部变量，被final修饰了的变量，不可以被再次赋值，例如：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-7.png" alt="图7"></p>
+<p>被final修饰的成员变量和局部变量的初始值赋值也是有区别的：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-8.png" alt="图8"></p>
+<p>可以看到，当成员变量设置为final时如果不赋初始值，则会提示报错，而局部变量则不会，局部变量只需要在第一次使用前赋初始值即可，赋完之后再次赋值才会提示重复赋值的错误。</p>
+<p>结论就是final关键词的目标就是保证变量内容仅可以被赋值一次，被final修饰的变量更像是一个常量，因为它并不会再次发生改变了。</p>
+<p>final在实际开发过程中通常和static一起使用，用来保存一个类里的常量：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-9.png" alt="图9"></p>
+<p>试想一下为什么，首先这是个静态数据，还是个public的，这就意味着任意类任意地方都有可能把它的值给改掉，这就不符合常量这一标准，所以我们需要使用final把它锁起来。</p>
+<p>我们再来发散下思维，final控制数据不被再次赋值，那么引用变量会不会改变？</p>
+<p>我们之前讲过，引用变量内部保存了一个对象的地址信息，而被final修饰的变量不可以被再次赋值，我们举个例子：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/12/20200312-3-10.png?imageView2/0/w/1024" alt="图10"></p>
+<p>所以final仅仅保证一个变量不会再次被赋值，但不保证引用变量引用的对象内容不发生改变。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" rel="tag"><i class="fa fa-tag"></i> JAVA进化论</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-7%EF%BC%9A%E3%80%90%E6%A1%88%E4%BE%8B%E3%80%91%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="prev" title="【JAVA进化论】LV2-7：【案例】学生信息管理系统">
+                  <i class="fa fa-angle-left"></i> 【JAVA进化论】LV2-7：【案例】学生信息管理系统
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-2%EF%BC%9A%E5%86%85%E9%83%A8%E7%B1%BB/" rel="next" title="【JAVA进化论】LV3-2：内部类">
+                  【JAVA进化论】LV3-2：内部类 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

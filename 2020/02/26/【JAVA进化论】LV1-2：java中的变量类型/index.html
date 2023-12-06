@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、基础变量类型1.1：整型即整数类型，如1，2，0，-1，-2这种。 整型变量在java中的声明方式如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【JAVA进化论】LV1-2：java中的变量类型">
+<meta property="og:url" content="http://example.com/2020/02/26/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-2%EF%BC%9Ajava%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="一、基础变量类型1.1：整型即整数类型，如1，2，0，-1，-2这种。 整型变量在java中的声明方式如下：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/02/26/20200226-1-1.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/02/26/20200226-1-2.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/02/26/20200226-1-3.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/02/26/20200226-1-4.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/02/26/20200226-1-5.png?imageView2/0/w/900">
+<meta property="article:published_time" content="2020-02-26T10:25:00.000Z">
+<meta property="article:modified_time" content="2023-12-06T07:58:54.419Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="JAVA进化论">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2020/02/26/20200226-1-1.png?imageView2/0/w/900">
+
+
+<link rel="canonical" href="http://example.com/2020/02/26/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-2%EF%BC%9Ajava%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2020/02/26/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-2%EF%BC%9Ajava%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B/","path":"2020/02/26/【JAVA进化论】LV1-2：java中的变量类型/","title":"【JAVA进化论】LV1-2：java中的变量类型"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【JAVA进化论】LV1-2：java中的变量类型 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">一、基础变量类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%EF%BC%9A%E6%95%B4%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">1.1：整型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%EF%BC%9A%E9%95%BF%E6%95%B4%E5%9E%8B"><span class="nav-number">1.2.</span> <span class="nav-text">1.2：长整型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%EF%BC%9A%E7%9F%AD%E6%95%B4%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">1.3：短整型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4%EF%BC%9A%E5%8D%95%E7%B2%BE%E5%BA%A6%E6%B5%AE%E7%82%B9%E5%9E%8B"><span class="nav-number">1.4.</span> <span class="nav-text">1.4：单精度浮点型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5%EF%BC%9A%E5%8F%8C%E7%B2%BE%E5%BA%A6%E6%B5%AE%E7%82%B9%E5%9E%8B"><span class="nav-number">1.5.</span> <span class="nav-text">1.5：双精度浮点型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-6%EF%BC%9A%E5%AD%97%E7%AC%A6%E5%9E%8B"><span class="nav-number">1.6.</span> <span class="nav-text">1.6：字符型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-7%EF%BC%9A%E5%AD%97%E8%8A%82"><span class="nav-number">1.7.</span> <span class="nav-text">1.7：字节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-8%EF%BC%9A%E5%B8%83%E5%B0%94%E5%80%BC"><span class="nav-number">1.8.</span> <span class="nav-text">1.8：布尔值</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B-%E5%BC%95%E7%94%A8%E5%8F%98%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">二、字符串类型&amp;引用变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.</span> <span class="nav-text">三、基本类型转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1%EF%BC%9A%E5%BC%BA%E5%88%B6%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.1.</span> <span class="nav-text">4.1：强制转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2%EF%BC%9A%E8%87%AA%E5%8A%A8%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.2.</span> <span class="nav-text">4.2：自动转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">四、小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/02/26/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-2%EF%BC%9Ajava%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【JAVA进化论】LV1-2：java中的变量类型 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【JAVA进化论】LV1-2：java中的变量类型
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-02-26 18:25:00" itemprop="dateCreated datePublished" datetime="2020-02-26T18:25:00+08:00">2020-02-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">JAVA进化论</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、基础变量类型"><a href="#一、基础变量类型" class="headerlink" title="一、基础变量类型"></a>一、基础变量类型</h2><h3 id="1-1：整型"><a href="#1-1：整型" class="headerlink" title="1.1：整型"></a>1.1：整型</h3><p>即整数类型，如1，2，0，-1，-2这种。</p>
+<p>整型变量在java中的声明方式如下：</p>
+<span id="more"></span>
+
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a; <span class="comment">//声明名称为a的整型变量（默认值为0）</span></span><br><span class="line"><span class="type">int</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">5</span>; <span class="comment">//声明名称为b的整型变量（初始化值为5）</span></span><br></pre></td></tr></table></figure>
+
+<p>整型变量在内存中占据32个bit位（4字节），每个bit位可存储0和1，通常第一位为符号位（±），所以有效数字部分就占了31位，如图（图中表示十进制数字+6）：</p>
+<p><img src="http://myblog.sharemer.com/2020/02/26/20200226-1-1.png?imageView2/0/w/900" alt="图1"></p>
+<p>按照这个特性，整型的取值范围为：(-2^31) ~ (2^31)-1</p>
+<p>即：-2147483648 ~ 2147483647</p>
+<p>除了浮点型，其余只要有符号位的类型，都符合这个范围规则。</p>
+<p>为什么负数的数值位比正数多1，计算机是如何做减法运算的？请参考：<a target="_blank" rel="noopener" href="https://exceting.github.io/2020/03/10/JAVA%E6%9C%89%E5%85%B3%E4%BD%8D%E8%BF%90%E7%AE%97%E7%9A%84%E5%85%A8%E5%A5%97%E6%A2%B3%E7%90%86/">JAVA有关位运算的全套梳理</a></p>
+<h3 id="1-2：长整型"><a href="#1-2：长整型" class="headerlink" title="1.2：长整型"></a>1.2：长整型</h3><p>长整型变量在java中的声明方式如下：</p>
+<figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> a; <span class="comment">//声明名称为a的长整型变量（默认值为0）</span></span><br><span class="line"><span class="type">long</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">5</span>; <span class="comment">//声明名称为b的长整型变量（初始化值为5）</span></span><br></pre></td></tr></table></figure>
+
+<p>这种类型所表示的数值范围相比整型的位数，多了一倍，占据64个bit位（8字节）</p>
+<p>因此其取值范围为：(-2^64) ~ (2^64)-1</p>
+<p>即：-9223372036854775808 ~ 9223372036854775807</p>
+<h3 id="1-3：短整型"><a href="#1-3：短整型" class="headerlink" title="1.3：短整型"></a>1.3：短整型</h3><p>短整型变量在java中的声明方式如下：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">short</span> a; <span class="comment">//声明名称为a的长整型变量（默认值为0）</span></span><br><span class="line"><span class="type">short</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">5</span>; <span class="comment">//声明名称为b的长整型变量（初始化值为5）</span></span><br></pre></td></tr></table></figure>
+
+<p>这种类型所表示的数值范围相比整型的位数，少了一倍，只占据16个bit位（2字节）</p>
+<p>取值范围为：(-2^15) ~ (2^15)-1</p>
+<p>即：-32768 ~ 32767</p>
+<p>巩固：</p>
+<p>这里说明下，short、int、long本质上都表示整数，因此像下面这种写法都是ok的：</p>
+<figure class="highlight java"><figcaption><span>代码块4</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">short</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="type">long</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>那为什么要如此区分呢？这就存在一个取值范围的问题，因为这三种类型的二进制位数不一样，所以他们所能容下的数值范围也不同，具体参考下图：</p>
+<p><img src="http://myblog.sharemer.com/2020/02/26/20200226-1-2.png?imageView2/0/w/900" alt="图2"></p>
+<p>所以今后在写程序时，需要严格推断数值的极端可能性，然后设计出合理接收数据的类型。</p>
+<p>举个反例：比如某个系统的id，id增长特别迅速，开始设计用int类型接收id，后来id值超过了int表示数据的最大范围，就会出现很严重的问题。</p>
+<h3 id="1-4：单精度浮点型"><a href="#1-4：单精度浮点型" class="headerlink" title="1.4：单精度浮点型"></a>1.4：单精度浮点型</h3><p>浮点型变量在java中的声明方式如下：</p>
+<figure class="highlight java"><figcaption><span>代码块5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> a; <span class="comment">//声明名称为a的单精度浮点型变量（默认值为0.0）</span></span><br><span class="line"><span class="type">float</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">5.0f</span>; <span class="comment">//声明名称为b的单精度浮点型变量（初始化值为5.0）</span></span><br></pre></td></tr></table></figure>
+
+<p>单精度浮点型变量在内存中占据32个bit位（4字节），相比整型，它存在指数位，分布如下：</p>
+<p><img src="http://myblog.sharemer.com/2020/02/26/20200226-1-3.png?imageView2/0/w/900" alt="图3"></p>
+<p>取值范围为：-2^128 ~ 2^127</p>
+<p>即：-3.40E+38 ~ +3.40E+38</p>
+<p>注：java中如果单独写一个类似0.1这样的小数，默认是双精度，如果用float接收，会报错，一般需要在小数后面加个f修饰符（隐式类型转换）。</p>
+<h3 id="1-5：双精度浮点型"><a href="#1-5：双精度浮点型" class="headerlink" title="1.5：双精度浮点型"></a><strong>1.5：双精度浮点型</strong></h3><p>双精度变量在java中的声明方式如下：</p>
+<figure class="highlight java"><figcaption><span>代码块6</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> a; <span class="comment">//声明名称为a的浮点型变量（默认值为0.0）</span></span><br><span class="line"><span class="type">float</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">5.0</span>; <span class="comment">//声明名称为b的浮点型变量（初始化值为5.0）</span></span><br></pre></td></tr></table></figure>
+
+<p>双精度浮点型变量在内存中占据64个bit位（8字节），相比单精度浮点型数据，它用来存放指数和尾数的位数明显更多，分布如下：</p>
+<p><img src="http://myblog.sharemer.com/2020/02/26/20200226-1-4.png?imageView2/0/w/900" alt="图4"></p>
+<h3 id="1-6：字符型"><a href="#1-6：字符型" class="headerlink" title="1.6：字符型"></a>1.6：字符型</h3><p>字符变量在java中的声明方式如下：</p>
+<figure class="highlight java"><figcaption><span>代码块7</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> a; <span class="comment">//声明名称为a的字符型变量（默认值为0，对应的字符为空字符，BLANK）</span></span><br><span class="line"><span class="type">char</span> <span class="variable">b</span> <span class="operator">=</span> <span class="string">&#x27;我&#x27;</span>; <span class="comment">//声明名称为b的字符型变量（初始化值为汉字&#x27;我&#x27;，对应的Unicode码为25105）</span></span><br></pre></td></tr></table></figure>
+
+<p>字符型变量在内存中占据16个bit位（2字节），java语言的字符基于Unicode，无论是数字、字母，还是汉字，均占2个字节。</p>
+<p>按照16位的保存方式，char的数字取值区间为：0 ~ 65535</p>
+<h3 id="1-7：字节"><a href="#1-7：字节" class="headerlink" title="1.7：字节"></a>1.7：字节</h3><p>字节变量在java中的声明方式如下：</p>
+<figure class="highlight java"><figcaption><span>代码块7</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">byte</span> a; <span class="comment">//声明名称为a的字节变量（默认值为0）</span></span><br><span class="line"><span class="type">byte</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">5</span>; <span class="comment">//声明名称为b的字符型变量（初始化值为5）</span></span><br></pre></td></tr></table></figure>
+
+<p>字节变量在内存中占据8个bit位</p>
+<p>取值区间为：(-2^7) ~ (2^7)-1</p>
+<p>即：-128~127</p>
+<p>一个字节就是一个数字，字节存储的数字聚合在一起就变成了字节流（byte[]）字节流可以被不同的编码方式解码成具体某一个字符或者某一段语句，现有的文本信息，在计算机中以字节的方式进行存储，存储前通过某种编码方式编码，获取到时通过同样的编码方式解码即可获取到具体的文本信息。</p>
+<h3 id="1-8：布尔值"><a href="#1-8：布尔值" class="headerlink" title="1.8：布尔值"></a>1.8：布尔值</h3><p>布尔类型的变量在java中的声明方式如下：</p>
+<figure class="highlight java"><figcaption><span>代码块8</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">boolean</span> a; <span class="comment">//声明名称为a的布尔变量（无初始化值时，默认值为false）</span></span><br><span class="line"><span class="type">boolean</span> <span class="variable">b</span> <span class="operator">=</span> <span class="literal">true</span>; <span class="comment">//声明名称为b的布尔变量（初始化值为true）</span></span><br></pre></td></tr></table></figure>
+
+<p>这种类型的变量只有true或false两种值，用来表示真或假。</p>
+<p>布尔变量在内存中占据8个bit位（1个字节，存在争议，JVM规范中提到应占4个字节）。</p>
+<h2 id="二、字符串类型-引用变量"><a href="#二、字符串类型-引用变量" class="headerlink" title="二、字符串类型&amp;引用变量"></a>二、字符串类型&amp;引用变量</h2><p>上面所有的类型，均为java的基本类型，除了基本类型变量，其他的所有变量均为引用变量，这里介绍一种引用变量：String</p>
+<p>String相比char只能表示一个字符来说，它可以用来表达一段话，它的声明方式如下：</p>
+<figure class="highlight java"><figcaption><span>代码块10</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String a; <span class="comment">//声明名称为a的String类型变量（由于其非基本类型，因此a属于引用变量，引用类型变量在不赋值的情况下默认值为null）</span></span><br><span class="line"><span class="type">String</span> <span class="variable">b</span> <span class="operator">=</span> <span class="string">&quot;这是一段话&quot;</span>; <span class="comment">//声明名称为b的String类型变量（初始值为：这是一段话），常用的声明字符串的方式</span></span><br><span class="line"><span class="type">String</span> <span class="variable">c</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">String</span>(<span class="string">&quot;这是一段话&quot;</span>); <span class="comment">//声明名称为c的String类型变量（初始值为：这是一段话）这种写法不建议</span></span><br></pre></td></tr></table></figure>
+
+<p>字符串的拼接也很简单：</p>
+<figure class="highlight java"><figcaption><span>代码块11</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">a</span> <span class="operator">=</span> <span class="string">&quot;哔哩哔哩 &quot;</span>;</span><br><span class="line"><span class="type">String</span> <span class="variable">b</span> <span class="operator">=</span> <span class="string">&quot;乾杯~&quot;</span>;</span><br><span class="line"><span class="type">String</span> <span class="variable">c</span> <span class="operator">=</span> a + b; <span class="comment">//c最终的结果为：哔哩哔哩 乾杯~</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="三、基本类型转换"><a href="#三、基本类型转换" class="headerlink" title="三、基本类型转换"></a>三、基本类型转换</h2><p>我们按照基本类型所能表示的数值范围来区分它们的大小，现可以做出如下排序：</p>
+<p><img src="http://myblog.sharemer.com/2020/02/26/20200226-1-5.png?imageView2/0/w/900" alt="图5"></p>
+<p>所谓类型转换，就是java语法里为了程序严谨性所做的一层保护，举个例子，一个比较大的类型long，声明了一个变量，我们记为α，现在用一个比较小的类型int来接收α，这在java的语法里是不允许的，因为你不知道α的大小是不是已经超出int型所能表达的范围值了，但是相反的，如果现在声明一个int型的变量，我们记为β，这时使用long型接收β在java的语法里是允许的，因为int型的数顶天了也不可能超过long型所能表达的范围，所谓基本类型的转换就是这么回事，下面来看看具体的场景。</p>
+<p>注：布尔类型是不参与类型转换的</p>
+<h3 id="4-1：强制转换"><a href="#4-1：强制转换" class="headerlink" title="4.1：强制转换"></a>4.1：强制转换</h3><p>通过上面简短的介绍，已经知道了java为什么要做一些类型转换的操作，那么哪些情况下需要做强制类型转换呢？</p>
+<p>按照类型大小排列，long型可以接收int型数据，而int型要想接收long型数据，就需要做强转，语法如下：</p>
+<figure class="highlight java"><figcaption><span>代码块12</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> γ = <span class="number">1</span>; <span class="comment">//声明long型的变量γ</span></span><br><span class="line"><span class="type">int</span> λ = (<span class="type">int</span>) γ; <span class="comment">//声明int型的变量λ，由于int型表示范围比long型小，因此有超范围的风险，因此java要求必须做一层强转</span></span><br><span class="line"> </span><br><span class="line"><span class="type">int</span> α = <span class="number">1</span>; <span class="comment">//声明int型的变量α</span></span><br><span class="line"><span class="type">long</span> β = α; <span class="comment">//声明long型的变量β，使其值等于α，由于long型表示范围比int型大，因此α不需要做类型强转</span></span><br></pre></td></tr></table></figure>
+
+<p>比较特殊的就是short和char型变量，它们俩由于位数相同，虽然表达的取值范围不同，但是其类型大小在java眼里是相同的，所以它们俩需要互转，不存在谁比谁大的情况：</p>
+<figure class="highlight java"><figcaption><span>代码块12</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//short和char不管由谁接收谁，均需要强转</span></span><br><span class="line"><span class="type">short</span> γ = <span class="number">1</span>;</span><br><span class="line"><span class="type">char</span> λ = (<span class="type">char</span>) γ;</span><br><span class="line"> </span><br><span class="line"><span class="type">char</span> α = <span class="number">1</span>;</span><br><span class="line"><span class="type">short</span> β = (<span class="type">short</span>) α;</span><br></pre></td></tr></table></figure>
+
+<p>这个规则放到方法传参时同样是适用的：</p>
+<figure class="highlight java"><figcaption><span>代码块13</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="type">short</span> <span class="variable">param1</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">    method(param1); <span class="comment">//method接收的参数是int型，声明的参数值却是short型，short比int表达范围小，因此调用method时，不需要强转</span></span><br><span class="line">    <span class="type">long</span> <span class="variable">param2</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">    method((<span class="type">int</span>) param2); <span class="comment">//method接收的参数是int型，声明的参数值却是long型，调用method时，需要强转</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//这是一个接收int型参数的方法</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">method</span><span class="params">(<span class="type">int</span> param)</span> &#123;</span><br><span class="line">    <span class="comment">//方法逻辑省略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2：自动转换"><a href="#4-2：自动转换" class="headerlink" title="4.2：自动转换"></a>4.2：自动转换</h3><p>自动转换就是指取值范围小的数据类型可以自动转换成取值范围大的数据类型。</p>
+<p>需要结合4.1理解，4.1介绍了强制类型转换，例子中不需要强转的统统都是自动转换的，如代码块10中的α和β的类型转换：</p>
+<figure class="highlight java"><figcaption><span>代码块14</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> α = <span class="number">1</span>; <span class="comment">//声明int型的变量α，值为1</span></span><br><span class="line"><span class="type">long</span> β = α; <span class="comment">//声明long型的变量β，使其值等于α的值，由于long型表示范围比int型大，因此α的值不需要做类型强转，但其实是α的值类型已经自动转成long了</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h2><p>通过本节，我们知道了java里的基本数据类型，字符串类型，以及引用变量的简单介绍。</p>
+<p>下一节将会介绍java中的运算符，让本节里的数据通过运算”活起来“。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" rel="tag"><i class="fa fa-tag"></i> JAVA进化论</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/02/25/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-1%EF%BC%9A%E5%AE%89%E8%A3%85java%E7%8E%AF%E5%A2%83&%E7%AC%AC%E4%B8%80%E4%B8%AAjava%E7%A8%8B%E5%BA%8F/" rel="prev" title="【JAVA进化论】LV1-1：安装java环境&第一个java程序">
+                  <i class="fa fa-angle-left"></i> 【JAVA进化论】LV1-1：安装java环境&第一个java程序
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/02/28/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-3%EF%BC%9Ajava%E4%B8%AD%E7%9A%84%E8%BF%90%E7%AE%97%E7%AC%A6/" rel="next" title="【JAVA进化论】LV1-3：java中的运算符">
+                  【JAVA进化论】LV1-3：java中的运算符 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

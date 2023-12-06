@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、工作流程1.1：实现加权轮询的方式WRR叫做加权轮询算法，相比普通的轮询算法，它支持给每个节点配置权重，权重越大，越容易被访问，且符合轮询的特点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="负载均衡-WRR算法">
+<meta property="og:url" content="http://example.com/2020/08/07/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-WRR%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="一、工作流程1.1：实现加权轮询的方式WRR叫做加权轮询算法，相比普通的轮询算法，它支持给每个节点配置权重，权重越大，越容易被访问，且符合轮询的特点。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/07/20200807-1-1.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/07/20200807-1-2.png?imageView2/0/w/500">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/07/20200807-1-3.png?imageView2/0/w/900">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/07/20200807-1-4.png?imageView2/0/w/300">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/07/20200807-1-5.png?imageView2/0/w/550">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/07/20200807-table.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/07/20200807-1-6.png?imageView2/0/w/875">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/08/07/20200807-1-7.png?imageView2/0/w/1024">
+<meta property="article:published_time" content="2020-08-06T22:27:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T02:37:15.278Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="负载均衡">
+<meta property="article:tag" content="服务治理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2020/08/07/20200807-1-1.png?imageView2/0/w/900">
+
+
+<link rel="canonical" href="http://example.com/2020/08/07/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-WRR%E7%AE%97%E6%B3%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2020/08/07/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-WRR%E7%AE%97%E6%B3%95/","path":"2020/08/07/负载均衡-WRR算法/","title":"负载均衡-WRR算法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>负载均衡-WRR算法 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">一、工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%EF%BC%9A%E5%AE%9E%E7%8E%B0%E5%8A%A0%E6%9D%83%E8%BD%AE%E8%AF%A2%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1：实现加权轮询的方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%EF%BC%9ASWRR%E7%AE%97%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">1.2：SWRR算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%EF%BC%9ASWRR%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">1.3：SWRR存在的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4%EF%BC%9A%E4%BC%98%E5%8C%96SWRR"><span class="nav-number">1.4.</span> <span class="nav-text">1.4：优化SWRR</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">二、实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E7%AE%97%E6%B3%95%E9%AA%8C%E8%AF%81"><span class="nav-number">3.</span> <span class="nav-text">四、算法验证</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/08/07/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-WRR%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="负载均衡-WRR算法 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          负载均衡-WRR算法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-08-07 06:27:00" itemprop="dateCreated datePublished" datetime="2020-08-07T06:27:00+08:00">2020-08-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">服务治理</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、工作流程"><a href="#一、工作流程" class="headerlink" title="一、工作流程"></a>一、工作流程</h2><h3 id="1-1：实现加权轮询的方式"><a href="#1-1：实现加权轮询的方式" class="headerlink" title="1.1：实现加权轮询的方式"></a>1.1：实现加权轮询的方式</h3><p>WRR叫做加权轮询算法，相比普通的轮询算法，它支持给每个节点配置权重，权重越大，越容易被访问，且符合轮询的特点。</p>
+<span id="more"></span>
+
+<p>一般情况下，我们会按照下方逻辑设计算法的实现：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/07/20200807-1-1.png?imageView2/0/w/900" alt="图1"></p>
+<p>如<code>图1</code>中流程执行完毕，接下来就跟普通RR算法一样做轮询即可，保证每个虚拟节点都被均匀访问到，而被访问概率也与权重值成正比。</p>
+<p>但正如上图所说，乱序那一步是比较容易出问题的，可能会出现下面这样的情况：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/07/20200807-1-2.png?imageView2/0/w/500" alt="图2"></p>
+<h3 id="1-2：SWRR算法"><a href="#1-2：SWRR算法" class="headerlink" title="1.2：SWRR算法"></a>1.2：SWRR算法</h3><p>如果不足够散列，意味着轮询窗口内访问不足够均匀，基于此，便有了<code>SWRR算法</code>，它是一种可以平滑访问的、nginx默认的加权轮询算法，相比普通加权轮询，它在轮询访问节点时表现的更加散列。</p>
+<p>在该算法中，每个节点有如下基本属性：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/07/20200807-1-3.png?imageView2/0/w/900" alt="图3"></p>
+<p>结合上面几个属性，来看下SWRR算法下，选举流程是怎样的：</p>
+<p>首先是Node信息的初始化，按照<code>图3</code>的描述，每个Node在初始化的那一刻，<code>effective_weight</code>跟它的<code>weight</code>值相等，<code>current_weight</code>都为0：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/07/20200807-1-4.png?imageView2/0/w/300" alt="图4"></p>
+<p>然后开始pick，来看下pick的流程：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/07/20200807-1-5.png?imageView2/0/w/550" alt="图5"></p>
+<p>每次pick，都会经历上面的流程，这样来模拟一下这个轮询过程，假设现在有三个节点，节点名为a、b、c，对应权重值为：<code>4:2:1</code>，结合上面的pick流程，它的轮询流程如下：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/07/20200807-table.png?imageView2/0/w/1024" alt="表1"></p>
+<p>上表为<code>SWRR</code>两次轮询的执行效果，可以看到pick出来的节点<code>非常散列</code>，而且每一次轮询得到的顺序是<code>一致</code>的，且每次轮询完成后，各项指标会还原为初始状态，以此类推，它的数学推导&amp;证明请参考：<a target="_blank" rel="noopener" href="http://claude-ray.com/2019/08/10/nginx-swrr/">Nginx SWRR 算法解读</a></p>
+<h3 id="1-3：SWRR存在的问题"><a href="#1-3：SWRR存在的问题" class="headerlink" title="1.3：SWRR存在的问题"></a>1.3：SWRR存在的问题</h3><p>上面的按照SWRR模拟的pick过程很完美，但该算法依然有一些漏洞，请参考：<a target="_blank" rel="noopener" href="https://www.infoq.cn/article/SEbuh0K6jI*yTfqzcihB">QPS 比 Nginx 提升 60%，阿里 Tengine 负载均衡算法揭秘</a></p>
+<p>简单来理解，SWRR有以下缺陷：</p>
+<ol>
+<li>算法复杂度为<code>O(N)</code>，而且在pick节点时为了保证准确性，需要加<code>锁</code></li>
+<li>如果<code>刷新</code>某节点的权重值，会导致该节点流量值瞬间<code>暴增</code></li>
+</ol>
+<p>第一点很好理解，因为每次都要选出<code>current_weight</code>最大的那个节点，必然要循环一次所有的节点。<code>第二点存疑</code>，参考上方文章评论区：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/07/20200807-1-6.png?imageView2/0/w/875" alt="图6"></p>
+<p>我在自测过程中，在算法启动后动态调整<code>weight</code>和<code>effective_weight</code>的值是不存在这个问题的，访问依旧均匀，并不会出现大规模pick到加权节点上的情况，个人猜测他们可能是在探听到<code>weight</code>变化后，把对应节点的<code>current_weight</code>也给改掉了才可能出现这个问题。</p>
+<h3 id="1-4：优化SWRR"><a href="#1-4：优化SWRR" class="headerlink" title="1.4：优化SWRR"></a>1.4：优化SWRR</h3><p>按照上方文章里描述，我们现在需要将<code>O(N)</code>的算法变成<code>O(1)</code>，这样不仅仅性能迅速提升，pick时也<code>无需加锁</code>，对于使用SWRR算法来说是个不错的选择，那如何实现O(1)呢？<code>表1</code>告诉我们，按照算法pick出的节点是有规律性的，以权重和为模来界定一次轮询，而每个轮询窗口内的节点散列顺序完全一致，那么这样优化起来就简单多了：</p>
+<p><img src="http://myblog.sharemer.com/2020/08/07/20200807-1-7.png?imageView2/0/w/1024" alt="图7"></p>
+<p>经过上图里展示的方法，做一层转换，即可达成<code>O(1)</code>成就，这样在高QPS时的效率会显著提升，后续如果有节点信息变更，只需要以同样的方式，刷新虚拟节点有序集合即可。</p>
+<h2 id="二、实现"><a href="#二、实现" class="headerlink" title="二、实现"></a>二、实现</h2><p>这里采用JAVA语言来实现：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WrrLoadBalancer</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> effectiveWeightSum; <span class="comment">//总权重值</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> Node[] virtualNodes; <span class="comment">//虚拟节点有序集</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> AtomicLong pointer; <span class="comment">//pick次数</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">WrrLoadBalancer</span><span class="params">(Node... nodes)</span> &#123;</span><br><span class="line">        refreshVirtual(nodes);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//刷新虚拟节点</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">refreshVirtual</span><span class="params">(Node... nodes)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">total</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (Node node : nodes) &#123;</span><br><span class="line">            total += node.getEffectiveWeight(); <span class="comment">//累加total</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">newEffectiveWeightSum</span> <span class="operator">=</span> total;</span><br><span class="line">        Node[] newVirtualNodes = <span class="keyword">new</span> <span class="title class_">Node</span>[newEffectiveWeightSum];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; newEffectiveWeightSum; i++) &#123;</span><br><span class="line">            newVirtualNodes[i] = pickInit(newEffectiveWeightSum, nodes);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">this</span>.virtualNodes = newVirtualNodes;</span><br><span class="line">        <span class="built_in">this</span>.effectiveWeightSum = newEffectiveWeightSum;</span><br><span class="line">        pointer = <span class="keyword">new</span> <span class="title class_">AtomicLong</span>((<span class="type">long</span>) (Math.random() * effectiveWeightSum)); <span class="comment">//随机开始位置</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> Node <span class="title function_">pickInit</span><span class="params">(<span class="type">int</span> effectiveWeightSum, Node... nodes)</span> &#123;</span><br><span class="line">        <span class="type">Node</span> <span class="variable">picked</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (Node node : nodes) &#123;</span><br><span class="line">            node.refreshCurrentWeight();</span><br><span class="line">            <span class="keyword">if</span> (picked == <span class="literal">null</span>) &#123;</span><br><span class="line">                picked = node;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (picked.getCurrentWeight() &lt; node.getCurrentWeight()) &#123;</span><br><span class="line">                    picked = node;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (picked == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;wrr pick error!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> picked.pick(effectiveWeightSum);</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> Node <span class="title function_">pick</span><span class="params">()</span> &#123; <span class="comment">//注：更新节点时，可能下标溢出</span></span><br><span class="line">        <span class="keyword">return</span> virtualNodes[(<span class="type">int</span>) (pointer.incrementAndGet() % effectiveWeightSum)];</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Node</span> &#123;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> String host;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">// 用户所配的权重</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">weight</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>();</span><br><span class="line"> </span><br><span class="line">        <span class="comment">// 有效权重，正常情况下，该值等于weight，但是当node本身发生错误时，</span></span><br><span class="line">        <span class="comment">// 会适当降低该值，后面被选中一次，若不报错，则累加该值，顺利的话最后会再次恢复到weight</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">effectiveWeight</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>();</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//后端目前的权重，一开始为0，后期动态调整，选节点的依据，谁这个值最大就选谁</span></span><br><span class="line">        <span class="comment">//计算方式，每次被选中，</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">currentWeight</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>();</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">public</span> <span class="title function_">Node</span><span class="params">(String host, <span class="type">int</span> weight)</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.host = host;</span><br><span class="line">            <span class="built_in">this</span>.weight.set(weight);</span><br><span class="line">            <span class="built_in">this</span>.effectiveWeight.set(weight);</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">public</span> Node <span class="title function_">pick</span><span class="params">(<span class="type">int</span> total)</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">this</span>;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="comment">//节点被选中后，需要&quot;降权&quot;，即减去Sum(effective_weight)</span></span><br><span class="line">                <span class="built_in">this</span>.currentWeight.addAndGet(total * -<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//刷新currentWeight值，使其累加当前的effectiveWeight值</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">refreshCurrentWeight</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.currentWeight.getAndAdd(<span class="built_in">this</span>.effectiveWeight.get());</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//刷新effectiveWeight值</span></span><br><span class="line">        <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getEffectiveWeight</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.effectiveWeight.get();</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getCurrentWeight</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.currentWeight.get();</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">public</span> String <span class="title function_">getHost</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> host;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、算法验证"><a href="#四、算法验证" class="headerlink" title="四、算法验证"></a>四、算法验证</h2><p>算法的验证会以实际压测的方式来进行，请前往：<a target="_blank" rel="noopener" href="https://exceting.github.io/2020/08/28/WRR%E7%AE%97%E6%B3%95%E9%AA%8C%E8%AF%81%E5%AE%9E%E9%AA%8C/">WRR算法验证实验</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" rel="tag"><i class="fa fa-tag"></i> 负载均衡</a>
+              <a href="/tags/%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/" rel="tag"><i class="fa fa-tag"></i> 服务治理</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/08/06/%E5%AE%9A%E5%88%B6grpc%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8/" rel="prev" title="定制grpc负载均衡器">
+                  <i class="fa fa-angle-left"></i> 定制grpc负载均衡器
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/08/13/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-P2C%E7%AE%97%E6%B3%95/" rel="next" title="负载均衡-P2C算法">
+                  负载均衡-P2C算法 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

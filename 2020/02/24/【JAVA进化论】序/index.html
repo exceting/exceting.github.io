@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="序章 最近有一项工作，让测试同学对java这门语言进行入门，并且可以独立review开发写出来的代码。想着自己正式做java开发已经快4年了，想着给别人讲一些基础做下入门应该没啥大问题了吧，但在整理过程中发现，有些东西想整理的很通俗易懂还是很难的，好在基础篇的教程最后还是坚持下来了，自己收获也不少，很多基础知识在自己整理的过程中又加深了一遍印象，同时作为一种个人经历，我也想把这些文档放到个人的文库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【JAVA进化论】序">
+<meta property="og:url" content="http://example.com/2020/02/24/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91%E5%BA%8F/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="序章 最近有一项工作，让测试同学对java这门语言进行入门，并且可以独立review开发写出来的代码。想着自己正式做java开发已经快4年了，想着给别人讲一些基础做下入门应该没啥大问题了吧，但在整理过程中发现，有些东西想整理的很通俗易懂还是很难的，好在基础篇的教程最后还是坚持下来了，自己收获也不少，很多基础知识在自己整理的过程中又加深了一遍印象，同时作为一种个人经历，我也想把这些文档放到个人的文库">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/02/24/20200224-1-1.png?imageView2/0/w/1500">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/02/24/20200224-1-2.png?imageView2/0/w/1329">
+<meta property="article:published_time" content="2020-02-24T07:26:00.000Z">
+<meta property="article:modified_time" content="2023-12-06T10:43:37.808Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="JAVA进化论">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2020/02/24/20200224-1-1.png?imageView2/0/w/1500">
+
+
+<link rel="canonical" href="http://example.com/2020/02/24/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91%E5%BA%8F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2020/02/24/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91%E5%BA%8F/","path":"2020/02/24/【JAVA进化论】序/","title":"【JAVA进化论】序"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【JAVA进化论】序 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%8F%E7%AB%A0"><span class="nav-number">1.</span> <span class="nav-text">序章</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%AF%87%E6%95%99%E7%A8%8B%E7%9B%AE%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">基础篇教程目录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E8%AF%BE%E6%97%B6"><span class="nav-number">2.1.</span> <span class="nav-text">第一课时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E8%AF%BE%E6%97%B6"><span class="nav-number">2.2.</span> <span class="nav-text">第二课时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E8%AF%BE%E6%97%B6"><span class="nav-number">2.3.</span> <span class="nav-text">第三课时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E8%AF%BE%E6%97%B6"><span class="nav-number">2.4.</span> <span class="nav-text">第四课时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%94%E8%AF%BE%E6%97%B6"><span class="nav-number">2.5.</span> <span class="nav-text">第五课时</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/02/24/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91%E5%BA%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【JAVA进化论】序 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【JAVA进化论】序
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-02-24 15:26:00" itemprop="dateCreated datePublished" datetime="2020-02-24T15:26:00+08:00">2020-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">JAVA进化论</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>809</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="序章"><a href="#序章" class="headerlink" title="序章"></a>序章</h3><blockquote>
+<p>最近有一项工作，让测试同学对java这门语言进行入门，并且可以独立review开发写出来的代码。想着自己正式做java开发已经快4年了，想着给别人讲一些基础做下入门应该没啥大问题了吧，但在整理过程中发现，有些东西想整理的很通俗易懂还是很难的，好在基础篇的教程最后还是坚持下来了，自己收获也不少，很多基础知识在自己整理的过程中又加深了一遍印象，同时作为一种个人经历，我也想把这些文档放到个人的文库里。</p>
+<p>关于进阶篇，没有继续更新，因为整理的太细，课程耗时会很久，就采用了另一种速成的方式教他们了，所以文档本身到基础篇就断掉了。</p>
+</blockquote>
+<span id="more"></span>
+
+<p>下面的脑图是对java基础知识&amp;进阶知识的梳理：</p>
+<p><img src="http://myblog.sharemer.com/2020/02/24/20200224-1-1.png?imageView2/0/w/1500" alt="基础篇"></p>
+<p><img src="http://myblog.sharemer.com/2020/02/24/20200224-1-2.png?imageView2/0/w/1329" alt="进阶篇"></p>
+<h3 id="基础篇教程目录"><a href="#基础篇教程目录" class="headerlink" title="基础篇教程目录"></a>基础篇教程目录</h3><h4 id="第一课时"><a href="#第一课时" class="headerlink" title="第一课时"></a>第一课时</h4><p><a href="/2020/02/25/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-1%EF%BC%9A%E5%AE%89%E8%A3%85java%E7%8E%AF%E5%A2%83&%E7%AC%AC%E4%B8%80%E4%B8%AAjava%E7%A8%8B%E5%BA%8F/">LV1-1：安装java环境&amp;第一个java程序</a></p>
+<p><a href="/2020/02/26/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-2%EF%BC%9Ajava%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B/">LV1-2：java中的变量类型</a></p>
+<p><a href="/2020/02/28/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-3%EF%BC%9Ajava%E4%B8%AD%E7%9A%84%E8%BF%90%E7%AE%97%E7%AC%A6/">LV1-3：java中的运算符</a></p>
+<p><a href="/2020/03/02/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-4%EF%BC%9A%E6%9D%A1%E4%BB%B6%E8%AF%AD%E5%8F%A5&%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5/">LV1-4：条件语句&amp;循环语句</a></p>
+<h4 id="第二课时"><a href="#第二课时" class="headerlink" title="第二课时"></a>第二课时</h4><p><a href="/2020/03/02/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-1%EF%BC%9A%E7%B1%BB&%E5%BC%95%E7%94%A8%E5%8F%98%E9%87%8F%E7%9A%84%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/">LV2-1：类&amp;引用变量的简单介绍</a></p>
+<p><a href="/2020/03/05/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-2%EF%BC%9A%E5%8C%85%E7%9A%84%E5%AE%9A%E4%B9%89%E3%80%81%E7%B1%BB%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%84%E6%88%90%E3%80%81%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6/">LV2-2：包的定义、类的基本组成、访问权限修饰符</a></p>
+<p><a href="/2020/03/05/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-3%EF%BC%9A%E5%8F%98%E9%87%8F%E7%9A%84%E4%BD%9C%E7%94%A8%E5%9F%9F/">LV2-3：变量的作用域</a></p>
+<p><a href="/2020/03/10/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-4%EF%BC%9A%E7%B1%BB%E7%9A%84%E7%89%B9%E6%80%A7%E3%80%81%E5%85%B3%E7%B3%BB/">LV2-4：类的特性、关系</a></p>
+<p><a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-5%EF%BC%9A%E6%8E%A5%E5%8F%A3/">LV2-5：接口</a></p>
+<p><a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-6%EF%BC%9Ajava%E5%8E%9F%E7%94%9F%E7%B1%BB&%E7%AC%AC%E4%B8%89%E6%96%B9%E5%8C%85%E4%BE%9D%E8%B5%96/">LV2-6：java原生类&amp;第三方包依赖</a></p>
+<p><a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-7%EF%BC%9A%E3%80%90%E6%A1%88%E4%BE%8B%E3%80%91%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/">LV2-7：【案例】学生信息管理系统</a></p>
+<h4 id="第三课时"><a href="#第三课时" class="headerlink" title="第三课时"></a>第三课时</h4><p><a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-1%EF%BC%9A%E4%BD%9C%E7%94%A8%E5%9C%A8%E7%B1%BB%E3%80%81%E5%8F%98%E9%87%8F%E3%80%81%E6%96%B9%E6%B3%95%E4%B8%8A%E7%9A%84%E5%85%B6%E5%AE%83%E4%BF%AE%E9%A5%B0%E7%AC%A6/">LV3-1：作用在类、变量、方法上的其它修饰符</a></p>
+<p><a href="/2020/03/12/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-2%EF%BC%9A%E5%86%85%E9%83%A8%E7%B1%BB/">LV3-2：内部类</a></p>
+<p><a href="/2020/03/17/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-3%EF%BC%9AObject&%E6%B3%9B%E5%9E%8B/">LV3-3：Object&amp;泛型</a></p>
+<p><a href="/2020/03/17/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV3-4%EF%BC%9A%E5%8F%8D%E5%B0%84%E3%80%90%E8%BD%AC%E8%BD%BD%E3%80%91/">LV3-4：反射【转载】</a></p>
+<h4 id="第四课时"><a href="#第四课时" class="headerlink" title="第四课时"></a>第四课时</h4><p><a href="/2020/03/20/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV4-1%EF%BC%9Ajava%E7%9A%84IO-API/">LV4-1：java的IO-API</a></p>
+<p><a href="/2020/03/23/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV4-2%EF%BC%9Ajava%E5%B8%B8%E7%94%A8%E7%9A%84%E9%9B%86%E5%90%88%E7%B1%BB%E4%BB%A5%E5%8F%8A%E5%AE%83%E4%BB%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E5%8C%BA%E5%88%AB/">LV4-2：java常用的集合类以及它们之间的区别</a></p>
+<p><a href="/2020/03/23/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV4-3%EF%BC%9Ajava%E9%87%8C%E7%9A%84Map/">LV4-3：java里的Map</a></p>
+<p><a href="/2020/03/25/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV4-4%EF%BC%9A%E4%BD%8D%E5%9B%BE/">LV4-4：位图</a></p>
+<p><a href="/2020/03/27/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV4-5%EF%BC%9A%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E3%80%81%E5%8D%8F%E8%AE%AE%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96%E3%80%81%E7%A8%8B%E5%BA%8F%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB/">LV4-5：网络通信、协议、序列化、程序之间的联系</a></p>
+<h4 id="第五课时"><a href="#第五课时" class="headerlink" title="第五课时"></a>第五课时</h4><p><a href="/2020/03/31/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV5-1%EF%BC%9A%E8%BF%9B%E7%A8%8B%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E7%BA%BF%E7%A8%8B%E5%8F%88%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F/">LV5-1：进程是什么？线程又是什么？</a></p>
+<p><a href="/2020/04/01/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV5-2%EF%BC%9A%E5%B9%B6%E5%8F%91&%E5%B9%B6%E8%A1%8C/">LV5-2：并发&amp;并行</a></p>
+<p><a href="/2020/04/01/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV5-3%EF%BC%9Ajava%E9%87%8C%E7%9A%84%E5%90%8C%E6%AD%A5%E9%94%81/">LV5-3：java里的同步锁</a></p>
+<p><a href="/2020/04/01/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV5-4%EF%BC%9A%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1%EF%BC%9Await%E3%80%81notify%E3%80%81notifyall/">LV5-4：线程通信：wait、notify、notifyall</a></p>
+<p><a href="/2020/04/02/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV5-5%EF%BC%9A%E7%BA%BF%E7%A8%8B%E8%B0%83%E5%BA%A6%EF%BC%9Ajoin%E3%80%81yield%E3%80%81sleep%E3%80%81interrupt/">LV5-5：线程调度：join、yield、sleep、interrupt</a></p>
+<p><a href="/2020/04/02/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV5-6%EF%BC%9Ajava%E5%B9%B6%E5%8F%91%E5%8C%85-juc%E7%9A%84%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/">LV5-6：java并发包-juc的简单介绍</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" rel="tag"><i class="fa fa-tag"></i> JAVA进化论</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/12/13/IDEA%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E8%A1%A8%E5%8D%95demo/" rel="prev" title="IDEA插件开发：一个简单的表单demo">
+                  <i class="fa fa-angle-left"></i> IDEA插件开发：一个简单的表单demo
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/02/25/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV1-1%EF%BC%9A%E5%AE%89%E8%A3%85java%E7%8E%AF%E5%A2%83&%E7%AC%AC%E4%B8%80%E4%B8%AAjava%E7%A8%8B%E5%BA%8F/" rel="next" title="【JAVA进化论】LV1-1：安装java环境&第一个java程序">
+                  【JAVA进化论】LV1-1：安装java环境&第一个java程序 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

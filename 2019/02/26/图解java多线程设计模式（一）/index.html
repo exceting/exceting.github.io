@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、顺序执行、并行、并发 顺序执行：多个操作按照顺序依次执行。 并行：多个任务同时进行，同一时间内可以执行多个任务，这种方式，叫做并行执行，比如多核处理器，多个核可以同时处理多个任务。 并发：多个任务通过切分时间段，来达到“同时进行”的效果，比如单核处理器，在“同时”处理多个任务时，就会不停的切换来执行不同的任务，不可能有同一时间执行不同任务的情况。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图解java多线程设计模式（一）">
+<meta property="og:url" content="http://example.com/2019/02/26/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="一、顺序执行、并行、并发 顺序执行：多个操作按照顺序依次执行。 并行：多个任务同时进行，同一时间内可以执行多个任务，这种方式，叫做并行执行，比如多核处理器，多个核可以同时处理多个任务。 并发：多个任务通过切分时间段，来达到“同时进行”的效果，比如单核处理器，在“同时”处理多个任务时，就会不停的切换来执行不同的任务，不可能有同一时间执行不同任务的情况。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/02/26/20190226-1-1.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/02/26/20190226-1-2.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/02/26/20190226-1-3.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/02/26/20190226-1-4.png?imageView2/0/w/1024">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/02/26/20190226-1-5.png?imageView2/0/w/1024">
+<meta property="article:published_time" content="2019-02-26T12:55:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T08:23:14.935Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="并发编程">
+<meta property="article:tag" content="多线程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2019/02/26/20190226-1-1.png?imageView2/0/w/1024">
+
+
+<link rel="canonical" href="http://example.com/2019/02/26/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2019/02/26/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%B8%80%EF%BC%89/","path":"2019/02/26/图解java多线程设计模式（一）/","title":"图解java多线程设计模式（一）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>图解java多线程设计模式（一） | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%A1%BA%E5%BA%8F%E6%89%A7%E8%A1%8C%E3%80%81%E5%B9%B6%E8%A1%8C%E3%80%81%E5%B9%B6%E5%8F%91"><span class="nav-number">1.</span> <span class="nav-text">一、顺序执行、并行、并发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81synchronized%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="nav-number">2.</span> <span class="nav-text">二、synchronized修饰符</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1%EF%BC%9A%E5%AF%B9%E8%B1%A1%E9%94%81"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：对象锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2%EF%BC%9A%E7%B1%BB%E9%94%81"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：类锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3%EF%BC%9A%E5%8C%BA%E5%88%AB%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：区别和作用域</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1"><span class="nav-number">3.</span> <span class="nav-text">三、线程间的通信</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1%EF%BC%9AWait"><span class="nav-number">3.1.</span> <span class="nav-text">3.1：Wait</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2%EF%BC%9Anotify"><span class="nav-number">3.2.</span> <span class="nav-text">3.2：notify</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3%EF%BC%9AnotifyAll"><span class="nav-number">3.3.</span> <span class="nav-text">3.3：notifyAll</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/02/26/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="图解java多线程设计模式（一） | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          图解java多线程设计模式（一）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-02-26 20:55:00" itemprop="dateCreated datePublished" datetime="2019-02-26T20:55:00+08:00">2019-02-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">并发编程</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="一、顺序执行、并行、并发"><a href="#一、顺序执行、并行、并发" class="headerlink" title="一、顺序执行、并行、并发"></a>一、顺序执行、并行、并发</h3><ul>
+<li><strong>顺序执行：</strong>多个操作按照顺序依次执行。</li>
+<li><strong>并行：</strong>多个任务同时进行，同一时间内可以执行多个任务，这种方式，叫做并行执行，比如多核处理器，多个核可以同时处理多个任务。</li>
+<li><strong>并发：</strong>多个任务通过切分时间段，来达到“同时进行”的效果，比如单核处理器，在“同时”处理多个任务时，就会不停的切换来执行不同的任务，不可能有同一时间执行不同任务的情况。</li>
+</ul>
+<span id="more"></span>
+
+<p>下面引用别人的一句话来说明下并行和并发：</p>
+<blockquote>
+<p><code>并发</code>是两个任务可以在重叠的时间段内启动，运行和完成。<code>并行</code>是任务在同一时间运行，例如，在多核处理器上，<code>并发</code>是独立执行过程的组合，而<code>并行</code>是同时执行（可能相关的）计算。 并发是一次处理很多事情，并行是同时做很多事情。</p>
+<p>应用程序可以是<code>并发</code>的，但不是<code>并行</code>的，这意味着它可以同时处理多个任务，但是没有两个任务在同一时刻执行。应用程序可以是<code>并行</code>的，但不是<code>并发</code>的，这意味着它同时处理多核CPU中的任务的多个子任务。一个应用程序可以即不是<code>并行</code>的，也不是<code>并发</code>的，这意味着它一次一个地处理所有任务。应用程序可以即是<code>并行</code>的也是<code>并发</code>的，这意味着它同时在<code>多核CPU</code>中同时处理多个任务。</p>
+</blockquote>
+<h3 id="二、synchronized修饰符"><a href="#二、synchronized修饰符" class="headerlink" title="二、synchronized修饰符"></a>二、synchronized修饰符</h3><p>当我们说一个线程获得锁以后，则意味着这个线程可以执行当前对象（或类）里的<code>synchronized</code>方法，而且他线程则需要排队等待该线程释放锁以后才可能获得锁，进而执行锁里面的程序。</p>
+<p><code>synchronized</code>修饰后，存在<code>对象锁</code>和<code>类锁</code>两种类型。</p>
+<h4 id="2-1：对象锁"><a href="#2-1：对象锁" class="headerlink" title="2.1：对象锁"></a>2.1：对象锁</h4><figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (<span class="built_in">this</span>)&#123;</span><br><span class="line">   ...略</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2：类锁"><a href="#2-2：类锁" class="headerlink" title="2.2：类锁"></a>2.2：类锁</h4><figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (XXX.class)&#123;</span><br><span class="line">   ...略</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3：区别和作用域"><a href="#2-3：区别和作用域" class="headerlink" title="2.3：区别和作用域"></a>2.3：区别和作用域</h4><p><code>对象锁</code>指的是当前线程获得了某个实例的锁，假如有个Word类，有A、B两个同步方法，C属于普通方法，如图所示：</p>
+<p><img src="http://myblog.sharemer.com/2019/02/26/20190226-1-1.png?imageView2/0/w/1024" alt="图1"></p>
+<p>可以发现，对象锁的作用域只针对当前对象生效，就像w1和w2里的A方法可以被不同的线程同时执行，但是同一个对象内的同步块，却只允许持有当前对象锁的线程执行，如t2、t3均被挡在了外面，当t1释放锁以后，t2、t3才会重新竞争锁，竞争到锁以后就会执行自己想要执行的同步逻辑。</p>
+<p><code>类锁</code>指的是当前线程获得了某个类的锁，还是Word类，有A、B两个<code>static</code>方法（静态方法属于类方法，加<code>synchronized</code>修饰符后等效于上面提到的<code>synchronized(Word.class))</code>，C属于普通<code>static</code>方法，如图所示：</p>
+<p><img src="http://myblog.sharemer.com/2019/02/26/20190226-1-2.png?imageView2/0/w/1024" alt="图2"></p>
+<p>跟上面相比较，这里的t5受到了t1的影响，因为t1获得了Word类的锁，w1和w2共属一个类，因此t1获得类锁以后，其他线程想要访问这个类里的同步块，就得等到t1释放锁以后才可以继续竞争锁然后执行自己想要执行的同步逻辑。</p>
+<h3 id="三、线程间的通信"><a href="#三、线程间的通信" class="headerlink" title="三、线程间的通信"></a><strong>三、线程间的通信</strong></h3><h4 id="3-1：Wait"><a href="#3-1：Wait" class="headerlink" title="3.1：Wait"></a>3.1：Wait</h4><p>这几个方法是属于每个实例对象的，所有实例都拥有一个“等待队列”（虚拟概念，实例里并不存在该字段），它是在实例的<code>wait</code>方法调用后存放停止操作线程的队列。执行<code>wait</code>方法后，线程进入当前实例的“等待队列”，以下几种情况可以让线程退出“等待队列”：</p>
+<ol>
+<li>其他线程调用<code>notify</code>、<code>notifyAll</code>方法来将其唤醒</li>
+<li>其他线程调用<code>interrupt</code>来将其唤醒</li>
+<li><code>wait</code>方法本身超时</li>
+</ol>
+<p>当执行了下面的代码：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj.wait();</span><br></pre></td></tr></table></figure>
+
+<p>我们可以说当前线程在obj上发生了等待，当前线程进入了obj的“等待队列”，此时当前线程会让出锁，让其他线程继续竞争获得该实例的锁（因此这里有个规则，调用<code>wait</code>的线程<strong>必须持有当前实例对象的锁</strong>）</p>
+<p>过程如下图：</p>
+<p><img src="http://myblog.sharemer.com/2019/02/26/20190226-1-3.png?imageView2/0/w/1024" alt="图3"></p>
+<h4 id="3-2：notify"><a href="#3-2：notify" class="headerlink" title="3.2：notify"></a>3.2：notify</h4><p>现在先来介绍下<code>notify</code>，该方法会将等待队列里的线程取出，让其退出等待并参与锁竞争然后继续执行上次<code>wait</code>后没有执行完的语句。整体过程如下图所示：</p>
+<p><img src="http://myblog.sharemer.com/2019/02/26/20190226-1-4.png?imageView2/0/w/1024" alt="图4"></p>
+<p>可以看到，t1在被挂起后，会因为t2调用了<code>同实例的notify</code>方法，而让t1被从等待队列里释放，重新加入到所得竞争力，t2执行完毕后释放锁，锁又再次被t1竞争到，t1将继续执行上次被挂起时后面未执行完的语句。</p>
+<p>需要指出的是，如果等待队列里的线程是多个，那么被唤醒的那一个，将会是等待队列里所有线程随机的一个，不会特定哪一个线程会被唤起。</p>
+<h4 id="3-3：notifyAll"><a href="#3-3：notifyAll" class="headerlink" title="3.3：notifyAll"></a>3.3：notifyAll</h4><p>接下来介绍notifyAll方法，顾名思义，就是将等待队列里的线程全部唤起，然后这些线程将全部加入到锁竞争，竞争到，继续完成上次被挂起时未执行完毕的操作，流程图如下：</p>
+<p><img src="http://myblog.sharemer.com/2019/02/26/20190226-1-5.png?imageView2/0/w/1024" alt="图5"></p>
+<p>说明，当线程调用实例的<code>wait</code>、<code>notify</code>、<code>notifyAll</code>方法有个大前提，就是必须要求该线程拥有该实例的锁，否则会抛<code>IllegalMonitorStateException</code>异常。</p>
+<p>在编写程序时，是该选择notify还是选择notifyAll？这个可以指出的是，notifyAll往往更加健壮，而notify由于唤起的线程少，因此效率会更高，但是存在程序停止的风险。</p>
+<p>附上使用<code>wait</code>、<code>notify</code>进行线程通信的例子：</p>
+<p><a href="/2019/02/12/%E5%88%A9%E7%94%A8ReentrantLock%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97/">利用ReentrantLock简单实现一个阻塞队列</a></p>
+<p><a href="/2016/04/15/%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E7%94%9F%E4%BA%A7%E8%80%85%E5%92%8C%E6%B6%88%E8%B4%B9%E8%80%85%E6%A8%A1%E5%BC%8F/">java设计模式：简单实现生产者和消费者模式</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="tag"><i class="fa fa-tag"></i> 并发编程</a>
+              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"><i class="fa fa-tag"></i> 多线程</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/02/20/ThreadLocal%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%89%EF%BC%89-TransmittableThreadLocal%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/" rel="prev" title="ThreadLocal系列（三）-TransmittableThreadLocal的使用及原理解析">
+                  <i class="fa fa-angle-left"></i> ThreadLocal系列（三）-TransmittableThreadLocal的使用及原理解析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/05/Java%20NIO%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E5%88%9D%E8%AF%86NIO/" rel="next" title="Java NIO学习与记录（一）：初识NIO">
+                  Java NIO学习与记录（一）：初识NIO <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

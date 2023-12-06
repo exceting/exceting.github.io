@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="前言如果说上一篇是在介绍垃圾回收时的一些理论知识，那么本篇将要介绍的垃圾收集器就是这些理论的实践者，开始之前，我们先通过一张图简单梳理一下上一篇提到的理论知识：  接下来就让我们认识一下这些理论的实践者们:)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM基础回顾记录（三）：常见垃圾收集器">
+<meta property="og:url" content="http://example.com/2019/05/21/JVM%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E5%B8%B8%E8%A7%81%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="前言如果说上一篇是在介绍垃圾回收时的一些理论知识，那么本篇将要介绍的垃圾收集器就是这些理论的实践者，开始之前，我们先通过一张图简单梳理一下上一篇提到的理论知识：  接下来就让我们认识一下这些理论的实践者们:)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-1-fix.png?imageView2/0/w/1124">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-2-v2.png?imageView2/0/w/560">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-3.png?imageView2/0/w/560">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-4-v2.png?imageView2/0/w/560">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-4-v2.png?imageView2/0/w/560">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-5.png?imageView2/0/w/560">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/07/20190507-gs.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-7-fix.png?imageView2/0/w/1124">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-6-fix.png?imageView2/0/w/1124">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-8.png?imageView2/0/w/860">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-9-fix.png?imageView2/0/w/800">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-10.png?imageView2/0/w/650">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-11.png?imageView2/0/w/650">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-12.png?imageView2/0/w/1124">
+<meta property="og:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-13.png?imageView2/0/w/1124">
+<meta property="article:published_time" content="2019-05-21T13:27:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T06:40:08.406Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="JVM">
+<meta property="article:tag" content="GC算法">
+<meta property="article:tag" content="垃圾收集器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2019/05/21/20190521-1-1-fix.png?imageView2/0/w/1124">
+
+
+<link rel="canonical" href="http://example.com/2019/05/21/JVM%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E5%B8%B8%E8%A7%81%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2019/05/21/JVM%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E5%B8%B8%E8%A7%81%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/","path":"2019/05/21/JVM基础回顾记录（三）：常见垃圾收集器/","title":"JVM基础回顾记录（三）：常见垃圾收集器"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>JVM基础回顾记录（三）：常见垃圾收集器 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Serial-Serial-Old"><span class="nav-number">2.</span> <span class="nav-text">Serial &amp; Serial Old</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ParNew"><span class="nav-number">3.</span> <span class="nav-text">ParNew</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Parallel-Scavenge-Parallel-Old"><span class="nav-number">4.</span> <span class="nav-text">Parallel Scavenge &amp; Parallel Old</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMS"><span class="nav-number">5.</span> <span class="nav-text">CMS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#G1"><span class="nav-number">6.</span> <span class="nav-text">G1</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A6%82%E8%A7%88"><span class="nav-number">6.1.</span> <span class="nav-text">1.概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-G1%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E8%B7%A8%E4%BB%A3%E5%BC%95%E7%94%A8%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-number">6.2.</span> <span class="nav-text">2.G1如何解决跨代引用问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-G1%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E5%B9%B6%E5%8F%91%E6%A0%87%E8%AE%B0%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-number">6.3.</span> <span class="nav-text">3.G1如何解决并发标记问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-G1%E5%9B%9E%E6%94%B6%E6%B5%81%E7%A8%8B"><span class="nav-number">6.4.</span> <span class="nav-text">4.G1回收流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1%EF%BC%9AYoungGC"><span class="nav-number">6.4.1.</span> <span class="nav-text">4.1：YoungGC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2%EF%BC%9AMixedGC"><span class="nav-number">6.4.2.</span> <span class="nav-text">4.2：MixedGC</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-G1%E7%9B%B8%E5%85%B3%E5%8F%82%E6%95%B0"><span class="nav-number">6.5.</span> <span class="nav-text">5.G1相关参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%85%B3%E4%BA%8EFull-GC"><span class="nav-number">6.6.</span> <span class="nav-text">5.关于Full GC</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E7%BB%84%E5%90%88%E5%90%AF%E7%94%A8%E5%8F%82%E6%95%B0"><span class="nav-number">7.1.</span> <span class="nav-text">各垃圾收集器组合启用参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%84%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%B1%9E%E6%80%A7"><span class="nav-number">7.2.</span> <span class="nav-text">各垃圾收集器属性</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/05/21/JVM%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E5%B8%B8%E8%A7%81%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="JVM基础回顾记录（三）：常见垃圾收集器 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM基础回顾记录（三）：常见垃圾收集器
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-05-21 21:27:00" itemprop="dateCreated datePublished" datetime="2019-05-21T21:27:00+08:00">2019-05-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>如果说上一篇是在介绍垃圾回收时的一些理论知识，那么本篇将要介绍的垃圾收集器就是这些理论的实践者，开始之前，我们先通过一张图简单梳理一下上一篇提到的理论知识：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-1-fix.png?imageView2/0/w/1124" alt="图1"></p>
+<p>接下来就让我们认识一下这些理论的实践者们:)</p>
+<span id="more"></span>
+
+<h2 id="Serial-Serial-Old"><a href="#Serial-Serial-Old" class="headerlink" title="Serial &amp; Serial Old"></a>Serial &amp; Serial Old</h2><p>Serial收集器是最基础，也是历史最悠久的一款收集器，<code>单线程</code>工作，基于<code>复制</code>算法实现，在jdk1.3.1之前，它是新生代收集器的唯一选择。其中Serial Old是它的老年代版本，收集原理一致，唯一不同的是它采用<code>标记-整理</code>算法实现；Serial开始工作时，会全程STW，直到其收集完毕为止：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-2-v2.png?imageView2/0/w/560" alt="图2 Serial收集器运行示意图"></p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-3.png?imageView2/0/w/560" alt="图3 Serial Old收集器运行示意图"></p>
+<p>因为没有采用「并发标记对象图」的方式，所以不会有并发问题，但这也意味着STW的耗时会很高（事实上直到CMS的出现才真正实现了并发标记操作)。从最初的jdk到现在的jdk，HotSpot虚拟机团队一直在为降低STW的时间而做着努力，从最原始的Serial，到现在的G1，每一次更新都融合了各种开发者们的奇思妙想。</p>
+<p>尽管Serial很原始，但由于它逻辑简单、对内存的开销小，仍然在java客户端模式下的GC发挥着重要作用，不过正常情况下的一个服务端项目都不会使用客户端模式，所以一般也就不会选用Serial。</p>
+<h2 id="ParNew"><a href="#ParNew" class="headerlink" title="ParNew"></a>ParNew</h2><p>基于<code>复制</code>算法实现的一款新生代收集器，本质上是Serial的多线程版本，仅仅是在垃圾回收时支持了多线程收集：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-4-v2.png?imageView2/0/w/560" alt="图4 ParNew收集器运行示意图"></p>
+<p>在jdk5发布时，出现了一款强势的老年代收集器：CMS，但它并不能跟当时最新的新生代收集器Parallel Scavenge共用，只能选择Serial和ParNew，在指定使用CMS收集器时新生代就会默认使用ParNew，CMS的出现巩固了ParNew对新生代的统治地位，直到更先进的G1出现。</p>
+<h2 id="Parallel-Scavenge-Parallel-Old"><a href="#Parallel-Scavenge-Parallel-Old" class="headerlink" title="Parallel Scavenge &amp; Parallel Old"></a>Parallel Scavenge &amp; Parallel Old</h2><p>启动参数：<code>-XX:+UseParallelGC</code></p>
+<p>Parallel Scavenge是基于<code>复制</code>算法实现的一款新生代收集器，跟ParNew一样支持GC多线程处理：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-4-v2.png?imageView2/0/w/560" alt="图5 Parallel Scavenge收集器运行示意图"></p>
+<p>顾名思义，Parallel Old就是对应的老年代收集器，基于<code>标记-整理</code>算法实现，它也是支持GC多线程处理：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-5.png?imageView2/0/w/560" alt="图6 Parallel Old收集器运行示意图"></p>
+<p>既然Parallel Scavenge跟ParNew基本上一模一样，那它的特色是什么呢？答案就是两个收集器的侧重点不一样，其他的收集器都在尽可能缩短STW的时间，只有Parallel Scavenge在关注整体吞吐量，上篇说过吞吐量的计算公式：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/07/20190507-gs.png" alt="吞吐量表达式"></p>
+<p>Parallel Scavenge的实现目标是让吞吐量<code>可控</code>；它有以下几个重要参数来控制吞吐量：</p>
+<ul>
+<li><code>-XX:MaxGCPauseMillis</code>：最大GC停顿时间，将尽量保证GC的时间不超过这个设定值；这里有个易混点，根据上面的公式推算，将这个值设置的越小岂不是吞吐量就越大？并不是，因为这里要缩短GC停顿时间，就需要牺牲掉新生代的大小，新生代越小越好回收，自然就不会超过这个设定值，但新生代的缩小，意味着minor gc的次数更频繁了，比如之前可能10s才触发一次回收，一次耗时100ms，但现在可能就是5s触发一次，每次耗时70ms，这样看单次耗时的确下降了，但单位时间内的总耗时却上升了，整体吞吐量反而在降低。</li>
+<li><code>-XX:GCTimeRatio</code>：GC时间占总时间的比率（上面公式的倒数就是这个值），计算公式：ratio &#x3D; 1&#x2F;(1+设定值)，默认值为99，即ratio&#x3D;1&#x2F;100，也就是GC运行的时间占总时间的1%</li>
+<li><code>-XX:UseAdaptiveSizePolicy</code>：动态调整开关，打开后可以动态调整新生代空间大小，就不再需要人工设置新生代相关的参数了；虚拟机会根据当前系统的运行情况，收集性能监控信息，动态调整新生代相关参数以提供最合适的停顿时间或最大吞吐量。自适应调节策略也是这个收集器区别于其他收集器的一个重要特征。</li>
+</ul>
+<p>遗憾的是Parallel Old到了jdk1.6才出现，在这之前Parallel Scavenge并不能和性能更好的老年代收集器CMS共用，只能和Serial Old搭配使用，这样的组合吞吐量甚至比不上ParNew+CMS，Parallel Old出现后，“吞吐量优先”收集器终于有了名副其实的搭配组合，如果你比较看中吞吐量或者处理器资源较为紧缺，都可以优先考虑这种组合，这个组合还是jdk1.8中默认的GC策略。</p>
+<h2 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h2><p>CMS是第一款真正实现了GC线程和用户线程并发运行的收集器，作用于老年代，基于<code>标记-清除</code>和<code>标记-整理</code>算法实现（n次Full Gc时触发整理逻辑，通过<code>-XX:+UseCMSCompactAtFullCollection</code>和<code>-XX:CMSFullGCsBeforeCompaction</code>控制）</p>
+<blockquote>
+<p>为什么非得在发生Full GC的时候才整理？随着老年代的使用，可连续分配的内存可能会越来越少，这岂不是意味着运行一段时间后来一个超出老年代剩余连续内存的大对象会直接Full GC？存疑</p>
+</blockquote>
+<p>这是CMS在整个垃圾收集理论中的选型，<code>红色轨道</code>覆盖的区域为选中项：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-7-fix.png?imageView2/0/w/1124" alt="图7 CMS垃圾收集选型"></p>
+<p>根据选型方案，结合我们之前所掌握的理论知识，可以很容易推测出CMS的运行过程：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-6-fix.png?imageView2/0/w/1124" alt="图8 CMS收集器运行示意图"></p>
+<p>通过设置<code>-XX:CMSInitiatingOccupancyFraction</code>可控制CMS GC发生的频率，每当老年代的内存使用率超过这项配置的阈值，就触发一次CMS GC，jdk1.5默认68%，到了jdk1.6默认92%</p>
+<p>由于标记-整理算法过于负重，会加长STW的时间，因此CMS的做法是将标记-整理和标记-清除混合使用，平常时采用标记-清除算法，当内存碎片化程度影响到对象分配时，才会触发一次标记-整理算法，用来优化内存。通过以下两个参数控制：</p>
+<ul>
+<li><code>-XX:+UseCMSCompactAtFullCollection</code>：开关，打开时若发生Full GC，则触发一次内存整理，以此避免内存碎片的产生，代价是这个整理过程需要STW</li>
+<li><code>-XX:CMSFullGCsBeforeCompaction</code>：设置在执行固定次数的Full GC之后才对内存空间进行压缩整理，这减少了因整理而发生STW的次数</li>
+</ul>
+<h2 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h2><h3 id="1-概览"><a href="#1-概览" class="headerlink" title="1.概览"></a>1.概览</h3><p>G1采用<code>复制</code>算法实现，它开创了收集器面向局部收集的先河，也是jdk1.9的默认垃圾收集器，收集区域涵盖整个新生代和老年代；G1跟其他垃圾收集器的实现都不太一样，它基于<code>停顿时间模型</code>研发，这是停顿时间模型需要完成的目标：</p>
+<blockquote>
+<p>目标：能支持在指定时间M毫秒内，消耗在GC上的时间大概率不超过N毫秒</p>
+</blockquote>
+<p>为了实现这个目标，G1不再像其他收集器那样要么回收整个新生代（minor gc），要么回收整个老年代（major gc），要么两者全部回收（full gc），而是将堆内存划分为一个个<code>Region</code>块，每一块Region都可以按需扮演成新生代的Eden、Survivor，或者老年代，G1会根据不同角色的Region采取不同的处理策略，这样一来，G1在每次GC时，就可以面向堆内任意Region来组成回收集（Collection Set，简称<code>CSet</code>），然后通过控制回收集内真正需要回收的Region数来控制GC时间。</p>
+<p>每块Region的大小可通过这个参数来设置：<code>-XX:G1HeapRegionSize</code>，取值范围1~32M，还得是2的N次幂；这是G1收集器的Region示意图：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-8.png?imageView2/0/w/860" alt="图9 G1收集器分区示意图"></p>
+<p>可以看到，整个java堆被分成了一个个Region，每块Region都扮演着不同的分代角色，虽然它们在内存上不连续，但在逻辑层面，它们就是完整的内存分代区域，接下来介绍一些更加细节的东西~</p>
+<h3 id="2-G1如何解决跨代引用问题？"><a href="#2-G1如何解决跨代引用问题？" class="headerlink" title="2.G1如何解决跨代引用问题？"></a>2.G1如何解决跨代引用问题？</h3><p>实际上G1不单单是跨代问题那么简单，因为它的同代内存也被用Region分开了，所以这里的问题就变成了：G1如何解决跨Region引用问题？</p>
+<p>通过上一篇的介绍，解决跨代引用需要借助记忆集的力量来完成，而记忆集的具体实现细节，就得看各个处理器内部是怎么处理的了，前面的<code>CMS</code>是通过<code>卡表</code>来实现的，那么G1呢？</p>
+<p>G1的实现基于哈希表和卡表，Key是其他Region的起始地址，Value是一个存储了卡表索引号的集合，现在我们把Region放大，做一张图辅助理解：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-9-fix.png?imageView2/0/w/800" alt="图10"></p>
+<p>所以在枚举GC Roots时利用每个Region里的<code>RSet</code>解决跨Region引用问题，RSet保证了可达性分析的准确性（RSet仍然是通过写屏障来做的）。</p>
+<p>由于每块Region都需要维护一份Rset数据，因此相比其他垃圾收集器传统的分代方式，G1有着更高的内存占用负担，根据经验，G1至少要耗费大约相当于Java堆容量10%~20%的额外内存来维持收集器工作。</p>
+<h3 id="3-G1如何解决并发标记问题？"><a href="#3-G1如何解决并发标记问题？" class="headerlink" title="3.G1如何解决并发标记问题？"></a>3.G1如何解决并发标记问题？</h3><p>上一篇文档我们介绍了两种解决并发标记问题的方法，一种是<code>增量更新</code>，另一种是<code>原始快照</code>，经过前面的了解我们知道CMS是采用增量更新解决的，这里讲的G1则是通过另一种方式：<code>原始快照</code>解决的。</p>
+<p>在并发标记阶段产生新的对象怎么办呢？我们在上一篇也提到过，G1的做法是直接将这期间产生的新对象标记为可达的，具体的做法是：G1为每个Region提供两个名为<code>TAMS</code>（分别为<code>prevTAMS</code>和<code>nextTAMS</code>，TAMS全称：Top at Mark Start）的指针，把Region中的一部分空间划分出来用于分配这些新增对象，新对象被分配的地址必须要在这俩指针位置以上，G1默认在这个地址以上的对象都是被隐式标记过的，即默认它们是可达的，不计入回收范围。</p>
+<h3 id="4-G1回收流程"><a href="#4-G1回收流程" class="headerlink" title="4.G1回收流程"></a>4.G1回收流程</h3><p>开始说过，G1的目标是实现GC停顿时间可控，用户可以通过<code>-XX:MaxGCPauseMillis</code>（默认200ms）来设置一个期望的停顿时间，既如此，将分代化整为零就显得非常重要，这样可以通过调整每次回收Region的数量来控制GC时间，这些每次需要被回收的Region就组成了<code>CSet</code>，那么如何挑选需要被回收的Region呢？</p>
+<p>G1通过<code>衰减均值</code>为理论基础实现，G1会在每次GC后根据每个Region的<code>回收耗时</code>、<code>记忆集内的脏卡数量</code>等数据，分析出<code>衰减均值</code>、<code>标准偏差</code>、<code>置信度</code>等统计信息，通过这些信息推算出回收成本，然后根据每个Region的回收成本调整Region数量，以实现在获得最高收益的同时不超过期望停顿时间的目标。</p>
+<p>G1中垃圾回收有两种子模式：</p>
+<h4 id="4-1：YoungGC"><a href="#4-1：YoungGC" class="headerlink" title="4.1：YoungGC"></a>4.1：YoungGC</h4><p>当JVM无法将新对象分配到Eden区时，便会触发YoungGC，选定所有的新生代里的Region作为回收集进行回收，每次GC后根据条件推算来控制当前新生代Region的个数上限，从而控制Young GC的开销：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-10.png?imageView2/0/w/650" alt="图11"></p>
+<blockquote>
+<p>注：图中统一将存活的年轻代对象放入了新的S区，但一些年龄到了的对象可能也会晋升到老年代（O区）。</p>
+</blockquote>
+<h4 id="4-2：MixedGC"><a href="#4-2：MixedGC" class="headerlink" title="4.2：MixedGC"></a>4.2：MixedGC</h4><p>选定所有的新生代里的Region，外加根据<code>衰减平均值</code>统计得出的收益较高的若干老年代Region，在用户指定的期望耗时内尽可能的选择收益高的老年代Region，进行混合回收：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-11.png?imageView2/0/w/650" alt="图12"></p>
+<p>整体流程如下：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-12.png?imageView2/0/w/1124" alt="图13 G1收集器运行示意图"></p>
+<p>这是G1在整个垃圾收集理论中的选型，<code>红色轨道</code>覆盖的区域为选中项：</p>
+<p><img src="http://myblog.sharemer.com/2019/05/21/20190521-1-13.png?imageView2/0/w/1124" alt="图14 CMS垃圾收集选型"></p>
+<h3 id="5-G1相关参数"><a href="#5-G1相关参数" class="headerlink" title="5.G1相关参数"></a>5.G1相关参数</h3><table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">缺省值</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">-XX:+UseG1GC</td>
+<td align="left"></td>
+<td align="left">启用G1</td>
+</tr>
+<tr>
+<td align="left">-XX:MaxGCPauseMills</td>
+<td align="left">200</td>
+<td align="left">设置G1收集过程的目标时间，默认值200ms，不是硬性条件</td>
+</tr>
+<tr>
+<td align="left">-XX:G1HeapRegionSize&#x3D;n</td>
+<td align="left"></td>
+<td align="left">设置单个Region的大小，1~32M，2的幂次方</td>
+</tr>
+<tr>
+<td align="left">-XX:G1NewSizePercent</td>
+<td align="left">5%</td>
+<td align="left">新生代最小值</td>
+</tr>
+<tr>
+<td align="left">-XX:G1MaxNewSizePercent</td>
+<td align="left">60%</td>
+<td align="left">新生代最大值</td>
+</tr>
+<tr>
+<td align="left">-XX:ParallelGCThreads</td>
+<td align="left"></td>
+<td align="left">STW期间，并行GC线程数</td>
+</tr>
+<tr>
+<td align="left">-XX:ConcGCThreads&#x3D;n</td>
+<td align="left"></td>
+<td align="left">并发标记阶段，并行GC线程数</td>
+</tr>
+<tr>
+<td align="left">-XX:InitiatingHeapOccupancyPercent</td>
+<td align="left">45%</td>
+<td align="left">设置触发标记周期的 Java 堆占用率阈值，默认45%。这里的java堆占比指的是non_young_capacity_bytes，包括old+humongous</td>
+</tr>
+</tbody></table>
+<h3 id="5-关于Full-GC"><a href="#5-关于Full-GC" class="headerlink" title="5.关于Full GC"></a>5.关于Full GC</h3><p>G1本身不提供Full GC的能力，当达到触发Full GC的条件时，G1会采用Serial Old施行Full GC操作，那什么情况下才会触发G1的Full GC条件呢？</p>
+<p>1.当MixedGC回收速度无法跟上内存分配的速度，导致老年代爆满，老年代无法再为新晋升的对象提供闲置内存，这时就会触发Full GC，我们对G1的调优也应该以尽量不触发FullGC为目标：</p>
+<ul>
+<li>增加堆的大小（为整个堆扩容）</li>
+<li>增加并发标记的线程数，让并发标记尽快结束</li>
+<li>适当调小<code>-XX:InitiatingHeapOccupancyPercent</code>，让G1更早的进入MixedGC周期，加快释放老年代内存</li>
+</ul>
+<p>2.YoungGC时，Survivor和Old 区没有足够的空间容纳所有的存活对象，这时也会触发FullGC，解决的唯一办法就是为堆扩容</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="各垃圾收集器组合启用参数"><a href="#各垃圾收集器组合启用参数" class="headerlink" title="各垃圾收集器组合启用参数"></a>各垃圾收集器组合启用参数</h3><table>
+<thead>
+<tr>
+<th align="left">启用参数</th>
+<th align="left">启用后组合的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">-XX:+UseSerialGC</td>
+<td align="left">Serial + Serial Old</td>
+</tr>
+<tr>
+<td align="left">-XX:+UseParNewGC</td>
+<td align="left">ParNew + Serial Old（j8已废）</td>
+</tr>
+<tr>
+<td align="left">-XX:+UseParallelGC</td>
+<td align="left">Parallel Scavenge + Serial Old</td>
+</tr>
+<tr>
+<td align="left">-XX:+UseParallelOldGC</td>
+<td align="left">Parallel Scavenge + Parallel Old</td>
+</tr>
+<tr>
+<td align="left">-XX:+UseConcMarkSweepGC</td>
+<td align="left">ParNew + CMS + Serial Old</td>
+</tr>
+<tr>
+<td align="left">-XX:+UseG1GC</td>
+<td align="left">G1</td>
+</tr>
+</tbody></table>
+<h3 id="各垃圾收集器属性"><a href="#各垃圾收集器属性" class="headerlink" title="各垃圾收集器属性"></a>各垃圾收集器属性</h3><table>
+<thead>
+<tr>
+<th align="left">名称</th>
+<th align="left">算法</th>
+<th align="left">GC多线程处理</th>
+<th align="left">与用户线程并发</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Serial</td>
+<td align="left">复制</td>
+<td align="left">否</td>
+<td align="left">否</td>
+</tr>
+<tr>
+<td align="left">Serial Old</td>
+<td align="left">标记-整理</td>
+<td align="left">否</td>
+<td align="left">否</td>
+</tr>
+<tr>
+<td align="left">ParNew</td>
+<td align="left">复制</td>
+<td align="left">是</td>
+<td align="left">否</td>
+</tr>
+<tr>
+<td align="left">Parallel Scavenge</td>
+<td align="left">复制</td>
+<td align="left">是</td>
+<td align="left">否</td>
+</tr>
+<tr>
+<td align="left">Parallel Old</td>
+<td align="left">标记-整理</td>
+<td align="left">是</td>
+<td align="left">否</td>
+</tr>
+<tr>
+<td align="left">CMS</td>
+<td align="left">标记-整理</td>
+<td align="left">是</td>
+<td align="left">是</td>
+</tr>
+<tr>
+<td align="left">G1</td>
+<td align="left">复制&amp;标记-整理</td>
+<td align="left">是</td>
+<td align="left">是</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/JVM/" rel="tag"><i class="fa fa-tag"></i> JVM</a>
+              <a href="/tags/GC%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> GC算法</a>
+              <a href="/tags/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/" rel="tag"><i class="fa fa-tag"></i> 垃圾收集器</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/05/07/JVM%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE%E8%AE%B0%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86/" rel="prev" title="JVM基础回顾记录（二）：垃圾收集">
+                  <i class="fa fa-angle-left"></i> JVM基础回顾记录（二）：垃圾收集
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/06/21/InfluxDB%EF%BC%88%E4%B8%80%EF%BC%89%E5%88%9D%E6%8E%A2%E6%97%B6%E5%BA%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="next" title="InfluxDB（一）初探时序数据库">
+                  InfluxDB（一）初探时序数据库 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

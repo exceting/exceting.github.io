@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、包包说白了就是一个个的文件夹，在java中，所有的类按照其特点，以包的形式进行做区分，包的目录层级命名规则一般是公司的网址倒过来，例如：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【JAVA进化论】LV2-2：包的定义、类的基本组成、访问权限修饰符">
+<meta property="og:url" content="http://example.com/2020/03/05/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-2%EF%BC%9A%E5%8C%85%E7%9A%84%E5%AE%9A%E4%B9%89%E3%80%81%E7%B1%BB%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%84%E6%88%90%E3%80%81%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="一、包包说白了就是一个个的文件夹，在java中，所有的类按照其特点，以包的形式进行做区分，包的目录层级命名规则一般是公司的网址倒过来，例如：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/05/20200305-1-1.png?imageView2/0/w/500">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/05/20200305-1-2.png?imageView2/0/w/600">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/05/20200305-1-3.png?imageView2/0/w/800">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/05/20200305-1-4.png">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/05/20200305-1-5.png?imageView2/0/w/880">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/05/20200305-1-6.png?imageView2/0/w/710">
+<meta property="og:image" content="http://myblog.sharemer.com/2020/03/05/20200305-1-7.png?imageView2/0/w/680">
+<meta property="article:published_time" content="2020-03-05T11:21:00.000Z">
+<meta property="article:modified_time" content="2023-12-06T08:29:51.800Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="JAVA进化论">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2020/03/05/20200305-1-1.png?imageView2/0/w/500">
+
+
+<link rel="canonical" href="http://example.com/2020/03/05/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-2%EF%BC%9A%E5%8C%85%E7%9A%84%E5%AE%9A%E4%B9%89%E3%80%81%E7%B1%BB%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%84%E6%88%90%E3%80%81%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2020/03/05/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-2%EF%BC%9A%E5%8C%85%E7%9A%84%E5%AE%9A%E4%B9%89%E3%80%81%E7%B1%BB%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%84%E6%88%90%E3%80%81%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6/","path":"2020/03/05/【JAVA进化论】LV2-2：包的定义、类的基本组成、访问权限修饰符/","title":"【JAVA进化论】LV2-2：包的定义、类的基本组成、访问权限修饰符"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【JAVA进化论】LV2-2：包的定义、类的基本组成、访问权限修饰符 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%8C%85"><span class="nav-number">1.</span> <span class="nav-text">一、包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%A0%81%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E7%B1%BB%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">二、如何使用代码定义一个类？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9A%E7%B1%BB%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8Cjava%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：类的定义和java文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E7%B1%BB%E7%9A%84%E5%B1%9E%E6%80%A7%E5%92%8C%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：类的属性和方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9A%E6%9E%84%E9%80%A0%E5%99%A8"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：构造器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="nav-number">3.</span> <span class="nav-text">三、访问权限修饰符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%EF%BC%9A%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E7%AC%A6%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.1.</span> <span class="nav-text">3.1：访问权限符介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E4%B8%80%E4%B8%AA%E7%B1%BB"><span class="nav-number">3.2.</span> <span class="nav-text">3.2：举例说明：同一个类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E4%B8%80%E4%B8%AA%E5%8C%85"><span class="nav-number">3.3.</span> <span class="nav-text">3.3：举例说明：同一个包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E5%8C%85-%E4%B8%8D%E5%90%8C%E5%8C%85%E7%9A%84%E7%88%B6%E5%AD%90%E7%B1%BB"><span class="nav-number">3.4.</span> <span class="nav-text">3.4：举例说明：同包&#x2F;不同包的父子类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E4%B8%8D%E5%90%8C%E5%8C%85%E7%9A%84%E7%B1%BB"><span class="nav-number">3.5.</span> <span class="nav-text">3.5：举例说明：不同包的类</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/03/05/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-2%EF%BC%9A%E5%8C%85%E7%9A%84%E5%AE%9A%E4%B9%89%E3%80%81%E7%B1%BB%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%84%E6%88%90%E3%80%81%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【JAVA进化论】LV2-2：包的定义、类的基本组成、访问权限修饰符 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【JAVA进化论】LV2-2：包的定义、类的基本组成、访问权限修饰符
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-03-05 19:21:00" itemprop="dateCreated datePublished" datetime="2020-03-05T19:21:00+08:00">2020-03-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">JAVA进化论</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、包"><a href="#一、包" class="headerlink" title="一、包"></a>一、包</h2><p>包说白了就是一个个的文件夹，在java中，所有的类按照其特点，以包的形式进行做区分，包的<strong>目录层级</strong>命名规则一般是公司的网址倒过来，例如：</p>
+<span id="more"></span>
+
+<p><img src="http://myblog.sharemer.com/2020/03/05/20200305-1-1.png?imageView2/0/w/500" alt="图1"></p>
+<p>如上图所示，.java文件内就是存放的java代码，例如Cat.java文件里面放的就是上一节里那只猫的Cat类的代码，由于现在Cat类有了目录，所以它就需要在头部加上一句话：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.bilibili.pet; <span class="comment">//这句话位于代码首部，用于标识当前类的java文件在哪个目录下</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Cat</span> &#123;</span><br><span class="line">    <span class="comment">//代码省略..</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为Cat有了相对目录，这里就需要加上<code>package</code>来标记自己所在的目录层级，否则报错。</p>
+<p>再回到<code>图1</code>中，我们看下分包的目的是什么，从<code>图1</code>可以看到，基础包为com.bilibili（这里提一下，java代码里的包目录引用都是以“.”做分隔的，而不是斜杠），然后基础包下细分了俩包，一个是pet（宠物），一个是human（人类），这俩包下分别有两个java文件，pet下放的是Cat和Dog，而human下放的是Boy和Girl，所以其实包就是用来给类分类的（套娃警告），这里可能会晕，因为之前说过，类是用来描述一类事物的单元，那么既然这样，为啥还需要用目录再分割一层做分类呢？这其实是一个分类大小方向的划分，例如，粗略划分人类包下的类可以包含男生、女生、学生、老师，但是像猫狗明显和人类不是一回事，这时候就需要用一种更高层级的东西来做隔离，包就这样产生了，当然这个是没有绝对标准的，只要你喜欢，可以按照你的方式做分包，比如，你仍然可以认为，pet和human两个包可以合并为biology（生物），因为不管你是人类还是宠物，都是生物，所以对于包的划分，是个“哲学”问题，不过先不用担心，等写的多了，自然就会划分了，这一部分你只需要知道包是个什么东西，以及在存在包目录的情况下类要加package声明头即可。</p>
+<h2 id="二、如何使用代码定义一个类？"><a href="#二、如何使用代码定义一个类？" class="headerlink" title="二、如何使用代码定义一个类？"></a>二、如何使用代码定义一个类？</h2><h3 id="2-1：类的定义和java文件"><a href="#2-1：类的定义和java文件" class="headerlink" title="2.1：类的定义和java文件"></a>2.1：类的定义和java文件</h3><p>上一节已经知道Cat类的代码了，只是没有细说一个类该如何定义，这次我们来讲下类是如何定义的，以及它和java文件是什么关系。</p>
+<p>首先，新建一个叫Cat.java的文件，然后在这个文件里写入以下代码：</p>
+<figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Cat</span> &#123;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>保存，这样一个Cat类就就建好了，诶？？就这？</p>
+<p>是的，我们来拆解和分析一下这段代码：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/05/20200305-1-2.png?imageView2/0/w/600" alt="图2"></p>
+<p><code>public</code>是一种权限修饰符，可以控制被修饰内容的访问权限，在介绍完类的所有概念之前，不会涉及它的概念，这里只需要记住，一个java文件允许定义多个class，但只允许有一个public类，而且这个public的类名字一定要和这个java文件的命名一致，比如例子里的public的Cat类就定义在Cat.java里，我们还可以在一个java文件里加多个class，但是public的只能有一个。</p>
+<p><code>代码块2</code>里只是定义了一个空类，通过上一节内容，我们可以知道一个类所包含的内容大概有两大类，一个是属性，一个是方法（也叫函数，我们后面统称方法），所有的类都符合这个结构，类可以不定义任何属性，也可以不定义任何方法，这个没有硬性要求。</p>
+<h3 id="2-2：类的属性和方法"><a href="#2-2：类的属性和方法" class="headerlink" title="2.2：类的属性和方法"></a>2.2：类的属性和方法</h3><p>上一节介绍过，这一节细分析下。</p>
+<p>通过上一节的Cat我们会发现类的属性其实也是各种变量组成的，这种变量在类定义里叫做<code>类的属性</code>（之前也说过，类本身是一种信息模板，而类产生的对象才是我们需要访问的实际数据），而在类产生的对象里叫做对象的<code>成员变量</code>，成员变量在对象内部是可以在任意地方随意访问的，比如Cat类里所有方法都是可以直接访问到对象内的成员变量的。<strong>成员变量的作用域就是整个类对象</strong>，如果别的地方需要用到它们，则需要通过其对应的<code>引用变量</code>进行访问。</p>
+<p>我们现在再把Cat类改造下：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//猫类的定义</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Cat</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//性别：0雌，1雄</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> gender;</span><br><span class="line">    <span class="comment">//年龄</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line">    <span class="comment">//毛色：1黑，2白</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> color;</span><br><span class="line">    <span class="comment">//昵称</span></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">     </span><br><span class="line">    <span class="comment">//构造方法，用于构造一个类对象</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Cat</span><span class="params">(<span class="type">int</span> gender, <span class="type">int</span> age, <span class="type">int</span> color, String name)</span> &#123;</span><br><span class="line">        <span class="comment">//通过传入的参数，初始化自己对象内的每一个成员变量</span></span><br><span class="line">        <span class="built_in">this</span>.gender = gender;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">        <span class="built_in">this</span>.color = color;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">cry</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.tooOld()) &#123; <span class="comment">//通过本类的私有方法来判断当前这只猫是否年龄太大了</span></span><br><span class="line">            System.out.println(<span class="string">&quot;叫不动了...&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;喵喵喵~&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;要恰饭的嘛&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">emm</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.tooOld()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;骚不动了...&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;猪肉卷和千层面不存在二选一，我全都要！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (tooOld()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;跑不动了...&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (age &gt; <span class="number">10</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;奔跑速度：10km/h&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;奔跑速度：15km/h&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//这个方法用来介绍自己</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">intro</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">gender</span> <span class="operator">=</span> <span class="built_in">this</span>.gender == <span class="number">0</span> ? <span class="string">&quot;母&quot;</span> : <span class="string">&quot;公&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">color</span> <span class="operator">=</span> <span class="built_in">this</span>.color == <span class="number">1</span> ? <span class="string">&quot;黑色&quot;</span> : <span class="string">&quot;白色&quot;</span>;</span><br><span class="line"> </span><br><span class="line">        <span class="comment">//将这些属性值拼成一句间接返回出去</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> <span class="string">&quot;我是一只名叫&quot;</span> + name + <span class="string">&quot;有着&quot;</span> + color + <span class="string">&quot;皮毛的&quot;</span> + age + <span class="string">&quot;岁&quot;</span> + gender + <span class="string">&quot;猫&quot;</span>;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//给猫加年龄的方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">plusAge</span><span class="params">(<span class="type">int</span> plusCount)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age += plusCount;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//返回猫当前的年龄</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getCurrentAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.age;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//private修饰的私有方法，私有方法仅允许本类内访问</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">tooOld</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.age &gt; <span class="number">15</span>; <span class="comment">//如果年龄超过15岁，则返回true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们改造了之前的旧方法，让猫的行为根据自己的年龄的不同再次发生改变，此外新增了intro方法用来返回出去自己的简介，plusAge用来增加猫的年龄，getCurrentAge用来返回猫当前的年龄，tooOld使用了private修饰，跟public一样属于访问权限，加了这个访问权限意味着在别的地方通过对象无法调用该方法，只能由对象内部触发调用，后面会着重介绍访问权限修饰符。此外，方法又分为两种，一种是有返回值的，比如getCurrentAge，一种是没有返回值的，比如plusAge，它们的区分方式在于访问权限修饰符public后面是void还是其它类型，如果是void则说明此方法没有返回值，否则就是返回值对应的类型（如int、long，返回结果为引用变量的话，则为对应的类，例如String、Cat等）。</p>
+<p>现在拿着这个Cat类来做个试验，我们之前有说过，访问对象里面的方法或者属性时，需要通过引用变量来进行访问，引用变量又是通过初始化类对象来的，初始化类对象之前说过，通过new后面加上构造方法来进行构造一个类对象：</p>
+<figure class="highlight java"><figcaption><span>代码块4</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="comment">//造出两只猫，现在我们有了两个引用变量，可以利用它们访问对象实体了</span></span><br><span class="line">    <span class="type">Cat</span> <span class="variable">cat1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cat</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="string">&quot;咲川&quot;</span>);</span><br><span class="line">    <span class="type">Cat</span> <span class="variable">cat2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cat</span>(<span class="number">1</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="string">&quot;龟田志斌&quot;</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="type">String</span> <span class="variable">cat1Into</span> <span class="operator">=</span> cat1.intro(); <span class="comment">//这个方法会返回对应猫咪的简介，这里用一个变量接收</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">cat2Into</span> <span class="operator">=</span> cat2.intro();</span><br><span class="line">    System.out.println(cat1Into); <span class="comment">//打印第一只猫的简介</span></span><br><span class="line">    System.out.println(cat2Into); <span class="comment">//打印第二只猫的简介</span></span><br><span class="line"> </span><br><span class="line">    System.out.println(<span class="string">&quot;------------------------------------&quot;</span>); <span class="comment">//为方便观察，这里用分割线隔开</span></span><br><span class="line"> </span><br><span class="line">    cat1.emm(); <span class="comment">//由于这里cat1对应的猫对象里的age为1，因此这里仍然可以打印迷惑语录</span></span><br><span class="line">    cat2.emm(); <span class="comment">//由于这里cat2对应的猫对象里的age为5，因此这里仍然可以打印迷惑语录</span></span><br><span class="line"> </span><br><span class="line">    System.out.println(<span class="string">&quot;------------------------------------&quot;</span>);</span><br><span class="line"> </span><br><span class="line">    cat1.plusAge(<span class="number">15</span>); <span class="comment">//让川桑老15岁，由于plusAge的逻辑为原age加上传入的年龄增量，所以现在的咲川应为16岁</span></span><br><span class="line">    cat2.plusAge(<span class="number">6</span>); <span class="comment">//让龟田老6岁，由于plusAge的逻辑为原age加上传入的年龄增量，现在的龟田志斌应为11岁</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">//通过getCurrentAge把二位的年龄拿到</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">cat1Age</span> <span class="operator">=</span> cat1.getCurrentAge();</span><br><span class="line">    <span class="type">int</span> <span class="variable">cat2Age</span> <span class="operator">=</span> cat2.getCurrentAge();</span><br><span class="line"> </span><br><span class="line">    System.out.println(<span class="string">&quot;咲川当前年龄为：&quot;</span> + cat1Age + <span class="string">&quot;    &quot;</span> + <span class="string">&quot;龟田志斌当前年龄为：&quot;</span> + cat2Age); <span class="comment">//这里再次打印出二位当前的年龄值</span></span><br><span class="line"> </span><br><span class="line">    System.out.println(<span class="string">&quot;------------------------------------&quot;</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//再触发一下它们的迷惑行为</span></span><br><span class="line">    cat1.emm(); <span class="comment">//由于咲川现在为16岁，符合tooOld为true，因此这里打印骚不动了...</span></span><br><span class="line">    cat2.emm(); <span class="comment">//由于龟田志斌现在为11岁，符合tooOld为false，因此这里仍然打印迷惑语录</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上方代码块打印：</p>
+<figure class="highlight shell"><figcaption><span>代码块5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">我是一只名叫咲川有着白色皮毛的1岁母猫</span><br><span class="line">我是一只名叫龟田志斌有着黑色皮毛的5岁公猫</span><br><span class="line">------------------------------------</span><br><span class="line">猪肉卷和千层面不存在二选一，我全都要！</span><br><span class="line">猪肉卷和千层面不存在二选一，我全都要！</span><br><span class="line">------------------------------------</span><br><span class="line">咲川当前年龄为：16    龟田志斌当前年龄为：11</span><br><span class="line">------------------------------------</span><br><span class="line">骚不动了...</span><br><span class="line">猪肉卷和千层面不存在二选一，我全都要！</span><br></pre></td></tr></table></figure>
+
+<p>通过这个例子我们会发现：</p>
+<ol>
+<li>类在产生对象以后，可以利用引用变量来操纵它，具体引用变量可以调用对象的方法，甚至可以直接访问它的属性（能不能访问具体看访问权限修饰符，<code>public</code>或<code>private</code>等，后面讲）</li>
+<li>类在产生对象后，每个对象都持有自己的属性和方法，互不干扰</li>
+<li>对象内的方法可以访问对象内的任意成员变量以及其他方法（无视访问权限修饰符）</li>
+<li>对象内某些方法可以改变成员变量的值，比如plusAge，它会重新给自己的成员变量赋值，而有些方法则不会，例如intro，它仅仅是拼接自己内部的成员变量</li>
+</ol>
+<h3 id="2-3：构造器"><a href="#2-3：构造器" class="headerlink" title="2.3：构造器"></a>2.3：构造器</h3><p>构造器是类里的一个特殊的方法，注意，它也是一个方法，构造器特殊的原因在于它有且仅被触发一次，就是在类构造类对象的时候，一般你定义了一个类如果不写构造器，那就会默认一个构造器，例如<code>代码块2</code>里，虽然是个空类，但它有一个隐藏的构造器，即：</p>
+<figure class="highlight java"><figcaption><span>代码块6</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Cat</span> &#123;</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Cat</span><span class="params">()</span> &#123; <span class="comment">//不定义构造器，则默认有这样一个构造器，由于它并没有什么实际意义（因为&#123;&#125;内没有任何实质性的逻辑代码），所以java语法里允许不写</span></span><br><span class="line">     </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而在<code>代码块4</code>里的构造器没有省略，因为它是有实际意义的，它的意义在于给成员变量赋值：</p>
+<figure class="highlight java"><figcaption><span>代码块7</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//构造方法，用于构造一个类对象</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">Cat</span><span class="params">(<span class="type">int</span> gender, <span class="type">int</span> age, <span class="type">int</span> color, String name)</span> &#123;</span><br><span class="line">    <span class="comment">//通过传入的参数，初始化自己对象内的每一个成员变量</span></span><br><span class="line">    <span class="built_in">this</span>.gender = gender;</span><br><span class="line">    <span class="built_in">this</span>.age = age;</span><br><span class="line">    <span class="built_in">this</span>.color = color;</span><br><span class="line">    <span class="built_in">this</span>.name = name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过上面的代码我们可以发现构造器的特点，名称和类名一致，没有标记返回结果的修饰符（void关键词或其他返回类型），且在构造一个对象时必须要通过调用构造方法完成。</p>
+<h2 id="三、访问权限修饰符"><a href="#三、访问权限修饰符" class="headerlink" title="三、访问权限修饰符"></a>三、访问权限修饰符</h2><h3 id="3-1：访问权限符介绍"><a href="#3-1：访问权限符介绍" class="headerlink" title="3.1：访问权限符介绍"></a>3.1：访问权限符介绍</h3><p>在前面所介绍的类定义、类属性定义、类方法的定义的最前端，都会有类似<code>public</code>、<code>private</code>这种修饰符，它们的意义和作用是什么呢？</p>
+<p>首先我们来介绍一下它们，它们是用来控制访问权限的修饰符，是编译器做访问语法检查时所做的判断依据，一般放到代码首部，可以用来修饰类、类的属性变量、类的方法，用来约定它们的访问权限。</p>
+<p><img src="http://myblog.sharemer.com/2020/03/05/20200305-1-3.png?imageView2/0/w/800" alt="表1"></p>
+<p>关于表里父子类相关内容需要了解过继承后再去看</p>
+<blockquote>
+<p>ps：这个访问权限，仅仅是根据类定义的上下文来判定的。</p>
+</blockquote>
+<p>单看表和描述是很难发现它们的区别的，现在我们来举个具体的例子，我们现在再来改造下Cat类（修改了一些内容的访问权限，顺带精简了下代码）：</p>
+<figure class="highlight java"><figcaption><span>代码块8</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Cat</span> &#123;</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> gender; <span class="comment">//gender字段改为public访问权限</span></span><br><span class="line">     </span><br><span class="line">    <span class="keyword">protected</span> <span class="type">int</span> age; <span class="comment">//age字段改为protected访问权限</span></span><br><span class="line">     </span><br><span class="line">    <span class="type">int</span> color; <span class="comment">//color字段改成默认（default关键字可以省略不写）的访问权限</span></span><br><span class="line">     </span><br><span class="line">    <span class="keyword">private</span> String name; <span class="comment">//name仍然是private访问权限</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Cat</span><span class="params">(<span class="type">int</span> gender, <span class="type">int</span> age, <span class="type">int</span> color, String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.gender = gender;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">        <span class="built_in">this</span>.color = color;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123; <span class="comment">//eat方法仍为public访问权限</span></span><br><span class="line">        System.out.println(<span class="string">&quot;要恰饭的嘛&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">emm</span><span class="params">()</span> &#123; <span class="comment">//emm方法改为protected访问权限</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.tooOld()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;骚不动了...&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;猪肉卷和千层面不存在二选一，我全都要！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123; <span class="comment">//run方法改为默认访问权限</span></span><br><span class="line">        <span class="keyword">if</span> (tooOld()) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;跑不动了...&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (age &gt; <span class="number">10</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;奔跑速度：10km/h&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;奔跑速度：15km/h&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">tooOld</span><span class="params">()</span> &#123; <span class="comment">//tooOld方法仍为private访问权限</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.age &gt; <span class="number">15</span>; <span class="comment">//如果年龄超过15岁，则返回true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2：举例说明：同一个类"><a href="#3-2：举例说明：同一个类" class="headerlink" title="3.2：举例说明：同一个类"></a>3.2：举例说明：同一个类</h3><p>ok，现在让我们基于改造好的Cat类，从第1列的内容试起：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/05/20200305-1-4.png" alt="图3"></p>
+<p>我们在写代码的时候也发现了，同一个类内部的所有属性、方法无视其访问权限，直接获取&amp;访问即可，现在再来试试这样：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/05/20200305-1-5.png?imageView2/0/w/880" alt="图4"></p>
+<p>由上图可以看到，同一个类定义内，如果存在另外一个相同类产生的对象，仍然可以通过其引用变量无视访问权限进行访问，因为它们属于同一个类，分析如下：</p>
+<p>首先cry是Cat类的方法，接收的参数是Cat类产生的引用变量，因此在cry内可以无视访问权限，直接通过cat这个变量访问到所有的内容。</p>
+<h3 id="3-3：举例说明：同一个包"><a href="#3-3：举例说明：同一个包" class="headerlink" title="3.3：举例说明：同一个包"></a>3.3：举例说明：同一个包</h3><p>我们现在再在同一个包创建一个Test类，在其main方法里做实验：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/05/20200305-1-6.png?imageView2/0/w/710" alt="图5"></p>
+<p>这是符合预期的，Test和Cat不属于同一个类定义，但它们在同一个包内，因此除了private的内容，均可访问。</p>
+<h3 id="3-4：举例说明：同包-不同包的父子类"><a href="#3-4：举例说明：同包-不同包的父子类" class="headerlink" title="3.4：举例说明：同包&#x2F;不同包的父子类"></a>3.4：举例说明：同包&#x2F;不同包的父子类</h3><p>后面讲继承的时候会讲。</p>
+<h3 id="3-5：举例说明：不同包的类"><a href="#3-5：举例说明：不同包的类" class="headerlink" title="3.5：举例说明：不同包的类"></a>3.5：举例说明：不同包的类</h3><p>跟<code>3.3</code>相反，我们现在新建一个跟Cat不同包的Test类，然后用其main方法做实验：</p>
+<p><img src="http://myblog.sharemer.com/2020/03/05/20200305-1-7.png?imageView2/0/w/680" alt="图6"></p>
+<p>这是符合预期的，Test和Cat不属于同一个类定义，且它们不在同一个包内，因此除了public的内容，均不可访问。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA/" rel="tag"><i class="fa fa-tag"></i> JAVA进化论</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/02/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-1%EF%BC%9A%E7%B1%BB&%E5%BC%95%E7%94%A8%E5%8F%98%E9%87%8F%E7%9A%84%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/" rel="prev" title="【JAVA进化论】LV2-1：类&引用变量的简单介绍">
+                  <i class="fa fa-angle-left"></i> 【JAVA进化论】LV2-1：类&引用变量的简单介绍
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/03/05/%E3%80%90JAVA%E8%BF%9B%E5%8C%96%E8%AE%BA%E3%80%91LV2-3%EF%BC%9A%E5%8F%98%E9%87%8F%E7%9A%84%E4%BD%9C%E7%94%A8%E5%9F%9F/" rel="next" title="【JAVA进化论】LV2-3：变量的作用域">
+                  【JAVA进化论】LV2-3：变量的作用域 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

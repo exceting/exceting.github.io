@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、线程池的Future模式在了解java8的CompletableFuture之前，先通过Future来解决一个问题，看个例子： 假设现在有一个网站，首页有顶部Banner位、左边栏、右边栏、用户信息几大模块需要加载，现在出一个接口，要求包装并吐出这几大模块的内容">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用CompletableFuture优化程序的执行效率">
+<meta property="og:url" content="http://example.com/2019/03/14/%E5%88%A9%E7%94%A8CompletableFuture%E4%BC%98%E5%8C%96%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%89%A7%E8%A1%8C%E6%95%88%E7%8E%87/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="一、线程池的Future模式在了解java8的CompletableFuture之前，先通过Future来解决一个问题，看个例子： 假设现在有一个网站，首页有顶部Banner位、左边栏、右边栏、用户信息几大模块需要加载，现在出一个接口，要求包装并吐出这几大模块的内容">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-03-14T12:46:00.000Z">
+<meta property="article:modified_time" content="2023-12-04T07:55:23.344Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="并发编程">
+<meta property="article:tag" content="JUC">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2019/03/14/%E5%88%A9%E7%94%A8CompletableFuture%E4%BC%98%E5%8C%96%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%89%A7%E8%A1%8C%E6%95%88%E7%8E%87/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2019/03/14/%E5%88%A9%E7%94%A8CompletableFuture%E4%BC%98%E5%8C%96%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%89%A7%E8%A1%8C%E6%95%88%E7%8E%87/","path":"2019/03/14/利用CompletableFuture优化程序的执行效率/","title":"利用CompletableFuture优化程序的执行效率"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>利用CompletableFuture优化程序的执行效率 | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">84</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84Future%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">一、线程池的Future模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81CompletableFuture"><span class="nav-number">2.</span> <span class="nav-text">二、CompletableFuture</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2019/03/14/%E5%88%A9%E7%94%A8CompletableFuture%E4%BC%98%E5%8C%96%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%89%A7%E8%A1%8C%E6%95%88%E7%8E%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="利用CompletableFuture优化程序的执行效率 | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          利用CompletableFuture优化程序的执行效率
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-03-14 20:46:00" itemprop="dateCreated datePublished" datetime="2019-03-14T20:46:00+08:00">2019-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">并发编程</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>6 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="一、线程池的Future模式"><a href="#一、线程池的Future模式" class="headerlink" title="一、线程池的Future模式"></a>一、线程池的Future模式</h3><p>在了解java8的<code>CompletableFuture</code>之前，先通过<code>Future</code>来解决一个问题，看个例子：</p>
+<p>假设现在有一个网站，首页有顶部Banner位、左边栏、右边栏、用户信息几大模块需要加载，现在出一个接口，要求包装并吐出这几大模块的内容</p>
+<span id="more"></span>
+
+<p>先来抽象一个首页接口对象：</p>
+<figure class="highlight java"><figcaption><span>代码块1</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebModule</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String top; <span class="comment">//顶部Banner位</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String left; <span class="comment">//左边栏</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String right; <span class="comment">//右边栏</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String user; <span class="comment">//用户信息</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//...get...set...</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> String.format(<span class="string">&quot;top: %s;  left: %s;  right: %s;  user: %s&quot;</span>, top, left, right, user);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在提供下面几个业务方法来获取这些信息：</p>
+<figure class="highlight java"><figcaption><span>代码块2</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String <span class="title function_">getTop</span><span class="params">()</span> &#123; <span class="comment">// 这里假设getTop需要执行200ms</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">200L</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;顶部banner位&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">getLeft</span><span class="params">()</span> &#123; <span class="comment">// 这里假设getLeft需要执行50ms</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">50L</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;左边栏&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">getRight</span><span class="params">()</span> &#123; <span class="comment">// 这里假设getRight需要执行80ms</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">80L</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;右边栏&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">getUser</span><span class="params">()</span> &#123; <span class="comment">// 这里假设getUser需要执行100ms</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">100L</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;用户信息&quot;</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>ok，现在来实现下这个接口：</p>
+<figure class="highlight java"><figcaption><span>代码块3</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 同步获取</span></span><br><span class="line"><span class="keyword">public</span> WebModule <span class="title function_">getWebModuleMsgSync</span><span class="params">()</span> &#123;</span><br><span class="line">   <span class="type">WebModule</span> <span class="variable">webModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WebModule</span>();</span><br><span class="line">   webModule.setTop(getTop());</span><br><span class="line">   webModule.setLeft(getLeft());</span><br><span class="line">   webModule.setRight(getRight());</span><br><span class="line">   webModule.setUser(getUser());</span><br><span class="line">   <span class="keyword">return</span> webModule;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码会一次调用一个方法来赋值，最终返回接口对象，这个方法的最终耗时为几个业务方法耗时的总和：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">通过同步方法获取首页全部信息消耗时间：435ms</span><br><span class="line">结果为：top: 顶部banner位;  left: 左边栏;  right: 右边栏;  user: 用户信息</span><br></pre></td></tr></table></figure>
+
+<p><strong>430ms</strong>左右的执行时间，其实这几个模块是相互独立没有影响的，因此可以使用<strong>线程池</strong>的<strong>Future模式</strong>来进行多线程处理优化：</p>
+<figure class="highlight java"><figcaption><span>代码块4</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 异步获取</span></span><br><span class="line"><span class="keyword">public</span> WebModule <span class="title function_">getWebModuleMsgAsync</span><span class="params">()</span> <span class="keyword">throws</span> ExecutionException, InterruptedException &#123;</span><br><span class="line">   <span class="type">Future</span> <span class="variable">top</span> <span class="operator">=</span> executorService.submit(<span class="built_in">this</span>::getTop);</span><br><span class="line">   <span class="type">Future</span> <span class="variable">left</span> <span class="operator">=</span> executorService.submit(<span class="built_in">this</span>::getLeft);</span><br><span class="line">   <span class="type">Future</span> <span class="variable">right</span> <span class="operator">=</span> executorService.submit(<span class="built_in">this</span>::getRight);</span><br><span class="line">   <span class="type">Future</span> <span class="variable">user</span> <span class="operator">=</span> executorService.submit(<span class="built_in">this</span>::getUser);</span><br><span class="line">   <span class="type">WebModule</span> <span class="variable">webModule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WebModule</span>();</span><br><span class="line">   webModule.setTop(top.get());</span><br><span class="line">   webModule.setLeft(left.get());</span><br><span class="line">   webModule.setRight(right.get());</span><br><span class="line">   webModule.setUser(user.get());</span><br><span class="line">   <span class="keyword">return</span> webModule;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这几个方法会被异步执行，<code>get</code>方法会被阻塞，直到执行结束，运行结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">通过异步方法获取首页全部信息消耗时间：276ms</span><br><span class="line">结果为：top: 顶部banner位;  left: 左边栏;  right: 右边栏;  user: 用户信息</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，执行速度几乎降了近<strong>200ms</strong>，这取决于最慢的那个任务的耗时。</p>
+<p>通过上述的例子可以发现，很多程序都是可以通过异步充分利用CPU资源的方式来进行优化处理的，单看上面的程序没什么问题，但是仔细想想会发现太过局限，因为几个模块相互独立，但在实际开发中，我们可能存在B方法需要拿到A方法的结果才可以往下进行的问题，所以上面的程序就不太适用了，java8出现了今天要说的一个内容：CompletableFuture，该类可以帮助你实现上面所说的任务顺序调度，不相干的程序依然在异步，相干的存在先后顺序的将会通过一定的设置来满足自己的顺序期望。</p>
+<h3 id="二、CompletableFuture"><a href="#二、CompletableFuture" class="headerlink" title="二、CompletableFuture"></a>二、CompletableFuture</h3><p>现在再来假设一个例子，现在存在以下几个方法的调用：<em>zero方法、a方法、b方法、ab方法、c方法、d方法、e方法</em></p>
+<p>定义如下：</p>
+<figure class="highlight java"><figcaption><span>代码块5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//各个方法，sleep当成是执行时间</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">zero</span><span class="params">()</span> &#123;</span><br><span class="line">    sleep(<span class="number">100L</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;zero方法触发！\n-----------------------------&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> String <span class="title function_">a</span><span class="params">()</span> &#123;</span><br><span class="line">    sleep(<span class="number">500L</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;a&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> String <span class="title function_">b</span><span class="params">(String a)</span> &#123;</span><br><span class="line">    sleep(<span class="number">1000L</span>);</span><br><span class="line">    <span class="keyword">return</span> a + <span class="string">&quot;b&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> String <span class="title function_">c</span><span class="params">()</span> &#123;</span><br><span class="line">    sleep(<span class="number">500L</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;c&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> String <span class="title function_">ab</span><span class="params">(String a, String b)</span> &#123;</span><br><span class="line">    sleep(<span class="number">100L</span>);</span><br><span class="line">    <span class="keyword">return</span> a + <span class="string">&quot;|&quot;</span> + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">d</span><span class="params">(String a)</span> &#123;</span><br><span class="line">    sleep(<span class="number">1000L</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;d方法触发，拿到的a = &quot;</span> + a);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> String <span class="title function_">e</span><span class="params">(String a)</span> &#123;</span><br><span class="line">    sleep(<span class="number">100L</span>);</span><br><span class="line">    <span class="keyword">return</span> a + <span class="string">&quot;e&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据上面的方法定义，可以整理出来其执行关系：</p>
+<p>zero、a、c都是独立调用的方法，而b、d、e方法都需要拿到a的执行结果值才能触发，ab方法则要求更加苛刻，需要同时拿到a和b的执行结果才可以触发，现在假设需要把所有的方法都触发一遍，我们又期望通过异步的方式来尽可能的优化代码，这个时候如果还用上面例子里的方式，恐怕就很难进行下去了，因为很多方法存在相互依赖的现象，不过现在有了<code>CompletableFuture</code>，这个问题就可以解决了，来看下代码（方法及作用都写在注释上了，下面的文章就不多做说明了）：</p>
+<figure class="highlight java"><figcaption><span>代码块6</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ExecutionException, InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> <span class="variable">s</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="type">Test</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Test</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//runAsync用于执行没有返回值的异步任务</span></span><br><span class="line">        <span class="type">CompletableFuture</span> <span class="variable">future0</span> <span class="operator">=</span> CompletableFuture.runAsync(t::zero)</span><br><span class="line">                .exceptionally(e -&gt; &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;Zero出错！&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125;); <span class="comment">//这里是异常处理，指的是该异步任务执行中出错，应该做的处理</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//supplyAsync方法用于执行带有返回值的异步任务</span></span><br><span class="line">        <span class="type">CompletableFuture</span> <span class="variable">futureA</span> <span class="operator">=</span> CompletableFuture.supplyAsync(t::a)</span><br><span class="line">                .exceptionally(e -&gt; &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;方法A出错！&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//thenCompose方法用于连接两个CompletableFuture任务，如下代表futureA结束后将执行结果交由另外一个CompletableFuture处理，然后将执行链路最终赋值给futureB</span></span><br><span class="line">        <span class="type">CompletableFuture</span> <span class="variable">futureB</span> <span class="operator">=</span> futureA.thenCompose(a -&gt; CompletableFuture.supplyAsync(() -&gt; t.b(a)))</span><br><span class="line">                .exceptionally(e -&gt; &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;方法B出错！&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//thenAccept方法用于将一个任务的结果，传给需要该结果的任务，如下表示futureD的执行需要futureA的结果，与thenApply不同的是，这个方法没有有返回值</span></span><br><span class="line">        <span class="type">CompletableFuture</span> <span class="variable">futureD</span> <span class="operator">=</span> futureA.thenAccept(t::d);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//thenApply方法用于将一个任务的结果，传给需要该结果的任务，如下表示futureE的执行需要futureA的结果，与thenAccept不同的是，这个方法有返回值</span></span><br><span class="line">        <span class="type">CompletableFuture</span> <span class="variable">futureE</span> <span class="operator">=</span> futureA.thenApply(t::e)</span><br><span class="line">                .exceptionally(e -&gt; &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;方法E出错！&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * thenApply方法概念容易与thenCompose混淆，毕竟最终目的很相似</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//thenCombine方法用于连接多个异步任务的结果，如下ab方法需要futureA和futureB的执行结果，那么就可以使用thenCombine进行连接</span></span><br><span class="line">        <span class="comment">//注意，执行到ab这里，说明futureA和futureB一定已经执行完了</span></span><br><span class="line">        <span class="type">CompletableFuture</span> <span class="variable">futureAB</span> <span class="operator">=</span> futureA.thenCombine(futureB, t::ab)</span><br><span class="line">                .exceptionally(e -&gt; &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;方法AB出错！&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//单纯的一个异步任务，不依赖任何其他任务</span></span><br><span class="line">        <span class="type">CompletableFuture</span> <span class="variable">futureC</span> <span class="operator">=</span> CompletableFuture.supplyAsync(t::c)</span><br><span class="line">                .exceptionally(e -&gt; &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;方法C出错！&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//allOf如果阻塞结束则表示所有任务都执行结束了</span></span><br><span class="line">        CompletableFuture.allOf(future0, futureA, futureB, futureAB, futureC, futureD, futureE).get();</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;方法Zero输出：&quot;</span> + future0.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;方法A输出：&quot;</span> + futureA.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;方法B输出：&quot;</span> + futureB.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;方法AB输出：&quot;</span> + futureAB.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;方法C输出：&quot;</span> + futureC.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;方法D输出：&quot;</span> + futureD.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;方法E输出：&quot;</span> + futureE.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;耗时：&quot;</span> + (System.currentTimeMillis() - s) + <span class="string">&quot;ms&quot;</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">zero方法触发！</span><br><span class="line">-----------------------------</span><br><span class="line">d方法触发，拿到的a = a</span><br><span class="line">方法Zero输出：null</span><br><span class="line">方法A输出：a</span><br><span class="line">方法B输出：ab</span><br><span class="line">方法AB输出：a|ab</span><br><span class="line">方法C输出：c</span><br><span class="line">方法D输出：null</span><br><span class="line">方法E输出：ae</span><br><span class="line">耗时：1668ms</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，逻辑方面是没有任何问题的，也按照预期的顺序和方式进行了，注意看这里的运行时间，约等于<code>1600ms</code>，与第一个例子时长取决于执行时间最长的那个方法不同，上面的例子时长取决于<strong>执行链</strong>的耗时最长的执行时间；</p>
+<p>分析下上面的程序，执行链最长的就是ab这条，ab需要a和b全部执行完，而b又依赖a的结果，因此ab执行完的时间就是<strong>500+1000</strong>的时间（a需要<strong>500ms</strong>，b又需要等待a，500ms后b触发，b自身又需要<strong>1000ms</strong>，等都结束了，再触发ab方法，而ab方法又需要<strong>100ms</strong>的执行时间，因此ab是最长的耗时方法，<strong>ab&#x3D;500+1000+100</strong>）</p>
+<p>需要说明的是上述例子里用到的方法，几乎每个都有个重载方法，用来传递一个线程池对象，例子里用的都是不传的，用的是其内部的<code>ForkJoinPool.commonPool()</code>。</p>
+<p><code>CompletableFuture</code>的用法还有很多很多，较常用的应该就是例子里的几种，更多的用法以后会继续记录到这里。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="tag"><i class="fa fa-tag"></i> 并发编程</a>
+              <a href="/tags/JUC/" rel="tag"><i class="fa fa-tag"></i> JUC</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/03/13/%E5%9B%BE%E8%A7%A3java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="图解java多线程设计模式（二）">
+                  <i class="fa fa-angle-left"></i> 图解java多线程设计模式（二）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/03/19/Java%20NIO%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%AE%B0%E5%BD%95%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84I:O%E6%A8%A1%E5%9E%8B/" rel="next" title="Java NIO学习与记录（五）： 操作系统的I/O模型">
+                  Java NIO学习与记录（五）： 操作系统的I/O模型 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">606k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
