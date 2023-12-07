@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="一、包包说白了就是一个个的文件夹，在java中，所有的类按照其特点，以包的形式进行做区分，包的目录层级命名规则一般是公司的网址倒过来，例如：">
 <meta property="og:type" content="article">
@@ -122,7 +122,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%8C%85"><span class="nav-number">1.</span> <span class="nav-text">一、包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%A0%81%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E7%B1%BB%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">二、如何使用代码定义一个类？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9A%E7%B1%BB%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8Cjava%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：类的定义和java文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E7%B1%BB%E7%9A%84%E5%B1%9E%E6%80%A7%E5%92%8C%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：类的属性和方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9A%E6%9E%84%E9%80%A0%E5%99%A8"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：构造器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="nav-number">3.</span> <span class="nav-text">三、访问权限修饰符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%EF%BC%9A%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E7%AC%A6%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.1.</span> <span class="nav-text">3.1：访问权限符介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E4%B8%80%E4%B8%AA%E7%B1%BB"><span class="nav-number">3.2.</span> <span class="nav-text">3.2：举例说明：同一个类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E4%B8%80%E4%B8%AA%E5%8C%85"><span class="nav-number">3.3.</span> <span class="nav-text">3.3：举例说明：同一个包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E5%8C%85-%E4%B8%8D%E5%90%8C%E5%8C%85%E7%9A%84%E7%88%B6%E5%AD%90%E7%B1%BB"><span class="nav-number">3.4.</span> <span class="nav-text">3.4：举例说明：同包&#x2F;不同包的父子类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E4%B8%8D%E5%90%8C%E5%8C%85%E7%9A%84%E7%B1%BB"><span class="nav-number">3.5.</span> <span class="nav-text">3.5：举例说明：不同包的类</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%8C%85"><span class="nav-text">一、包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%A0%81%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E7%B1%BB%EF%BC%9F"><span class="nav-text">二、如何使用代码定义一个类？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9A%E7%B1%BB%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8Cjava%E6%96%87%E4%BB%B6"><span class="nav-text">2.1：类的定义和java文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E7%B1%BB%E7%9A%84%E5%B1%9E%E6%80%A7%E5%92%8C%E6%96%B9%E6%B3%95"><span class="nav-text">2.2：类的属性和方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9A%E6%9E%84%E9%80%A0%E5%99%A8"><span class="nav-text">2.3：构造器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="nav-text">三、访问权限修饰符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%EF%BC%9A%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E7%AC%A6%E4%BB%8B%E7%BB%8D"><span class="nav-text">3.1：访问权限符介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E4%B8%80%E4%B8%AA%E7%B1%BB"><span class="nav-text">3.2：举例说明：同一个类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E4%B8%80%E4%B8%AA%E5%8C%85"><span class="nav-text">3.3：举例说明：同一个包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E5%90%8C%E5%8C%85-%E4%B8%8D%E5%90%8C%E5%8C%85%E7%9A%84%E7%88%B6%E5%AD%90%E7%B1%BB"><span class="nav-text">3.4：举例说明：同包&#x2F;不同包的父子类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5%EF%BC%9A%E4%B8%BE%E4%BE%8B%E8%AF%B4%E6%98%8E%EF%BC%9A%E4%B8%8D%E5%90%8C%E5%8C%85%E7%9A%84%E7%B1%BB"><span class="nav-text">3.5：举例说明：不同包的类</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -243,14 +243,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3.8k</span>
+      <span>7.6k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>14 分钟</span>
+      <span>7 分钟</span>
     </span>
 </div>
 
@@ -368,6 +368,7 @@
 
 
 
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -387,13 +388,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">185k</span>
+    <span title="站点总字数">455k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:14</span>
+    <span title="站点阅读时长">6:54</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -449,6 +450,10 @@
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"2dff5da64daeaeeadf42ca2f77f08680"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
 </html>

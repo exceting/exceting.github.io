@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="泛型，即“参数化类型”。一提到参数，最熟悉的就是定义方法时有形参（方法定义里括号里的参数声明），然后调用此方法时传递实参（实际传给方法的参数）。那么参数化类型怎么理解呢？顾名思义，就是将类型参数化，类似于方法中的变量参数，此时类型也定义成参数形式（可以称之为类型形参），然后在使用&#x2F;调用时传入具体的类型（类型实参）。泛型的本质是为了参数化类型（在不创建新的类型的情况下，通过泛型指定的不同">
 <meta property="og:type" content="article">
@@ -119,7 +119,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%B8%80%E4%B8%AA%E4%BE%8B%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">一、一个例子</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%EF%BC%9A%E4%BD%BF%E7%94%A8Object%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.1.</span> <span class="nav-text">1.1：使用Object实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%EF%BC%9A%E5%88%A9%E7%94%A8%E6%B3%9B%E5%9E%8B%E6%94%B9%E9%80%A0"><span class="nav-number">1.2.</span> <span class="nav-text">1.2：利用泛型改造</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%B3%9B%E5%9E%8B%E7%9A%84%E5%88%86%E7%B1%BB"><span class="nav-number">2.</span> <span class="nav-text">二、泛型的分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%B1%BB"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：泛型类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E6%B3%9B%E5%9E%8B%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：泛型方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9A%E6%B3%9B%E5%9E%8B%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：泛型接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9A%E9%80%9A%E9%85%8D%E7%AC%A6%E6%B3%9B%E5%9E%8B"><span class="nav-number">2.4.</span> <span class="nav-text">2.4：通配符泛型</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%B8%80%E4%B8%AA%E4%BE%8B%E5%AD%90"><span class="nav-text">一、一个例子</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%EF%BC%9A%E4%BD%BF%E7%94%A8Object%E5%AE%9E%E7%8E%B0"><span class="nav-text">1.1：使用Object实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%EF%BC%9A%E5%88%A9%E7%94%A8%E6%B3%9B%E5%9E%8B%E6%94%B9%E9%80%A0"><span class="nav-text">1.2：利用泛型改造</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%B3%9B%E5%9E%8B%E7%9A%84%E5%88%86%E7%B1%BB"><span class="nav-text">二、泛型的分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9A%E6%B3%9B%E5%9E%8B%E7%B1%BB"><span class="nav-text">2.1：泛型类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E6%B3%9B%E5%9E%8B%E6%96%B9%E6%B3%95"><span class="nav-text">2.2：泛型方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9A%E6%B3%9B%E5%9E%8B%E6%8E%A5%E5%8F%A3"><span class="nav-text">2.3：泛型接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9A%E9%80%9A%E9%85%8D%E7%AC%A6%E6%B3%9B%E5%9E%8B"><span class="nav-text">2.4：通配符泛型</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -240,14 +240,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>2.8k</span>
+      <span>6k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>10 分钟</span>
+      <span>5 分钟</span>
     </span>
 </div>
 
@@ -372,6 +372,7 @@
 
 
 
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -391,13 +392,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">185k</span>
+    <span title="站点总字数">455k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:14</span>
+    <span title="站点阅读时长">6:54</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -453,6 +454,10 @@
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"8870c18f1846ca0e30f9f5bc3e1bbbaa"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
 </html>

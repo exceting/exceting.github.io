@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="前言：Redis各版本重大更新截至2021年5月，Redis的稳定版本已经更新到了6.2，所以这里我想整理一下redis自发布以来每一个大版本的重要更新，当然我不会全部都展示出来，只挑那些具有重要革新的功能说。">
 <meta property="og:type" content="article">
@@ -122,7 +122,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80%EF%BC%9ARedis%E5%90%84%E7%89%88%E6%9C%AC%E9%87%8D%E5%A4%A7%E6%9B%B4%E6%96%B0"><span class="nav-number">1.</span> <span class="nav-text">前言：Redis各版本重大更新</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#redis2-6"><span class="nav-number">1.1.</span> <span class="nav-text">redis2.6</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis2-8"><span class="nav-number">1.2.</span> <span class="nav-text">redis2.8</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis3-0"><span class="nav-number">1.3.</span> <span class="nav-text">redis3.0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis3-2"><span class="nav-number">1.4.</span> <span class="nav-text">redis3.2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis4-0"><span class="nav-number">1.5.</span> <span class="nav-text">redis4.0</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BA%94%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">一、五种数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%88string%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">字符串（string）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%EF%BC%88list%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">列表（list）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E5%90%88%EF%BC%88set%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">集合（set）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%EF%BC%88zset%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">有序集合（zset）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%EF%BC%88hash%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">哈希（hash）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%80%9A%E7%94%A8%E6%8C%87%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">二、通用指令</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80%EF%BC%9ARedis%E5%90%84%E7%89%88%E6%9C%AC%E9%87%8D%E5%A4%A7%E6%9B%B4%E6%96%B0"><span class="nav-text">前言：Redis各版本重大更新</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#redis2-6"><span class="nav-text">redis2.6</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis2-8"><span class="nav-text">redis2.8</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis3-0"><span class="nav-text">redis3.0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis3-2"><span class="nav-text">redis3.2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis4-0"><span class="nav-text">redis4.0</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BA%94%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-text">一、五种数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%88string%EF%BC%89"><span class="nav-text">字符串（string）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%EF%BC%88list%EF%BC%89"><span class="nav-text">列表（list）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E5%90%88%EF%BC%88set%EF%BC%89"><span class="nav-text">集合（set）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%EF%BC%88zset%EF%BC%89"><span class="nav-text">有序集合（zset）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%EF%BC%88hash%EF%BC%89"><span class="nav-text">哈希（hash）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%80%9A%E7%94%A8%E6%8C%87%E4%BB%A4"><span class="nav-text">二、通用指令</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -243,14 +243,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3.8k</span>
+      <span>7k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>14 分钟</span>
+      <span>6 分钟</span>
     </span>
 </div>
 
@@ -907,6 +907,7 @@
 
 
 
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -926,13 +927,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">185k</span>
+    <span title="站点总字数">455k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:14</span>
+    <span title="站点阅读时长">6:54</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -988,6 +989,10 @@
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"d548b392d310d27f5808786b14f6ce39"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
 </html>

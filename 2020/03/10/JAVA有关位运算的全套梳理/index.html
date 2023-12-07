@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="一、在计算机中数据是如何进行计算的？1.1：java中的byte型数据取值范围我们最开始学习java的时候知道，byte类型的数据占了8个bit位，每个位上或0或1，左边第一位表示符号位，符号位如果为1表示负数，为0则表示正数，因此要推算byte的取值范围，只需要让数值位每一位上都等于1即可。我们来用我们的常规思维来分析下byte类型的取值范围：">
 <meta property="og:type" content="article">
@@ -136,7 +136,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9C%A8%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E8%AE%A1%E7%AE%97%E7%9A%84%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、在计算机中数据是如何进行计算的？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%EF%BC%9Ajava%E4%B8%AD%E7%9A%84byte%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%8F%96%E5%80%BC%E8%8C%83%E5%9B%B4"><span class="nav-number">1.1.</span> <span class="nav-text">1.1：java中的byte型数据取值范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%EF%BC%9A%E5%8E%9F%E7%A0%81%EF%BC%8C%E5%8F%8D%E7%A0%81%EF%BC%8C%E8%A1%A5%E7%A0%81"><span class="nav-number">1.2.</span> <span class="nav-text">1.2：原码，反码，补码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81java%E4%B8%AD%E7%9A%84%E4%BD%8D%E8%BF%90%E7%AE%97"><span class="nav-number">2.</span> <span class="nav-text">二、java中的位运算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9A%E4%B8%8E%E8%BF%90%E7%AE%97"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：与运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E6%88%96%E3%80%81%E5%BC%82%E6%88%96"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：或、异或</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9A%E6%8C%89%E4%BD%8D%E5%8F%96%E5%8F%8D"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：按位取反</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9A%E5%B7%A6%E7%A7%BB%E8%BF%90%E7%AE%97"><span class="nav-number">2.4.</span> <span class="nav-text">2.4：左移运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5%EF%BC%9A%E6%9C%89%E7%AC%A6%E5%8F%B7%E5%8F%B3%E7%A7%BB%E8%BF%90%E7%AE%97-%E6%97%A0%E7%AC%A6%E5%8F%B7%E5%8F%B3%E7%A7%BB%E8%BF%90%E7%AE%97"><span class="nav-number">2.5.</span> <span class="nav-text">2.5：有符号右移运算&amp;无符号右移运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6%EF%BC%9A%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%BA%A2%E5%87%BA"><span class="nav-number">2.6.</span> <span class="nav-text">2.6：类型转换溢出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BD%8D%E8%BF%90%E7%AE%97%E5%9C%A8%E5%AE%9E%E9%99%85%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%9A%84%E8%BF%90%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">三、位运算在实际项目中的运用</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9C%A8%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E8%AE%A1%E7%AE%97%E7%9A%84%EF%BC%9F"><span class="nav-text">一、在计算机中数据是如何进行计算的？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%EF%BC%9Ajava%E4%B8%AD%E7%9A%84byte%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%8F%96%E5%80%BC%E8%8C%83%E5%9B%B4"><span class="nav-text">1.1：java中的byte型数据取值范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%EF%BC%9A%E5%8E%9F%E7%A0%81%EF%BC%8C%E5%8F%8D%E7%A0%81%EF%BC%8C%E8%A1%A5%E7%A0%81"><span class="nav-text">1.2：原码，反码，补码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81java%E4%B8%AD%E7%9A%84%E4%BD%8D%E8%BF%90%E7%AE%97"><span class="nav-text">二、java中的位运算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9A%E4%B8%8E%E8%BF%90%E7%AE%97"><span class="nav-text">2.1：与运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E6%88%96%E3%80%81%E5%BC%82%E6%88%96"><span class="nav-text">2.2：或、异或</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9A%E6%8C%89%E4%BD%8D%E5%8F%96%E5%8F%8D"><span class="nav-text">2.3：按位取反</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9A%E5%B7%A6%E7%A7%BB%E8%BF%90%E7%AE%97"><span class="nav-text">2.4：左移运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5%EF%BC%9A%E6%9C%89%E7%AC%A6%E5%8F%B7%E5%8F%B3%E7%A7%BB%E8%BF%90%E7%AE%97-%E6%97%A0%E7%AC%A6%E5%8F%B7%E5%8F%B3%E7%A7%BB%E8%BF%90%E7%AE%97"><span class="nav-text">2.5：有符号右移运算&amp;无符号右移运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6%EF%BC%9A%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%BA%A2%E5%87%BA"><span class="nav-text">2.6：类型转换溢出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BD%8D%E8%BF%90%E7%AE%97%E5%9C%A8%E5%AE%9E%E9%99%85%E9%A1%B9%E7%9B%AE%E4%B8%AD%E7%9A%84%E8%BF%90%E7%94%A8"><span class="nav-text">三、位运算在实际项目中的运用</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -257,14 +257,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3.7k</span>
+      <span>5.2k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>13 分钟</span>
+      <span>5 分钟</span>
     </span>
 </div>
 
@@ -450,6 +450,7 @@
 
 
 
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -469,13 +470,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">185k</span>
+    <span title="站点总字数">455k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:14</span>
+    <span title="站点阅读时长">6:54</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -531,6 +532,10 @@
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"5e75fd80aa508304700e19d54b7272f0"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
 </html>

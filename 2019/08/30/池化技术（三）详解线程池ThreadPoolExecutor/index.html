@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="一、继承关系&amp;构建参数跟其他池化技术一样，线程池的目的也是为了重复利用资源，节省开销，提升程序运行速度，java提供的线程池位于juc包中，这是它的继承树：  主要的实现逻辑都在ThreadPoolExecutor里，本文也会围绕这个类展开。">
 <meta property="og:type" content="article">
@@ -128,7 +128,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB-%E6%9E%84%E5%BB%BA%E5%8F%82%E6%95%B0"><span class="nav-number">1.</span> <span class="nav-text">一、继承关系&amp;构建参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">二、源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9Actl"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：ctl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E6%93%8D%E4%BD%9Cctl%E7%9A%84%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：操作ctl的相关方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9Aexecute"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：execute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9AaddWorker"><span class="nav-number">2.4.</span> <span class="nav-text">2.4：addWorker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5%EF%BC%9AWorker%E7%B1%BB"><span class="nav-number">2.5.</span> <span class="nav-text">2.5：Worker类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6%EF%BC%9AgetTask"><span class="nav-number">2.6.</span> <span class="nav-text">2.6：getTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7%EF%BC%9AprocessWorkerExit"><span class="nav-number">2.7.</span> <span class="nav-text">2.7：processWorkerExit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8%EF%BC%9AtryTerminate"><span class="nav-number">2.8.</span> <span class="nav-text">2.8：tryTerminate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-9%EF%BC%9Ashutdown"><span class="nav-number">2.9.</span> <span class="nav-text">2.9：shutdown</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Executors%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">三、Executors类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%EF%BC%9AnewSingleThreadExecutor"><span class="nav-number">3.1.</span> <span class="nav-text">3.1：newSingleThreadExecutor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%EF%BC%9AnewFixedThreadPool"><span class="nav-number">3.2.</span> <span class="nav-text">3.2：newFixedThreadPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3%EF%BC%9AnewCachedThreadPool"><span class="nav-number">3.3.</span> <span class="nav-text">3.3：newCachedThreadPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4%EF%BC%9AnewWorkStealingPool-newScheduledThreadPool"><span class="nav-number">3.4.</span> <span class="nav-text">3.4：newWorkStealingPool &amp; newScheduledThreadPool</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB-%E6%9E%84%E5%BB%BA%E5%8F%82%E6%95%B0"><span class="nav-text">一、继承关系&amp;构建参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="nav-text">二、源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9Actl"><span class="nav-text">2.1：ctl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E6%93%8D%E4%BD%9Cctl%E7%9A%84%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95"><span class="nav-text">2.2：操作ctl的相关方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9Aexecute"><span class="nav-text">2.3：execute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9AaddWorker"><span class="nav-text">2.4：addWorker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5%EF%BC%9AWorker%E7%B1%BB"><span class="nav-text">2.5：Worker类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6%EF%BC%9AgetTask"><span class="nav-text">2.6：getTask</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7%EF%BC%9AprocessWorkerExit"><span class="nav-text">2.7：processWorkerExit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-8%EF%BC%9AtryTerminate"><span class="nav-text">2.8：tryTerminate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-9%EF%BC%9Ashutdown"><span class="nav-text">2.9：shutdown</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Executors%E7%B1%BB"><span class="nav-text">三、Executors类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1%EF%BC%9AnewSingleThreadExecutor"><span class="nav-text">3.1：newSingleThreadExecutor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2%EF%BC%9AnewFixedThreadPool"><span class="nav-text">3.2：newFixedThreadPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3%EF%BC%9AnewCachedThreadPool"><span class="nav-text">3.3：newCachedThreadPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4%EF%BC%9AnewWorkStealingPool-newScheduledThreadPool"><span class="nav-text">3.4：newWorkStealingPool &amp; newScheduledThreadPool</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -249,14 +249,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>6.1k</span>
+      <span>17k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>22 分钟</span>
+      <span>16 分钟</span>
     </span>
 </div>
 
@@ -470,6 +470,7 @@
 
 
 
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -489,13 +490,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">185k</span>
+    <span title="站点总字数">455k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:14</span>
+    <span title="站点阅读时长">6:54</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -551,6 +552,10 @@
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"e308bcdbd292dda6803a0441dc49a820"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
 </html>

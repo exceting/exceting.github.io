@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="一、简介这些方法属于线程对象里的方法，属于线程本身的操作。 join：用于等待一个线程的终止，等待期间将会进入阻塞状态，直到被等待的线程终止结束。 yield：用于线程让步，触发了此方法的线程会进入就绪状态，也就是说会让出CPU的调度一下，让CPU转去其他线程。 sleep：强制当前正在运行的线程进入阻塞状态，直到休眠期结束，才会再次进入运行状态。 interrupt：终止当前正在运行的线程。">
 <meta property="og:type" content="article">
@@ -123,7 +123,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%94%A8%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">二、用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9Ajoin"><span class="nav-number">2.1.</span> <span class="nav-text">2.1：join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E3%80%90%E5%AE%9E%E4%BE%8B%E3%80%91%E5%88%A9%E7%94%A8join%E4%BC%98%E5%8C%96%E4%B8%80%E4%B8%AA%E5%A4%A7%E9%A6%96%E9%A1%B5%E6%8E%A5%E5%8F%A3%E7%9A%84%E6%95%88%E7%8E%87"><span class="nav-number">2.2.</span> <span class="nav-text">2.2：【实例】利用join优化一个大首页接口的效率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9Asleep"><span class="nav-number">2.3.</span> <span class="nav-text">2.3：sleep</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9Ainterrupt-stop"><span class="nav-number">2.4.</span> <span class="nav-text">2.4：interrupt&amp;stop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5%EF%BC%9Ayield"><span class="nav-number">2.5.</span> <span class="nav-text">2.5：yield</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%E8%BF%81%E7%A7%BB%E5%9B%BE"><span class="nav-number">3.</span> <span class="nav-text">三、线程状态迁移图</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="nav-text">一、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%94%A8%E6%B3%95"><span class="nav-text">二、用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1%EF%BC%9Ajoin"><span class="nav-text">2.1：join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2%EF%BC%9A%E3%80%90%E5%AE%9E%E4%BE%8B%E3%80%91%E5%88%A9%E7%94%A8join%E4%BC%98%E5%8C%96%E4%B8%80%E4%B8%AA%E5%A4%A7%E9%A6%96%E9%A1%B5%E6%8E%A5%E5%8F%A3%E7%9A%84%E6%95%88%E7%8E%87"><span class="nav-text">2.2：【实例】利用join优化一个大首页接口的效率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3%EF%BC%9Asleep"><span class="nav-text">2.3：sleep</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4%EF%BC%9Ainterrupt-stop"><span class="nav-text">2.4：interrupt&amp;stop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5%EF%BC%9Ayield"><span class="nav-text">2.5：yield</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%E8%BF%81%E7%A7%BB%E5%9B%BE"><span class="nav-text">三、线程状态迁移图</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -244,14 +244,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3k</span>
+      <span>7.8k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
+      <span>7 分钟</span>
     </span>
 </div>
 
@@ -390,6 +390,7 @@
 
 
 
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -409,13 +410,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">185k</span>
+    <span title="站点总字数">455k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:14</span>
+    <span title="站点阅读时长">6:54</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -471,6 +472,10 @@
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"086f2f84eadfa4b1630174ae6e37440f"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
 </html>

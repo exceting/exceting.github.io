@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="前置：redis内存指标 注：本文默认读者已初步学会使用redis了。">
 <meta property="og:type" content="article">
@@ -114,7 +114,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%EF%BC%9Aredis%E5%86%85%E5%AD%98%E6%8C%87%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">前置：redis内存指标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%A2%8E%E7%89%87%E7%8E%87"><span class="nav-number">2.</span> <span class="nav-text">一、碎片率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81redis%E5%86%85%E5%AD%98%E6%B6%88%E8%80%97%E7%9A%84%E5%87%A0%E4%B8%AA%E6%9D%A5%E6%BA%90"><span class="nav-number">3.</span> <span class="nav-text">二、redis内存消耗的几个来源</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1%EF%BC%9A%E8%87%AA%E8%BA%AB%E5%86%85%E5%AD%98"><span class="nav-number">3.1.</span> <span class="nav-text">2.1：自身内存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2%EF%BC%9A%E5%AF%B9%E8%B1%A1%E5%86%85%E5%AD%98"><span class="nav-number">3.2.</span> <span class="nav-text">2.2：对象内存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3%EF%BC%9A%E7%BC%93%E5%86%B2%E5%86%85%E5%AD%98"><span class="nav-number">3.3.</span> <span class="nav-text">2.3：缓冲内存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4%EF%BC%9A%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87"><span class="nav-number">3.4.</span> <span class="nav-text">2.4：内存碎片</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5%EF%BC%9A%E5%AD%90%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E6%B6%88%E8%80%97"><span class="nav-number">3.5.</span> <span class="nav-text">2.5：子进程内存消耗</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%EF%BC%9Aredis%E5%86%85%E5%AD%98%E6%8C%87%E6%A0%87"><span class="nav-text">前置：redis内存指标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%A2%8E%E7%89%87%E7%8E%87"><span class="nav-text">一、碎片率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81redis%E5%86%85%E5%AD%98%E6%B6%88%E8%80%97%E7%9A%84%E5%87%A0%E4%B8%AA%E6%9D%A5%E6%BA%90"><span class="nav-text">二、redis内存消耗的几个来源</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1%EF%BC%9A%E8%87%AA%E8%BA%AB%E5%86%85%E5%AD%98"><span class="nav-text">2.1：自身内存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2%EF%BC%9A%E5%AF%B9%E8%B1%A1%E5%86%85%E5%AD%98"><span class="nav-text">2.2：对象内存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3%EF%BC%9A%E7%BC%93%E5%86%B2%E5%86%85%E5%AD%98"><span class="nav-text">2.3：缓冲内存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4%EF%BC%9A%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87"><span class="nav-text">2.4：内存碎片</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5%EF%BC%9A%E5%AD%90%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E6%B6%88%E8%80%97"><span class="nav-text">2.5：子进程内存消耗</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -235,14 +235,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.2k</span>
+      <span>1.7k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>5 分钟</span>
+      <span>2 分钟</span>
     </span>
 </div>
 
@@ -366,6 +366,7 @@
 
 
 
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -385,13 +386,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">185k</span>
+    <span title="站点总字数">455k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:14</span>
+    <span title="站点阅读时长">6:54</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -447,6 +448,10 @@
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"03cc76b120e7ef5476e2123f727c9bd9"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
 </html>

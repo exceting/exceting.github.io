@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="一、负载均衡器是如何被grpc加载的1.1：提供provider类每个LoadBalancer对象都是通过一个对象来实例化的，不同的LoadBalancerProvider对象会实例化出不同的LoadBalancer对象，而LoadBalancerProvider对象会通过SPI机制载入到grpc的客户端中，比如在grpc-core里的MATE-INF下：">
 <meta property="og:type" content="article">
@@ -118,7 +118,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8%E6%98%AF%E5%A6%82%E4%BD%95%E8%A2%ABgrpc%E5%8A%A0%E8%BD%BD%E7%9A%84"><span class="nav-number">1.</span> <span class="nav-text">一、负载均衡器是如何被grpc加载的</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%EF%BC%9A%E6%8F%90%E4%BE%9Bprovider%E7%B1%BB"><span class="nav-number">1.1.</span> <span class="nav-text">1.1：提供provider类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%EF%BC%9A%E6%8F%90%E4%BE%9BLoadBalancer%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.</span> <span class="nav-text">1.2：提供LoadBalancer的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%EF%BC%9A%E6%8F%90%E4%BE%9BLoadBalancer-SubchannelPicker%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.</span> <span class="nav-text">1.3：提供LoadBalancer.SubchannelPicker实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4%EF%BC%9Agrpc-client%E6%8C%87%E5%AE%9ALB%E7%AE%97%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">1.4：grpc client指定LB算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9C%A8grpc%E9%87%8C%E5%AE%9A%E5%88%B6%E8%87%AA%E5%B7%B1%E7%9A%84LB%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">二、在grpc里定制自己的LB算法</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%99%A8%E6%98%AF%E5%A6%82%E4%BD%95%E8%A2%ABgrpc%E5%8A%A0%E8%BD%BD%E7%9A%84"><span class="nav-text">一、负载均衡器是如何被grpc加载的</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1%EF%BC%9A%E6%8F%90%E4%BE%9Bprovider%E7%B1%BB"><span class="nav-text">1.1：提供provider类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2%EF%BC%9A%E6%8F%90%E4%BE%9BLoadBalancer%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">1.2：提供LoadBalancer的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3%EF%BC%9A%E6%8F%90%E4%BE%9BLoadBalancer-SubchannelPicker%E5%AE%9E%E7%8E%B0"><span class="nav-text">1.3：提供LoadBalancer.SubchannelPicker实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4%EF%BC%9Agrpc-client%E6%8C%87%E5%AE%9ALB%E7%AE%97%E6%B3%95"><span class="nav-text">1.4：grpc client指定LB算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9C%A8grpc%E9%87%8C%E5%AE%9A%E5%88%B6%E8%87%AA%E5%B7%B1%E7%9A%84LB%E7%AE%97%E6%B3%95"><span class="nav-text">二、在grpc里定制自己的LB算法</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -239,14 +239,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>2.1k</span>
+      <span>11k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>8 分钟</span>
+      <span>10 分钟</span>
     </span>
 </div>
 
@@ -343,6 +343,7 @@
 
 
 
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -362,13 +363,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">185k</span>
+    <span title="站点总字数">455k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">11:14</span>
+    <span title="站点阅读时长">6:54</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -424,6 +425,10 @@
 
 
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"8a987ed5e3c45711bb2c7e976932a7d2"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
 </html>
