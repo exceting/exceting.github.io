@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://myblog.sharemer.com/cicada-avatar_00000.png?imageView2/0/w/32">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://myblog.sharemer.com/cicada-avatar_00000.png?imageView2/0/w/16">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="工具名称：LogTrace 建议使用gradle作为项目管理工具，下面是一些建议的版本号：jdk8～11     gradle7+     LogTrace v0.0.1-SNAPSHOT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="写了一个追踪业务异常的工具，欢迎体验！">
+<meta property="og:url" content="http://example.com/2023/08/25/%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AA%E8%BF%BD%E8%B8%AA%E4%B8%9A%E5%8A%A1%E5%BC%82%E5%B8%B8%E7%9A%84%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%AC%A2%E8%BF%8E%E4%BD%93%E9%AA%8C%EF%BC%81/index.html">
+<meta property="og:site_name" content="胖虎de文库">
+<meta property="og:description" content="工具名称：LogTrace 建议使用gradle作为项目管理工具，下面是一些建议的版本号：jdk8～11     gradle7+     LogTrace v0.0.1-SNAPSHOT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-01.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-02.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-03.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-04.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-05.png">
+<meta property="article:published_time" content="2023-08-25T06:56:56.000Z">
+<meta property="article:modified_time" content="2023-12-07T06:54:11.397Z">
+<meta property="article:author" content="胖虎">
+<meta property="article:tag" content="JVM">
+<meta property="article:tag" content="注解处理器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-01.png">
+
+
+<link rel="canonical" href="http://example.com/2023/08/25/%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AA%E8%BF%BD%E8%B8%AA%E4%B8%9A%E5%8A%A1%E5%BC%82%E5%B8%B8%E7%9A%84%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%AC%A2%E8%BF%8E%E4%BD%93%E9%AA%8C%EF%BC%81/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2023/08/25/%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AA%E8%BF%BD%E8%B8%AA%E4%B8%9A%E5%8A%A1%E5%BC%82%E5%B8%B8%E7%9A%84%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%AC%A2%E8%BF%8E%E4%BD%93%E9%AA%8C%EF%BC%81/","path":"2023/08/25/写了一个追踪业务异常的工具，欢迎体验！/","title":"写了一个追踪业务异常的工具，欢迎体验！"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>写了一个追踪业务异常的工具，欢迎体验！ | 胖虎de文库</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="胖虎de文库" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">胖虎de文库</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">– – – – – _ _ – _ _ –</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-留言"><a href="/messages/" rel="section"><i class="fa fa-envelope fa-fw"></i>留言</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Part1-%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">Part1: 解决的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part2-%E5%AF%BC%E5%8C%85"><span class="nav-text">Part2: 导包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part3-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B"><span class="nav-text">Part3: 快速开始</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part4-%E6%A0%BC%E5%BC%8F-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-text">Part4: 格式&amp;基本原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part5-%E6%B3%A8%E8%A7%A3-%E7%94%A8%E6%B3%95"><span class="nav-text">Part5: 注解&amp;用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Slf4jCheck"><span class="nav-text">@Slf4jCheck</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MethodLog"><span class="nav-text">@MethodLog</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VarLog"><span class="nav-text">@VarLog</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Ban"><span class="nav-text">@Ban</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part6-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E5%BC%80%E5%85%B3"><span class="nav-text">Part6: 自定义日志开关</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part7-lombok%E5%8F%AF%E4%BB%A5%E8%AE%A9%E5%AE%83%E6%9B%B4%E5%A5%BD%E7%9A%84%E5%B7%A5%E4%BD%9C"><span class="nav-text">Part7: lombok可以让它更好的工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part8-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-text">Part8: 常见问题</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胖虎"
+      src="https://myblog.sharemer.com/cicada-avatar_00000.png">
+  <p class="site-author-name" itemprop="name">胖虎</p>
+  <div class="site-description" itemprop="description">Stay young, stay simple.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/exceting" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;exceting" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1807301715@qq.com" title="E-Mail → mailto:1807301715@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/22022137/butter-b" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;22022137&#x2F;butter-b" rel="noopener me" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml" rel="noopener me"><i class="fa fa-rss fa-fw"></i></a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/25/%E5%86%99%E4%BA%86%E4%B8%80%E4%B8%AA%E8%BF%BD%E8%B8%AA%E4%B8%9A%E5%8A%A1%E5%BC%82%E5%B8%B8%E7%9A%84%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%AC%A2%E8%BF%8E%E4%BD%93%E9%AA%8C%EF%BC%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://myblog.sharemer.com/cicada-avatar_00000.png">
+      <meta itemprop="name" content="胖虎">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="胖虎de文库">
+      <meta itemprop="description" content="Stay young, stay simple.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="写了一个追踪业务异常的工具，欢迎体验！ | 胖虎de文库">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          写了一个追踪业务异常的工具，欢迎体验！
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-08-25 14:56:56" itemprop="dateCreated datePublished" datetime="2023-08-25T14:56:56+08:00">2023-08-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/JVM/" itemprop="url" rel="index"><span itemprop="name">JVM</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>10 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>工具名称：<a target="_blank" rel="noopener" href="https://github.com/exceting/cicada/blob/main/tools/logtrace/README.md">LogTrace</a></p>
+<p>建议使用gradle作为项目管理工具，下面是一些建议的版本号：<code>jdk8～11</code>     <code>gradle7+</code>     <code>LogTrace v0.0.1-SNAPSHOT</code></p>
+</blockquote>
+<span id="more"></span>
+
+<h3 id="Part1-解决的问题"><a href="#Part1-解决的问题" class="headerlink" title="Part1: 解决的问题"></a>Part1: 解决的问题</h3><p>本产品尝试解决以下场景的问题：假设现在有一块依赖了很多上下游服务的代码，且上下游的返回决定了它的逻辑走向，其中弯弯绕绕的if-else一大堆，除了没写注释外，还没有打印任何日志，举个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Student <span class="title function_">complexScene</span><span class="params">(String... args)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(args == <span class="literal">null</span> || args.length == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="variable">aResult</span> <span class="operator">=</span> aService.getA(args[<span class="number">0</span>]); <span class="comment">//假设getA底层是通过数据库拿到的结果</span></span><br><span class="line">    <span class="keyword">if</span>(aResult &gt; <span class="number">5</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    List&lt;String&gt; bResults = bService.getBs(args[<span class="number">0</span>]); <span class="comment">//假设getBs是通过一个rpc服务拿到的结果</span></span><br><span class="line">    <span class="keyword">if</span>(bResults != <span class="literal">null</span> &amp;&amp; bResults.size() &gt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Student</span>();</span><br><span class="line">        student.setAge(aResult);</span><br><span class="line">        student.setName(bResults.get(<span class="number">0</span>));</span><br><span class="line">        <span class="keyword">return</span> student;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码中有3种逻辑走向会返回null，假如现在这块逻辑在生产环境突然返回了不符合预期的结果（比如应该返回student，却返回了null），需要排查问题，你会怎么做?</p>
+<p>你可能会想到利用<strong>可观测系统</strong>（即监控+日志+链路追踪）进行一系列分析，最终得出结论，但这只适用于上下游服务异常的情况(IO错误)，像上面这种情况各方调用都是正常的，仅仅是返回了不符合预期的结果而已，在这种场景下可观测系统就显得力不从心了。</p>
+<p>排查这类问题，最简单的方式就是给每个影响逻辑走向的地方打上追踪日志：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Student <span class="title function_">complexScene</span><span class="params">(String... args)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(args == <span class="literal">null</span> || args.length == <span class="number">0</span>) &#123;</span><br><span class="line">        log.debug(<span class="string">&quot;args == null or length == 0 is true! args=&#123;&#125;&quot;</span>, args); <span class="comment">//逻辑追踪日志</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="variable">aResult</span> <span class="operator">=</span> aService.getA(args[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">if</span>(aResult &gt; <span class="number">5</span>)&#123;</span><br><span class="line">        log.debug(<span class="string">&quot;aResult &gt; 5 is true! aResult=&#123;&#125;&quot;</span>, aResult); <span class="comment">//逻辑追踪日志</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    List&lt;String&gt; bResults = bService.getBs(args[<span class="number">0</span>]);</span><br><span class="line">    log.debug(<span class="string">&quot;bResults=&#123;&#125;&quot;</span>, bResults); <span class="comment">//逻辑追踪日志</span></span><br><span class="line">    <span class="keyword">if</span>(bResults != <span class="literal">null</span> &amp;&amp; bResults.size() &gt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Student</span>();</span><br><span class="line">        student.setAge(aResult);</span><br><span class="line">        student.setName(bResults.get(<span class="number">0</span>));</span><br><span class="line">        <span class="keyword">return</span> student;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就可以通过日志系统分析出逻辑走向。</p>
+<p>这只是个简单的例子，在实际开发中往往有巨复杂的逻辑，最典型的就是网关接口，内部可能聚合了高达十几个rpc服务的返回值，中间产生的条件判断逻辑更是数不胜数， 像这种场景一旦返回了不符合预期的结果，如果没有追踪日志排查起来将会极其痛苦。</p>
+<p>虽然通过追踪日志很容易排查出问题所在，但打印这些日志是麻烦的，你要考虑在哪里打，输出哪些数据，格式应该怎样，如何避免打印无意义的日志。<br>LogTrace就是用来解决这些问题的，它会<strong>自动解析语法树</strong>，在影响逻辑走向的地方<strong>植入风格统一</strong>的业务追踪日志，下面来看看它具体的用法。</p>
+<h3 id="Part2-导包"><a href="#Part2-导包" class="headerlink" title="Part2: 导包"></a>Part2: 导包</h3><p>将下面的jar包导入到你的项目中</p>
+<blockquote>
+<p>⚠️ 注意:<br>Slf4j和logback是必须的，如果你项目中已经引入了，就不用再引了<br>除了logback，引入其他Slf4j标准实现也可以，如log4j</p>
+</blockquote>
+<p>gradle：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">implementation <span class="string">&#x27;org.slf4j:slf4j-api:1.7.7&#x27;</span></span><br><span class="line">implementation <span class="string">&#x27;ch.qos.logback:logback-classic:1.2.9&#x27;</span></span><br><span class="line"></span><br><span class="line">compileOnly <span class="string">&#x27;io.github.exceting:log-trace:0.0.1-SNAPSHOT&#x27;</span></span><br><span class="line">annotationProcessor <span class="string">&#x27;io.github.exceting:log-trace:0.0.1-SNAPSHOT&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>maven：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.7<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ch.qos.logback<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>logback-classic<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.github.exceting<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log-trace<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">annotationProcessors</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">annotationProcessor</span>&gt;</span>io.github.exceting.cicada.tools.logtrace.LogTraceProcessor<span class="tag">&lt;/<span class="name">annotationProcessor</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">annotationProcessors</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>现在的包是snapshot版本（正式版需要进行更多的测试case后才能发布），所以要把sonatype的snapshot仓库依赖加进来：<br>gradle：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//将snapshot仓库加到repositories里</span></span><br><span class="line">maven &#123; url <span class="string">&quot;https://s01.oss.sonatype.org/content/repositories/snapshots/&quot;</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>maven：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 将snapshot仓库加到&lt;repositories&gt;里--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">repository</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>snapshots<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>sonatype snapshot<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://s01.oss.sonatype.org/content/repositories/snapshots/<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Part3-快速开始"><a href="#Part3-快速开始" class="headerlink" title="Part3: 快速开始"></a>Part3: 快速开始</h3><p>确定jar包和仓库已经配好后开始快速使用，首先在测试类上加<code>@Slf4jCheck</code>注解 </p>
+<p><img src="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-01.png" alt="@Slf4j注解"></p>
+<p>然后在需要被追踪的方法上加@MethodLog注解，运行效果如图: </p>
+<p><img src="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-02.png" alt="@MethodLog注解"></p>
+<h3 id="Part4-格式-基本原理"><a href="#Part4-格式-基本原理" class="headerlink" title="Part4: 格式&amp;基本原理"></a>Part4: 格式&amp;基本原理</h3><p>通过LogTrace植入的追踪日志统一格式如下： </p>
+<p><img src="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-03.png" alt="日志格式">LogTrace的工作原理与lombok一致，都是在编译期解析语法树，通过对应的注解增强原有代码，即在<code>编译期</code>修改源代码的方式实现， <a target="_blank" rel="noopener" href="https://exceting.github.io/2021/02/08/%E6%8F%92%E5%85%A5%E5%BC%8F%E6%B3%A8%E8%A7%A3%E5%A4%84%E7%90%86%E5%99%A8%E7%9A%84%E4%B8%80%E6%AC%A1%E4%BD%BF%E7%94%A8%E7%BB%8F%E5%8E%86/">参考这里</a> ，它是对java源代码的增强，除此之外还有增强字节码的技术，如asm和javassist。</p>
+<h3 id="Part5-注解-用法"><a href="#Part5-注解-用法" class="headerlink" title="Part5: 注解&amp;用法"></a>Part5: 注解&amp;用法</h3><h4 id="Slf4jCheck"><a href="#Slf4jCheck" class="headerlink" title="@Slf4jCheck"></a>@Slf4jCheck</h4><p>每个需要打追踪日志的类上都应该加上这个注解，加上此注解后，类内会自动创建一个Slf4j的Logger对象，作用等同于lombok的<code>@Slf4j</code>且兼容lombok。<br>它有一个属性：</p>
+<ul>
+<li>isOpen：用来控制是否输出追踪日志，默认为空（输出），支持定制AtomicBoolean开关，灵活控制是否输出日志，对全局方法生效，开关这块内容会放到自定义开关小节详细介绍，这里不再赘述。</li>
+</ul>
+<h4 id="MethodLog"><a href="#MethodLog" class="headerlink" title="@MethodLog"></a>@MethodLog</h4><p>除了要在类上加<code>@Slf4jCheck</code>，还要在每个需要植入追踪日志的方法上加上<code>@MethodLog</code>注解，程序运行起来后，只会给加了此注解的方法植入追踪日志。<br>它有6个属性：</p>
+<ul>
+<li><p>isOpen：默认为空，作用跟<code>@Slf4jCheck</code>里的isOpen一样，但优先级更高，仅对当前方法生效。</p>
+</li>
+<li><p>traceLevel：默认为Level.DEBUG，可通过此项定制追踪日志的级别。</p>
+</li>
+<li><p>exceptionLog：是否打印方法异常信息，为true时开启，默认false，它的增强效果如下：</p>
+<ul>
+<li><pre><code>// 原始代码
+@MethodLog(exceptionLog = true)
+void methodTest() &#123;
+    // 方法体省略...
+&#125;
+
+// ⬇⬇ 被LogTrace增强后的代码
+
+void methodTest() &#123;
+    try &#123;
+        // 方法体省略...
+    &#125; catch(Exception e) &#123; // try-catch
+        log.error(&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Error! Data: &quot;, e); // 输出错误日志（注：异常日志的级别强制为error）
+        throw e;
+    &#125;
+&#125;
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">- noThrow：需要和**exceptionLog**搭配使用，当它的值为<span class="keyword">true</span>时，则只<span class="keyword">catch</span>异常，不抛出异常，默认<span class="keyword">false</span>，它的增强效果如下：</span><br><span class="line"></span><br><span class="line">  - ```java</span><br><span class="line">    <span class="comment">// 原始代码</span></span><br><span class="line">    <span class="meta">@MethodLog</span>(exceptionLog = <span class="keyword">true</span>, noThrow = <span class="keyword">true</span>)</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">methodTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 方法体省略...</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">methodTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 方法体省略...</span></span><br><span class="line">      &#125; <span class="keyword">catch</span>(Exception e) &#123; <span class="comment">//仅输出日志，不再throw异常</span></span><br><span class="line">        log.<span class="keyword">error</span>(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Error! Data: &quot;</span>, e);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+</li>
+<li><p>dur：是否打印方法耗时？为true时开启，默认false，开启后的增强逻辑如下：</p>
+<ul>
+<li><pre><code class="java">// 原始代码
+@MethodLog(dur = true)
+void methodTest() &#123;
+  // 方法体省略...
+&#125;
+
+// ⬇⬇ 被LogTrace增强后的代码
+
+void methodTest() &#123;
+  // 植入的计数变量会加个UUID后缀，防止局部变量冲突
+  long start_$&#123;UUID&#125; = System.nanoTime();
+  try&#123;
+    // 方法体省略...
+  &#125; finally &#123; //打印出本方法执行耗时
+    log.debug(&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Finished! Data: duration = &#123;&#125;&quot;, (System.nanoTime()-start_$&#123;UUID&#125;)/1000000L);
+  &#125;
+&#125;
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- onlyVar：是否只打印变量追踪日志？默认<span class="keyword">false</span>，为<span class="keyword">false</span>时，那些加了**<span class="meta">@MethodLog</span>**的方法，会在所有**影响逻辑走势**的地方都加上追踪日志(即方法内任意地方的任意<span class="keyword">if</span>、<span class="keyword">if</span>-<span class="keyword">else</span>，<span class="keyword">switch</span>-<span class="keyword">case</span>语句)，增强效果如下：</span><br><span class="line"></span><br><span class="line">  - ```java</span><br><span class="line">    <span class="comment">// 原始代码</span></span><br><span class="line">    <span class="meta">@MethodLog</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">methodTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">int</span> a = <span class="number">2</span>;</span><br><span class="line">      <span class="keyword">if</span>(a == <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="comment">// 条件1命中</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 条件2命中</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">methodTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span>(a == <span class="number">2</span>) &#123; <span class="comment">// 这里会植入各条件命中时的追踪日志</span></span><br><span class="line">            log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][IF][LINE: 29] The condition: (a == 2) is true!&quot;</span>);</span><br><span class="line">            <span class="comment">// 条件1命中</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][IF][LINE: 31] The condition: else is true!&quot;</span>);</span><br><span class="line">            <span class="comment">// 条件2命中</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+如果onlyVar为true，这些日志将不再打印，这时就只会打印方法体中被**@VarLog**标注的局部变量日志(@VarLog后面会介绍)。
+
+如果你认为不需要那么详细的追踪日志，可以利用此项放弃这些日志。
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="VarLog"><a href="#VarLog" class="headerlink" title="@VarLog"></a>@VarLog</h4><p>对于方法体中局部变量的追踪，如果你要对方法体中某个局部变量感兴趣，可以在其声明的位置打上这个注解，之后这个变量的值会被追踪，增强过程如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原始代码</span></span><br><span class="line"><span class="meta">@MethodLog</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="meta">@VarLog</span> <span class="comment">//利用@VarLog追踪局部变量a</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> getA(); <span class="comment">//假设getA是调用另一个RPC服务来拿a的值</span></span><br><span class="line">    a=<span class="number">5</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> getA(); <span class="comment">//⬇追踪后会打印a的值</span></span><br><span class="line">    log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][VARIABLE][LINE: 28]  Data: a = &#123;&#125;&quot;</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;Integer.valueOf(a)&#125;);</span><br><span class="line">    a = <span class="number">5</span>; <span class="comment">//⬇之后局部变量在程序中的任意位置被重新赋值，都会将其新值打印出来</span></span><br><span class="line">    log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][VARIABLE][LINE: 31]  Data: a = &#123;&#125;&quot;</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;Integer.valueOf(a)&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除此之外，这个注解还包含一个dur属性，默认值为false，当设置为true时，会打印获取这个变量所消耗的时间。<br>对于复杂场景，你可以利用这个注解灵活的追踪任意变量，记录变量被赋予的所有值。</p>
+<h4 id="Ban"><a href="#Ban" class="headerlink" title="@Ban"></a>@Ban</h4><p>所有追踪日志在打印时，会无脑打印方法的入参，如果你不需要某个参数被打印，就给它加上这个注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原始代码</span></span><br><span class="line"><span class="meta">@MethodLog</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">(<span class="type">int</span> a, <span class="meta">@Ban</span> <span class="type">int</span> b, <span class="type">int</span> c)</span> &#123; <span class="comment">//禁止打印参数b</span></span><br><span class="line">    <span class="keyword">if</span>(a == <span class="number">1</span>)&#123;</span><br><span class="line">        <span class="comment">//业务代码省略...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> c)</span> &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">final_c</span> <span class="operator">=</span> c;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">final_a</span> <span class="operator">=</span> a;</span><br><span class="line">    <span class="keyword">if</span> (a == <span class="number">1</span>) &#123; <span class="comment">//⬇在植入的追踪日志中，打印入参时，只打印a和c，被@Ban修饰的b则不打印</span></span><br><span class="line">        log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][IF][LINE: 30] The condition: (a == 1) is true! Data: a = &#123;&#125;, c = &#123;&#125;&quot;</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;final_a, final_c&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Part6-自定义日志开关"><a href="#Part6-自定义日志开关" class="headerlink" title="Part6: 自定义日志开关"></a>Part6: 自定义日志开关</h3><p>LogTrace提供非常灵活的开关定制方式，在<code>@Slf4jCheck</code>和<code>@MethodLog</code>里面通过isOpen属性控制日志是否输出，默认输出，<code>@MethodLog</code>优先级更高。</p>
+<p>定制开关: 在任意类里定义一个开关，这个开关必须是static、final的AtomicBoolean对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">AtomicBoolean</span> <span class="variable">isOpen</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicBoolean</span>(<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+
+<p>利用<code>全限定名#开关名</code>的格式给isOpen属性赋值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4jCheck(isOpen = &quot;io.cicada.mock.tools.config.Test#isOpen&quot;)</span></span><br><span class="line"><span class="meta">@MethodLog(isOpen = &quot;io.cicada.mock.tools.config.Test#isOpen&quot;)</span></span><br></pre></td></tr></table></figure>
+
+<p>剩下的事情就很简单了，你可以写个定时任务定时从<code>配置系统</code>中获取具体的开关值，来刷新这个对象的值(注意刷新的时候只刷值，不要改开关的引用指针!)，从而利用配置系统灵活控制日志的输出：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OffOnTest</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 开关</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">AtomicBoolean</span> <span class="variable">isOpen</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicBoolean</span>(<span class="literal">false</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="type">ScheduledExecutorService</span> <span class="variable">refreshTask</span> <span class="operator">=</span> ThreadPools.newScheduledThreadPool(<span class="string">&quot;RefreshSwitch&quot;</span>, <span class="number">1</span>);</span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        refreshTask.scheduleWithFixedDelay(() -&gt; &#123;</span><br><span class="line">            <span class="comment">// 定时刷新开关值，具体从哪里获取开关状态，取决于你自己的需求，最典型的就是拉取远程配置系统里的值，这样你只需要更新配置系统里的配置，就能控制追踪日志是否打印</span></span><br><span class="line">            isOpen.set(当前开关值);</span><br><span class="line">        &#125;, <span class="number">5000</span>, <span class="number">5000</span>, TimeUnit.MILLISECONDS);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一些C端服务流量较高，如果担心日志的上报对性能有影响，可以通过开关来控制是否输出追踪日志。</p>
+<h3 id="Part7-lombok可以让它更好的工作"><a href="#Part7-lombok可以让它更好的工作" class="headerlink" title="Part7: lombok可以让它更好的工作"></a>Part7: lombok可以让它更好的工作</h3><p>利用lombok生成对象的toString方法，将对象整个打印出来: </p>
+<p><img src="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-04.png" alt="日志格式"></p>
+<h3 id="Part8-常见问题"><a href="#Part8-常见问题" class="headerlink" title="Part8: 常见问题"></a>Part8: 常见问题</h3><p>使用maven运行时可能出现类型转换错误异常：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java: java.lang.ClassCastException: class com.sun.proxy.$Proxy15 cannot be cast to class com.sun.tools.javac.processing.JavacProcessingEnvironment (com.sun.proxy.$Proxy15 is in unnamed module of loader java.net.URLClassLoader @59690aa4; com.sun.tools.javac.processing.JavacProcessingEnvironment is in module jdk.compiler of loader &#x27;app&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>解决：点开IDEA的settings选项，在弹出窗口找到如下位置 </p>
+<p><img src="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-05.png" alt="日志格式"></p>
+<p>将<code>-Djps.track.ap.dependencies</code>填入上图指定位置即可解决。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="https://myblog.sharemer.com/wx_qrcode.png" alt="胖虎 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="https://myblog.sharemer.com/alipay_qrcode.png" alt="胖虎 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/JVM/" rel="tag"><i class="fa fa-tag"></i> JVM</a>
+              <a href="/tags/%E6%B3%A8%E8%A7%A3%E5%A4%84%E7%90%86%E5%99%A8/" rel="tag"><i class="fa fa-tag"></i> 注解处理器</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/07/03/MySQL%E7%9F%A5%E8%AF%86%E6%95%B4%E5%90%88%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AInnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" rel="prev" title="MySQL知识整合（一）：InnoDB存储引擎">
+                  <i class="fa fa-angle-left"></i> MySQL知识整合（一）：InnoDB存储引擎
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胖虎</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">187k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">11:21</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/exceting" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"exceting","repo":"exceting.github.io","client_id":"bf1128ab98604ef89632","client_secret":"ccd78d69fca17fc20f0d794356d1100417b78d0a","admin_user":"exceting","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"77690f36c5cf5977cbd004cd4ef944e5"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

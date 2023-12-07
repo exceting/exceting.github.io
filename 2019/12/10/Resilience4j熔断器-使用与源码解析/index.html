@@ -19,16 +19,13 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="🌏 环境： 🌾 依赖版本： 🍃 知识依赖：JUC，位图">
+    <meta name="description" content="🌏 环境：JDK11     Intellij IDEA 2019.03 🌾 依赖版本：Resilience4j v0.13.2 🍃 知识依赖：JUC，位图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Resilience4j熔断器-使用与源码解析">
 <meta property="og:url" content="http://example.com/2019/12/10/Resilience4j%E7%86%94%E6%96%AD%E5%99%A8-%E4%BD%BF%E7%94%A8%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/index.html">
 <meta property="og:site_name" content="胖虎de文库">
-<meta property="og:description" content="🌏 环境： 🌾 依赖版本： 🍃 知识依赖：JUC，位图">
+<meta property="og:description" content="🌏 环境：JDK11     Intellij IDEA 2019.03 🌾 依赖版本：Resilience4j v0.13.2 🍃 知识依赖：JUC，位图">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://img.shields.io/badge/JDK-v11-orange">
-<meta property="og:image" content="https://img.shields.io/badge/IntelliJ%20IDEA-2019.03-blueviolet">
-<meta property="og:image" content="https://img.shields.io/badge/Resilience4j-v0.13.2-green">
 <meta property="og:image" content="http://myblog.sharemer.com/2019/12/10/20191210-1-1.png?imageView2/0/w/700">
 <meta property="og:image" content="http://myblog.sharemer.com/2019/12/10/20191210-1-2.png?imageView2/0/w/1024">
 <meta property="og:image" content="http://myblog.sharemer.com/2019/12/10/20191210-1-3.png?imageView2/0/w/900">
@@ -39,13 +36,13 @@
 <meta property="og:image" content="http://myblog.sharemer.com/2019/12/10/20191210-1-8.png?imageView2/0/w/1024">
 <meta property="og:image" content="http://myblog.sharemer.com/2019/12/10/20191210-1-9.png?imageView2/0/w/650">
 <meta property="article:published_time" content="2019-12-10T14:46:00.000Z">
-<meta property="article:modified_time" content="2023-12-04T03:21:51.325Z">
+<meta property="article:modified_time" content="2023-12-07T07:01:01.020Z">
 <meta property="article:author" content="胖虎">
 <meta property="article:tag" content="服务治理">
 <meta property="article:tag" content="Resilience4j">
 <meta property="article:tag" content="熔断&amp;限流">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://img.shields.io/badge/JDK-v11-orange">
+<meta name="twitter:image" content="http://myblog.sharemer.com/2019/12/10/20191210-1-1.png?imageView2/0/w/700">
 
 
 <link rel="canonical" href="http://example.com/2019/12/10/Resilience4j%E7%86%94%E6%96%AD%E5%99%A8-%E4%BD%BF%E7%94%A8%E4%B8%8E%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">
@@ -104,7 +101,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">54</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-留言"><a href="/messages/" rel="section"><i class="fa fa-envelope fa-fw"></i>留言</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">55</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">18</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">60</span></a></li><li class="menu-item menu-item-留言"><a href="/messages/" rel="section"><i class="fa fa-envelope fa-fw"></i>留言</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
   </ul>
 </nav>
 
@@ -144,7 +141,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -250,14 +247,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>31k</span>
+      <span>12k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>28 分钟</span>
+      <span>42 分钟</span>
     </span>
 </div>
 
@@ -268,8 +265,8 @@
     
     
     <div class="post-body" itemprop="articleBody"><blockquote>
-<p>🌏 环境：<img src="https://img.shields.io/badge/JDK-v11-orange"/><img src="https://img.shields.io/badge/IntelliJ%20IDEA-2019.03-blueviolet"/></p>
-<p>🌾 依赖版本：<img src="https://img.shields.io/badge/Resilience4j-v0.13.2-green"/></p>
+<p>🌏 环境：<code>JDK11</code>     <code>Intellij IDEA 2019.03</code></p>
+<p>🌾 依赖版本：<code>Resilience4j v0.13.2</code></p>
 <p>🍃 知识依赖：<code>JUC</code>，<code>位图</code></p>
 </blockquote>
 <span id="more"></span>
@@ -449,13 +446,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">454k</span>
+    <span title="站点总字数">187k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">6:53</span>
+    <span title="站点阅读时长">11:21</span>
   </span>
 </div>
 <div class="busuanzi-count">
