@@ -506,6 +506,8 @@ code {
   font-size: 0.875em;
   padding: 2px 4px;
   overflow-wrap: break-word;
+  background: rgba(255,0,74,0.071);
+  color: #e60048;
 }
 kbd {
   border: 2px solid #ccc;

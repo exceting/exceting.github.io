@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-04.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/exceting/OSSRH-96790/main/cicada-tools/log-trace/log-trace-05.png">
 <meta property="article:published_time" content="2023-08-25T06:56:56.000Z">
-<meta property="article:modified_time" content="2023-12-07T06:54:11.397Z">
+<meta property="article:modified_time" content="2023-12-17T06:01:06.557Z">
 <meta property="article:author" content="胖虎">
 <meta property="article:tag" content="JVM">
 <meta property="article:tag" content="注解处理器">
@@ -242,14 +242,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>9.1k</span>
+      <span>2.8k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>8 分钟</span>
+      <span>10 分钟</span>
     </span>
 </div>
 
@@ -309,55 +309,17 @@
 <li><p>traceLevel：默认为Level.DEBUG，可通过此项定制追踪日志的级别。</p>
 </li>
 <li><p>exceptionLog：是否打印方法异常信息，为true时开启，默认false，它的增强效果如下：</p>
-<ul>
-<li><pre><code>// 原始代码
-@MethodLog(exceptionLog = true)
-void methodTest() &#123;
-    // 方法体省略...
-&#125;
-
-// ⬇⬇ 被LogTrace增强后的代码
-
-void methodTest() &#123;
-    try &#123;
-        // 方法体省略...
-    &#125; catch(Exception e) &#123; // try-catch
-        log.error(&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Error! Data: &quot;, e); // 输出错误日志（注：异常日志的级别强制为error）
-        throw e;
-    &#125;
-&#125;
-<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">- noThrow：需要和**exceptionLog**搭配使用，当它的值为<span class="keyword">true</span>时，则只<span class="keyword">catch</span>异常，不抛出异常，默认<span class="keyword">false</span>，它的增强效果如下：</span><br><span class="line"></span><br><span class="line">  - ```java</span><br><span class="line">    <span class="comment">// 原始代码</span></span><br><span class="line">    <span class="meta">@MethodLog</span>(exceptionLog = <span class="keyword">true</span>, noThrow = <span class="keyword">true</span>)</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">methodTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 方法体省略...</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">methodTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 方法体省略...</span></span><br><span class="line">      &#125; <span class="keyword">catch</span>(Exception e) &#123; <span class="comment">//仅输出日志，不再throw异常</span></span><br><span class="line">        log.<span class="keyword">error</span>(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Error! Data: &quot;</span>, e);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原始代码</span></span><br><span class="line"><span class="meta">@MethodLog(exceptionLog = true)</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 方法体省略...</span></span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line"><span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 方法体省略...</span></span><br><span class="line">    &#125; <span class="keyword">catch</span>(Exception e) &#123; <span class="comment">// try-catch</span></span><br><span class="line">        log.error(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Error! Data: &quot;</span>, e); <span class="comment">// 输出错误日志（注：异常日志的级别强制为error）</span></span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
-</ul>
+<li><p>noThrow：需要和<strong>exceptionLog</strong>搭配使用，当它的值为true时，则只catch异常，不抛出异常，默认false，它的增强效果如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原始代码</span></span><br><span class="line"><span class="meta">@MethodLog(exceptionLog = true, noThrow = true)</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 方法体省略...</span></span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line"><span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 方法体省略...</span></span><br><span class="line">  &#125; <span class="keyword">catch</span>(Exception e) &#123; <span class="comment">//仅输出日志，不再throw异常</span></span><br><span class="line">    log.error(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Error! Data: &quot;</span>, e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>dur：是否打印方法耗时？为true时开启，默认false，开启后的增强逻辑如下：</p>
-<ul>
-<li><pre><code class="java">// 原始代码
-@MethodLog(dur = true)
-void methodTest() &#123;
-  // 方法体省略...
-&#125;
-
-// ⬇⬇ 被LogTrace增强后的代码
-
-void methodTest() &#123;
-  // 植入的计数变量会加个UUID后缀，防止局部变量冲突
-  long start_$&#123;UUID&#125; = System.nanoTime();
-  try&#123;
-    // 方法体省略...
-  &#125; finally &#123; //打印出本方法执行耗时
-    log.debug(&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Finished! Data: duration = &#123;&#125;&quot;, (System.nanoTime()-start_$&#123;UUID&#125;)/1000000L);
-  &#125;
-&#125;
-<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- onlyVar：是否只打印变量追踪日志？默认<span class="keyword">false</span>，为<span class="keyword">false</span>时，那些加了**<span class="meta">@MethodLog</span>**的方法，会在所有**影响逻辑走势**的地方都加上追踪日志(即方法内任意地方的任意<span class="keyword">if</span>、<span class="keyword">if</span>-<span class="keyword">else</span>，<span class="keyword">switch</span>-<span class="keyword">case</span>语句)，增强效果如下：</span><br><span class="line"></span><br><span class="line">  - ```java</span><br><span class="line">    <span class="comment">// 原始代码</span></span><br><span class="line">    <span class="meta">@MethodLog</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">methodTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">int</span> a = <span class="number">2</span>;</span><br><span class="line">      <span class="keyword">if</span>(a == <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="comment">// 条件1命中</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 条件2命中</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">methodTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span>(a == <span class="number">2</span>) &#123; <span class="comment">// 这里会植入各条件命中时的追踪日志</span></span><br><span class="line">            log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][IF][LINE: 29] The condition: (a == 2) is true!&quot;</span>);</span><br><span class="line">            <span class="comment">// 条件1命中</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][IF][LINE: 31] The condition: else is true!&quot;</span>);</span><br><span class="line">            <span class="comment">// 条件2命中</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-如果onlyVar为true，这些日志将不再打印，这时就只会打印方法体中被**@VarLog**标注的局部变量日志(@VarLog后面会介绍)。
-
-如果你认为不需要那么详细的追踪日志，可以利用此项放弃这些日志。
-</code></pre>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原始代码</span></span><br><span class="line"><span class="meta">@MethodLog(dur = true)</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="comment">// 方法体省略...</span></span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line"><span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="comment">// 植入的计数变量会加个UUID后缀，防止局部变量冲突</span></span><br><span class="line">  <span class="type">long</span> start_$&#123;UUID&#125; = System.nanoTime();</span><br><span class="line">  <span class="keyword">try</span>&#123;</span><br><span class="line">    <span class="comment">// 方法体省略...</span></span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123; <span class="comment">//打印出本方法执行耗时</span></span><br><span class="line">    log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][TRY][LINE: 5] Finished! Data: duration = &#123;&#125;&quot;</span>, (System.nanoTime()-start_$&#123;UUID&#125;)/<span class="number">1000000L</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
-</ul>
+<li><p>onlyVar：是否只打印变量追踪日志？默认false，为false时，那些加了<b>@MethodLog</b>的方法，会在所有<b>影响逻辑走势</b>的地方都加上追踪日志(即方法内任意地方的任意if、if-else，switch-case语句)，增强效果如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原始代码</span></span><br><span class="line"><span class="meta">@MethodLog</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line">  <span class="keyword">if</span>(a == <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="comment">// 条件1命中</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 条件2命中</span></span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line"><span class="comment">// ⬇⬇ 被LogTrace增强后的代码</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">void</span> <span class="title function_">methodTest</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span>(a == <span class="number">2</span>) &#123; <span class="comment">// 这里会植入各条件命中时的追踪日志</span></span><br><span class="line">        log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][IF][LINE: 29] The condition: (a == 2) is true!&quot;</span>);</span><br><span class="line">        <span class="comment">// 条件1命中</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        log.debug(<span class="string">&quot;LOG_TRACE &gt;&gt;&gt;&gt;&gt;&gt; OUTPUT: [METHOD: methodTest][IF][LINE: 31] The condition: else is true!&quot;</span>);</span><br><span class="line">        <span class="comment">// 条件2命中</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果onlyVar为true，这些日志将不再打印，这时就只会打印方法体中被<b>@VarLog</b>标注的局部变量日志(@VarLog后面会介绍)。<br>如果你认为不需要那么详细的追踪日志，可以利用此项放弃这些日志。</p>
 </li>
 </ul>
 <h4 id="VarLog"><a href="#VarLog" class="headerlink" title="@VarLog"></a>@VarLog</h4><p>对于方法体中局部变量的追踪，如果你要对方法体中某个局部变量感兴趣，可以在其声明的位置打上这个注解，之后这个变量的值会被追踪，增强过程如下：</p>
@@ -457,13 +419,13 @@ void methodTest() &#123;
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">464k</span>
+    <span title="站点总字数">187k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:02</span>
+    <span title="站点阅读时长">11:21</span>
   </span>
 </div>
 <div class="busuanzi-count">
